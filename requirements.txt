@@ -1,0 +1,6 @@
+pymongo==3.4.0
+opensimplex==0.2
+pygame==1.9.3
+pyzmq==16.0.2
+bson==0.4.7
+pyknon==1.2

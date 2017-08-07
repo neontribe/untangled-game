@@ -43,6 +43,7 @@ class Player():
         self.initial_position = (0, 0)
         self.animation_ticker = 0
         self.set_position(self.initial_position)
+        self.team = None
 
     def __raiseNoPosition(self):
         raise PlayerException({"message": "Player does not have a position set", "player": self})
@@ -109,7 +110,15 @@ class Player():
 
     def render(self):
         font = pygame.font.Font(client.font, 30)
-        name_tag = font.render(self.name, False, (255, 255, 255))
+
+        name_tag_colour = (255, 255, 255)
+        if self.team:
+            if self.team == "blue":
+                name_tag_colour = (0, 0, 255)
+            elif self.team == "red":
+                name_tag_colour = (255, 0, 0)
+
+        name_tag = font.render(self.name, False, name_tag_colour)
 
         centre = self.map.get_pixel_pos(self.x, self.y)
 
@@ -180,6 +189,9 @@ class Player():
         self.cast_spells.remove(spell)
         return
 
+    def set_team(self, team):
+        self.team = team
+
 class Spell():
     def __init__(self, player, velocity, position=None, size=(0.25, 0.25), colour=(0,0,0), life=100):
         self.player = player
@@ -243,21 +255,51 @@ class Spell():
             pass
 
 class PlayerManager():
-    def __init__(self, me):
+    def __init__(self, me, network):
         self.me = me
+        self.network = network
         self.me.load_from_config()
         self.others = {}
+        self.authority_uuid = ''
+
+    def set_teams(self, teams):
+        blue_team = teams.get('blue')
+        red_team = teams.get('red')
+
+        # Set team for current player
+        self_uuid = str(self.network.node.uuid())
+
+        if self_uuid in blue_team:
+            self.me.set_team("blue")
+        elif self_uuid in red_team:
+            self.me.set_team("red")
+
+        # Set teams for other players
+        for uuid, player in self.others:
+            str_uuid = str(uuid)
+            if str_uuid in blue_team:
+                player.set_team("blue")
+            elif str_uuid in red_team:
+                player.set_team("red")
+
 
     def set(self, players):
         newPlayers = {}
         for uuid in players:
-            random.seed(uuid)
-            newPlayers[uuid] = self.others.get(uuid, Player(self.me.screen, self.me.map, 0))
+            if str(uuid) == self.authority_uuid:
+                continue
+
+            random.seed(str(uuid))
+            newPlayers[str(uuid)] = self.others.get(str(uuid), Player(self.me.screen, self.me.map, 0))
         self.others = newPlayers
-        print(self.others)
+        # print(self.others)
 
     def all(self):
         return list(self.others.values()).push(self.me)
 
+    def remove(self, uuid):
+        if str(uuid) in self.others:
+            del self.others[str(uuid)]
+
     def get(self, uuid):
-        return self.others[uuid]
+        return self.others[str(uuid)]

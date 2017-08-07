@@ -9,6 +9,7 @@ class Network():
         self.node.start()
         self.node.join("world:position")
         self.node.join("world:combat")
+        self.node.join("ctf:teams")
 
         self.poller = zmq.Poller()
         self.poller.register(self.node.socket(), zmq.POLLIN)

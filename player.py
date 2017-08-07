@@ -26,14 +26,13 @@ class PlayerException(Exception):
     pass
 
 class Player():
-    def __init__(self, screen, map, team):
+    def __init__(self, screen, map):
         self.screen = screen
         self.map = map
         self.ready = False
         self.is_centre = False
         self.size = (map_module.TILE_PIX_WIDTH, map_module.TILE_PIX_HEIGHT)
         self.step = 1
-        self.team = team
         self.cast_spells = []
         self.spell_limit = 50
         self.mute = 'True'
@@ -290,7 +289,7 @@ class PlayerManager():
                 continue
 
             random.seed(str(uuid))
-            newPlayers[str(uuid)] = self.others.get(str(uuid), Player(self.me.screen, self.me.map, 0))
+            newPlayers[str(uuid)] = self.others.get(str(uuid), Player(self.me.screen, self.me.map))
         self.others = newPlayers
         # print(self.others)
 

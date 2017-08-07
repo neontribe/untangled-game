@@ -47,7 +47,7 @@ class GameClient():
     def __init__(self):
         self.network = Network()
         self.setup_pygame()
-        me = Player(self.screen, self.map, 0)
+        me = Player(self.screen, self.map)
         self.players = PlayerManager(me, self.network)
         self.map.set_centre_player(self.players.me)
         self.menu = MainMenu(self.screen, self.players)
@@ -254,7 +254,7 @@ class GameClient():
                             print(traceback.format_exc())
                             pass
 
-                    # if there are other peers we can start sending to groups (>1 because the first is the aut
+                    # if there are other peers we can start sending to groups.
                     if self.players.others:
                         self.network.node.shout("world:position", bson.dumps(me.get_position()._asdict()))
                         if cast == True:

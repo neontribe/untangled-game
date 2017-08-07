@@ -169,7 +169,7 @@ class GameClient():
                     # Handle controller input by setting flags (move, neutral)
                     # and using timers (delay, pressed).
                     # Move if pressed timer is greater than delay.
-                    if(pygame.joystick.get_count() > 0 and False):
+                    if(pygame.joystick.get_count() > 0 and me.name != "windowstester"):
                         joystick = pygame.joystick.Joystick(0)
                         move = False
                         delay = 100

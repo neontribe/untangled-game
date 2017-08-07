@@ -56,7 +56,6 @@ class SaveLevel(Level):
         for index, tile in enumerate(layer.tiles):
             x = index % self.width
             y = index // self.width
-            print(tile.gid)
             if tile.gid == 54: # bush block
                 self.grid[y][x] = TileType.BUSH
             elif tile.gid == 80: # tree

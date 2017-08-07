@@ -18,7 +18,7 @@ from map import *
 from network import Network
 from player import *
 from screen import MainMenu
-from level import ProceduralLevel
+from level import SaveLevel
 from tile import Tileset
 from music import LevelMusic
 
@@ -74,7 +74,7 @@ class GameClient():
             pygame.locals.KEYDOWN])
 
         self.levels = {
-            "main": ProceduralLevel(42)
+            "main": SaveLevel('./assets/maps/CAPFLAG MAP')
         }
 
         self.map = Map(
@@ -227,8 +227,6 @@ class GameClient():
                     if events:
                         try:
                             for event in self.network.get_events():
-                                #print(event.peer_uuid, event.type, event.group, event.msg)
-
                                 if event.group == "world:position":
                                     new_position = bson.loads(event.msg[0])
                                     network_player = self.players.get(event.peer_uuid)

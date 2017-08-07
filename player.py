@@ -41,8 +41,18 @@ class Player():
         self.tileset = Tileset(client.player_animation_tileset_path, (3, 4), (32, 32))
         self.name = ''
         self.x, self.y = (0, 0)
-        self.initial_position = (0, 0)
         self.animation_ticker = 0
+
+        self.initial_position = (0, 0)
+        found = False
+        for x in range(map.level.width):
+            for y in range(map.level.height):
+                if map.level.can_move_to(x, y):
+                    self.initial_position = (x, y)
+                    found = True
+                    break
+            if found:
+                break
         self.set_position(self.initial_position)
 
     def __raiseNoPosition(self):
@@ -54,8 +64,6 @@ class Player():
 
         config['Player'] = {}
         config['Player']['name'] = self.name
-        config['Player']['x'] = str(self.x)
-        config['Player']['y'] = str(self.y)
         config['Player']['mute'] = str(self.mute)
 
         with open('player_save', 'w') as configfile:
@@ -71,12 +79,6 @@ class Player():
             player_save_info = config['Player']
 
             self.set_name(player_save_info['name'])
-            self.set_position(
-                (
-                    int(player_save_info['x']),
-                    int(player_save_info['y'])
-                )
-            )
             self.set_mute(player_save_info.get('mute', 'True'))
             return True
 

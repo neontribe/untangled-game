@@ -10,7 +10,6 @@ import client
 from tile import Tileset
 import map as map_module
 
-
 class Movement(Enum):
     UP = 1
     RIGHT = 2
@@ -27,14 +26,14 @@ class PlayerException(Exception):
     pass
 
 class Player():
-    def __init__(self, screen, map, colour=(255, 255, 255)):
+    def __init__(self, screen, map, team):
         self.screen = screen
         self.map = map
         self.ready = False
         self.is_centre = False
         self.size = (map_module.TILE_PIX_WIDTH, map_module.TILE_PIX_HEIGHT)
         self.step = 1
-        self.colour = colour
+        self.team = team
         self.cast_spells = []
         self.spell_limit = 50
         self.mute = 'True'
@@ -253,9 +252,9 @@ class PlayerManager():
         newPlayers = {}
         for uuid in players:
             random.seed(uuid)
-            colour = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-            newPlayers[uuid] = self.others.get(uuid, Player(self.me.screen, self.me.map, colour=colour))
+            newPlayers[uuid] = self.others.get(uuid, Player(self.me.screen, self.me.map, 0))
         self.others = newPlayers
+        print(self.others)
 
     def all(self):
         return list(self.others.values()).push(self.me)

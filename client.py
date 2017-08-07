@@ -47,7 +47,7 @@ class GameClient():
     def __init__(self):
         self.network = Network()
         self.setup_pygame()
-        me = Player(self.screen, self.map)
+        me = Player(self.screen, self.map,  0)
         self.players = PlayerManager(me)
         self.map.set_centre_player(self.players.me)
         self.menu = MainMenu(self.screen, self.players)

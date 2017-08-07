@@ -166,8 +166,8 @@ class MainMenu(Screen):
                         #QUIT
                         return GameState.QUIT
         elif(self.state == MenuState.RESUME):
-            if event.type == pygame.locals.KEYDOWN:
-                if event.key == pygame.locals.K_SPACE:
+            if event.type == pygame.locals.KEYDOWN or event.type == pygame.locals.JOYBUTTONDOWN:
+                if event.key == pygame.locals.K_SPACE or event.get_button(1):
                     self.info_message = ''
 
                     if(self.selected == 0):

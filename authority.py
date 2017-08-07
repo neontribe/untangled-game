@@ -88,26 +88,6 @@ class Authority():
                     print(traceback.format_exc())
                     pass
 
-            # # if there are other peers we can start sending to groups
-            # if self.players.others:
-            #     self.network.node.shout("world:position", bson.dumps(me.get_position()._asdict()))
-            #     if cast == True:
-            #         self.network.node.shout("world:combat", bson.dumps(me.cast_spells[-1].get_properties()._asdict()))
-            #         cast = False
-            # for playerUUID, player in self.players.others.items():
-            #     try:
-            #         player.render()
-            #         for spell in player.cast_spells:
-            #             spell.render()
-            #             spell.hit_target(me)
-            #
-            #     except PlayerException as e:
-            #         # PlayerException due to no initial position being set for that player
-            #         print(e)
-            #         pass
-
-
-
     def poll(self):
         return dict(self.poller.poll(0))
 

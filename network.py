@@ -5,10 +5,11 @@ from pyre import Pyre
 class Network():
     def __init__(self):
         self.node = Pyre("GAME_NODE")
-        self.node.set_header("HELLO", "ABC")
+        self.node.set_header("AUTHORITY", "FALSE")
         self.node.start()
         self.node.join("world:position")
         self.node.join("world:combat")
+        self.node.join("ctf:teams")
 
         self.poller = zmq.Poller()
         self.poller.register(self.node.socket(), zmq.POLLIN)

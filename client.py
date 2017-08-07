@@ -9,7 +9,7 @@ import zmq
 import pdb
 import bson
 import uuid
-from pyre import Pyre
+from pyre import Pyre, pyre_event
 from pyre import zhelper
 from collections import namedtuple
 from enum import Enum
@@ -48,7 +48,7 @@ class GameClient():
         self.network = Network()
         self.setup_pygame()
         me = Player(self.screen, self.map)
-        self.players = PlayerManager(me)
+        self.players = PlayerManager(me, self.network)
         self.map.set_centre_player(self.players.me)
         self.menu = MainMenu(self.screen, self.players)
 
@@ -222,11 +222,19 @@ class GameClient():
                         spell.render()
 
                     self.players.set(self.network.node.peers())
+
                     # check network
                     events = self.network.get_events()
                     if events:
                         try:
                             for event in self.network.get_events():
+                                #print(event.peer_uuid, event.type, event.group, event.msg)
+                                if event.type == 'ENTER':
+                                    auth_status = event.headers.get('AUTHORITY')
+                                    if auth_status == 'TRUE':
+                                        self.players.authority_uuid = str(event.peer_uuid)
+                                        self.players.remove(event.peer_uuid)
+
                                 if event.group == "world:position":
                                     new_position = bson.loads(event.msg[0])
                                     network_player = self.players.get(event.peer_uuid)
@@ -235,6 +243,10 @@ class GameClient():
                                     network_spell_caster = self.players.get(event.peer_uuid)
                                     network_spell_caster.cast_spells.append(Spell(network_spell_caster, (0, 0)))
                                     network_spell_caster.cast_spells[-1].set_properties(SpellProperties(**new_spell_properties))
+                                if event.group == "ctf:teams":
+                                    if event.type == "SHOUT":
+                                        team_defs = bson.loads(event.msg[0])
+                                        self.players.set_teams(team_defs)
 
                                 if network_player:
                                     network_player.set_position(Position(**new_position))
@@ -245,7 +257,7 @@ class GameClient():
                             print(traceback.format_exc())
                             pass
 
-                    # if there are other peers we can start sending to groups
+                    # if there are other peers we can start sending to groups.
                     if self.players.others:
                         if toMove == True or cast == True:
                             self.network.node.shout("world:position", bson.dumps(me.get_position()._asdict()))

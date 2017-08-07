@@ -26,8 +26,8 @@ white = (255,255,255)
 black = (0,0,0)
 red = (255, 0, 0)
 
-width = 1500
-height = 1500
+width = 1024
+height = 1024
 
 font = 'assets/fonts/alterebro-pixel-font.ttf'
 level_tileset_path = 'assets/tilesets/main.png'

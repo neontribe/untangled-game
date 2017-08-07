@@ -99,6 +99,8 @@ class GameClient():
         clock = pygame.time.Clock()
         tickspeed = 60
         last_direction = None
+        toMove = False # Flag for when player moves - reduces network stress
+        getMove = False # Flag for connecting to send initial positions
         cast = False # Flag for when player casts spell.
         me = self.players.me
 
@@ -144,17 +146,22 @@ class GameClient():
                             if event.key == pygame.locals.K_UP:
                                 me.move(Movement.UP)
                                 last_direction = Movement.UP
+                                toMove = True
                             elif event.key == pygame.locals.K_DOWN:
                                 me.move(Movement.DOWN)
                                 last_direction = Movement.DOWN
+                                toMove = True
                             elif event.key == pygame.locals.K_LEFT:
                                 me.move(Movement.LEFT)
                                 last_direction = Movement.LEFT
+                                toMove = True
                             elif event.key == pygame.locals.K_RIGHT:
                                 me.move(Movement.RIGHT)
                                 last_direction = Movement.RIGHT
+                                toMove = True
                             elif event.key == pygame.locals.K_RETURN:
                                 cast = True
+                                getMove = True
                                 me.attack(Action.SPELL, last_direction)
                             pygame.event.clear(pygame.locals.KEYDOWN)
 
@@ -162,7 +169,7 @@ class GameClient():
                     # Handle controller input by setting flags (move, neutral)
                     # and using timers (delay, pressed).
                     # Move if pressed timer is greater than delay.
-                    if(pygame.joystick.get_count() > 0 and me.name != "windowstester"):
+                    if(pygame.joystick.get_count() > 0 and not me.name.startswith("windows")):
                         joystick = pygame.joystick.Joystick(0)
                         move = False
                         delay = 100
@@ -189,27 +196,24 @@ class GameClient():
                             if y_axis > 0.5:
                                 me.move(Movement.DOWN)
                                 last_direction = Movement.DOWN
+                                toMove = True
                             if y_axis < -0.5:
                                 me.move(Movement.UP)
                                 last_direction = Movement.UP
+                                toMove = True
                             # left/right
                             if x_axis > 0.5:
                                 me.move(Movement.RIGHT)
                                 last_direction = Movement.RIGHT
+                                toMove = True
                             if x_axis < -0.5:
                                 me.move(Movement.LEFT)
                                 last_direction = Movement.LEFT
+                                toMove = True
                         # A
                         if joystick.get_button(1):
                             cast = True
-                            if last_direction == Movement.LEFT:
-                                me.attack(Action.SPELL, Movement.LEFT)
-                            elif last_direction == Movement.UP:
-                                me.attack(Action.SPELL, Movement.UP)
-                            elif last_direction == Movement.DOWN:
-                                me.attack(Action.SPELL, Movement.DOWN)
-                            else:
-                                me.attack(Action.SPELL, Movement.RIGHT)
+                            me.attack(Action.SPELL, last_direction)
                         last_update = pygame.time.get_ticks()
 
                     self.map.render()
@@ -245,10 +249,13 @@ class GameClient():
 
                     # if there are other peers we can start sending to groups
                     if self.players.others:
-                        self.network.node.shout("world:position", bson.dumps(me.get_position()._asdict()))
+                        if toMove == True or cast == True:
+                            self.network.node.shout("world:position", bson.dumps(me.get_position()._asdict()))
+                            toMove = False
                         if cast == True:
                             self.network.node.shout("world:combat", bson.dumps(me.cast_spells[-1].get_properties()._asdict()))
                             cast = False
+
                     for playerUUID, player in self.players.others.items():
                         try:
                             player.render()

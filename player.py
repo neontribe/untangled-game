@@ -37,7 +37,7 @@ class Player():
         self.spell_limit = 50
         self.mute = 'True'
         self.tileset = Tileset(client.player_animation_tileset_path, (3, 4), (32, 32))
-        self.name = 'FLOB'
+        self.name = ''
         self.x, self.y = (0, 0)
         self.initial_position = (0, 0)
         self.animation_ticker = 0

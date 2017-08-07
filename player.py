@@ -224,6 +224,7 @@ class Spell():
     #destroy the spell
     def destroy(self):
         self.player.remove_spell(self)
+        del(self)
 
     def get_properties(self):
         return SpellProperties(self.x, self.y, self.velo_x, self.velo_y)

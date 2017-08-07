@@ -223,7 +223,7 @@ class GameClient():
                     if events:
                         try:
                             for event in self.network.get_events():
-                                print(event.peer_uuid, event.type, event.group, event.msg)
+                                #print(event.peer_uuid, event.type, event.group, event.msg)
 
                                 if event.group == "world:position":
                                     new_position = bson.loads(event.msg[0])

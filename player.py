@@ -274,7 +274,7 @@ class PlayerManager():
             self.me.set_team("red")
 
         # Set teams for other players
-        for uuid, player in self.others:
+        for uuid, player in self.others.items():
             str_uuid = str(uuid)
             if str_uuid in blue_team:
                 player.set_team("blue")

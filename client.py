@@ -134,6 +134,8 @@ class GameClient():
                     self.game_state = GameState.MENU
                 else:
                     # handle inputs
+                    if last_direction == None:
+                        last_direction = Movement.DOWN
                     for event in pygame.event.get():
                         if event.type == pygame.QUIT or event.type == pygame.locals.QUIT:
                             running = False

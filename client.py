@@ -206,6 +206,17 @@ class GameClient():
                             if x_axis < -0.5:
                                 me.move(Movement.LEFT)
                                 last_direction = Movement.LEFT
+                        # A
+                        if joystick.get_button(1):
+                            cast = True
+                            if last_direction == Movement.LEFT:
+                                me.attack(Action.SPELL, Movement.LEFT)
+                            elif last_direction == Movement.UP:
+                                me.attack(Action.SPELL, Movement.UP)
+                            elif last_direction == Movement.DOWN:
+                                me.attack(Action.SPELL, Movement.DOWN)
+                            else:
+                                me.attack(Action.SPELL, Movement.RIGHT)
                         last_update = pygame.time.get_ticks()
 
                     self.map.render()

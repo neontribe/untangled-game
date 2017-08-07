@@ -156,16 +156,18 @@ class Player():
 
         return Position(self.x, self.y)
 
-    def attack(self, action, direction):
+    def attack(self, action, direction,position=None):
         if action == Action.SPELL:
             if direction == Movement.UP:
-                spell = Spell(self, (0, -0.25))
+                spell = Spell(self, (0, -0.25),position)
             elif direction == Movement.RIGHT:
-                spell = Spell(self, (0.25, 0))
+                spell = Spell(self, (0.25, 0),position)
             elif direction == Movement.DOWN:
-                spell = Spell(self, (0, 0.25))
+                spell = Spell(self, (0, 0.25),position)
             elif direction == Movement.LEFT:
-                spell = Spell(self, (-0.25, 0))
+                spell = Spell(self, (-0.25, 0),position)
+            else:
+                spell = Spell(self, direction,position)
 
             # Remove first element of list if limit reached.
             if len(self.cast_spells) > self.spell_limit:
@@ -200,7 +202,7 @@ class Spell():
         newSize = self.life/self.maxLife #random.randrange(100)/100
         self.size = (newSize,newSize)
         if(self.life <= 0):
-            self.player.remove_spell(self)
+            self.destroy()
 
         self.life -= 1
 
@@ -219,6 +221,10 @@ class Spell():
         self.x += self.velo_x
         self.y += self.velo_y
 
+    #destroy the spell
+    def destroy(self):
+        self.player.remove_spell(self)
+
     def get_properties(self):
         return SpellProperties(self.x, self.y, self.velo_x, self.velo_y)
 
@@ -226,7 +232,8 @@ class Spell():
         self.x, self.y, self.velo_x, self.velo_y = properties
 
     def set_position(self, position):
-        self.x, self.y = position
+        self.x = position[0] + 0.5 - (self.size[0] / 2)
+        self.y = position[1] + 0.5 - (self.size[1] / 2)
 
     def set_velocity(self, velocity):
         self.velo_x, self.velo_y = velocity

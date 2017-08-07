@@ -1,11 +1,10 @@
 import zmq
 from pyre import Pyre
 
-
 class Network():
     def __init__(self):
         self.node = Pyre("GAME_NODE")
-        self.node.set_header("HELLO", "ABC")
+        self.node.set_header("playername", "")
         self.node.start()
         self.node.join("world:position")
         self.node.join("world:combat")
@@ -17,6 +16,7 @@ class Network():
         return dict(self.poller.poll(0))
 
     def peers(self):
+        print(self.node.peers())
         return self.node.peers()
 
     def stop(self):

@@ -47,8 +47,8 @@ class GameClient():
     def __init__(self):
         self.network = Network()
         self.setup_pygame()
-        me = Player(self.screen, self.map)
-        self.players = PlayerManager(me)
+        me = Player(self.screen, self.map, self.network)
+        self.players = PlayerManager(me, self.network)
         self.map.set_centre_player(self.players.me)
         self.menu = MainMenu(self.screen, self.players)
 
@@ -214,13 +214,14 @@ class GameClient():
                         spell.render()
 
                     self.players.set(self.network.node.peers())
+                    print(self.network.node.peers())
                     # check network
                     events = self.network.get_events()
                     if events:
                         try:
                             for event in self.network.get_events():
                                 print(event.peer_uuid, event.type, event.group, event.msg)
-
+                                
                                 if event.group == "world:position":
                                     new_position = bson.loads(event.msg[0])
                                     network_player = self.players.get(event.peer_uuid)

@@ -27,7 +27,7 @@ class PlayerException(Exception):
     pass
 
 class Player():
-    def __init__(self, screen, map, colour=(255, 255, 255)):
+    def __init__(self, screen, map, network, colour=(255, 255, 255)):
         self.screen = screen
         self.map = map
         self.ready = False
@@ -44,6 +44,7 @@ class Player():
         self.initial_position = (0, 0)
         self.animation_ticker = 0
         self.set_position(self.initial_position)
+        self.network = network
 
     def __raiseNoPosition(self):
         raise PlayerException({"message": "Player does not have a position set", "player": self})
@@ -83,6 +84,8 @@ class Player():
         return False
 
     def set_name(self, name, save = False):
+        self.network.node.set_header("playername", name)
+        
         self.name = name
         if save: self.save_to_config()
 
@@ -219,18 +222,20 @@ class Spell():
             pass
 
 class PlayerManager():
-    def __init__(self, me):
+    def __init__(self, me, network):
         self.me = me
+        self.network = network
         self.me.load_from_config()
         self.others = {}
 
     def set(self, players):
         newPlayers = {}
-        for uuid in players:
+        for uuid, player in enumerate(players):
             random.seed(uuid)
             colour = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-            newPlayers[uuid] = self.others.get(uuid, Player(self.me.screen, self.me.map, colour=colour))
-            newPlayers[uuid].set_name(str(uuid))
+            newPlayers[uuid] = self.others.get(uuid, Player(self.me.screen, self.me.map, self.network, colour=colour))
+            print(uuid)
+            #newPlayers[uuid].set_name(str(player.name))
         self.others = newPlayers
 
     def all(self):

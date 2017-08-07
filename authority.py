@@ -6,6 +6,7 @@ from pyre import Pyre
 
 from player import PlayerManager
 
+
 class AuthorityPlayerManager():
     def __init__(self):
         self.players = {}
@@ -21,9 +22,11 @@ class AuthorityPlayerManager():
     def get(self, uuid):
         return self.players[str(uuid)]
 
+
 class Player():
     def __init__(self, uuid):
         self.uuid = uuid
+
 
 class Authority():
     def __init__(self):
@@ -50,11 +53,11 @@ class Authority():
 
         # Check for removed players in RED
         for i, playerUUID in enumerate(red_players):
-            if not playerUUID in self.players.players.items():
+            if playerUUID not in self.players.players.keys():
                 red_players.pop(i)
         # Check for removed players in BLUE
         for i, playerUUID in enumerate(blue_players):
-            if not playerUUID in self.players.players.items():
+            if  playerUUID not in self.players.players.keys():
                 blue_players.pop(i)
 
         # Add new players
@@ -102,5 +105,6 @@ class Authority():
         if self.node.socket() in changes and changes[self.node.socket()] == zmq.POLLIN:
             events = self.node.recent_events()
             return events
+
 
 authority = Authority()

@@ -230,6 +230,7 @@ class PlayerManager():
             random.seed(uuid)
             colour = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
             newPlayers[uuid] = self.others.get(uuid, Player(self.me.screen, self.me.map, colour=colour))
+            newPlayers[uuid].set_name(str(uuid))
         self.others = newPlayers
 
     def all(self):

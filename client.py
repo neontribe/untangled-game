@@ -100,7 +100,6 @@ class GameClient():
         tickspeed = 60
         last_direction = None
         toMove = False # Flag for when player moves - reduces network stress
-        getMove = False # Flag for connecting to send initial positions
         cast = False # Flag for when player casts spell.
         me = self.players.me
 
@@ -161,7 +160,6 @@ class GameClient():
                                 toMove = True
                             elif event.key == pygame.locals.K_RETURN:
                                 cast = True
-                                getMove = True
                                 me.attack(Action.SPELL, last_direction)
                             pygame.event.clear(pygame.locals.KEYDOWN)
 

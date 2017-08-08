@@ -4,6 +4,7 @@ import math
 import random
 import pygame
 import configparser
+
 from pygame.rect import Rect
 
 import client
@@ -43,9 +44,12 @@ class Player():
         self.x, self.y = (0, 0)
         self.animation_ticker = 0
         self.network = network
+        self.steptime = 0
+        self.can_step_ability = True
 
         self.initial_position = map.level.get_place(Place.RED_SPAWN)
         self.set_position(self.initial_position)
+
         self.team = None
 
     def __raiseNoPosition(self):
@@ -144,6 +148,7 @@ class Player():
         tmp_x = 0
         tmp_y = 0
 
+        # while (can keep moving) and (x difference is not more than step) and (y difference is not more than step)
         while self.map.level.can_move_to(self.x + tmp_x, self.y + tmp_y) and abs(tmp_x) <= self.step and abs(tmp_y) <= self.step:
             if direction == Movement.RIGHT:
                 tmp_x += 1

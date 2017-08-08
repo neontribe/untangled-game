@@ -9,6 +9,7 @@ import zmq
 import pdb
 import bson
 import uuid
+import webbrowser
 from pyre import Pyre, pyre_event
 from pyre import zhelper
 from collections import namedtuple
@@ -17,6 +18,7 @@ from enum import Enum
 from map import *
 from network import Network
 from player import *
+from flag import *
 from screen import MainMenu
 from level import SaveLevel
 from tile import Tileset
@@ -50,6 +52,7 @@ class GameClient():
         me = Player(self.screen, self.map, self.network)
 
         self.players = PlayerManager(me, self.network)
+        self.flags = [Flag(self.screen, self.map, "red"), Flag(self.screen, self.map, "blue")]
         self.map.set_centre_player(self.players.me)
         self.menu = MainMenu(self.screen, self.players)
 
@@ -103,6 +106,7 @@ class GameClient():
         toMove = False # Flag for when player moves - reduces network stress
         cast = False # Flag for when player casts spell.
         me = self.players.me
+        flags = self.flags
 
         if me.mute == "False":
             LevelMusic.play_music_repeat()
@@ -123,7 +127,7 @@ class GameClient():
                     running = False
                     break
                 elif(self.game_state.value == GameState.HELP.value):
-                    print("Help menu option pressed")
+                    webbrowser.open_new_tab("https://github.com/neontribe/untangled-2017/wiki")
                     self.game_state = GameState.MENU
                 elif(self.game_state.value == GameState.MUTE.value):
                     if me.mute == "False":
@@ -164,13 +168,23 @@ class GameClient():
                             elif event.key == pygame.locals.K_RETURN or event.key == pygame.locals.K_SPACE :
                                 cast = True
                                 me.attack(Action.SPELL, last_direction)
+                                
+                            if event.key == pygame.locals.K_r and me.can_step_ability:
+                                me.step = 2
+                                me.steptime = time.time()
+                                me.can_step_ability = False
+                               
                             pygame.event.clear(pygame.locals.KEYDOWN)
                             
+                        if time.time() - me.steptime >30:
+                            me.can_step_ability = True
+                        elif time.time() - me.steptime >3:
+                            me.step = 1
                     if pygame.mouse.get_pressed()[0]:
                         cast = True
                         me.attack(Action.SPELL, last_direction)
                         pygame.event.clear(pygame.locals.MOUSEBUTTONDOWN)  
-                        
+                    
 
                     # https://stackoverflow.com/a/15596758/3954432
                     # Handle controller input by setting flags (move, neutral)
@@ -226,6 +240,8 @@ class GameClient():
 
                     self.map.render()
                     me.render()
+                    for flag in flags:
+                        flag.render()
                     for spell in me.cast_spells:
                         spell.render()
 
@@ -270,6 +286,11 @@ class GameClient():
                                     if event.type == "SHOUT":
                                         team_defs = bson.loads(event.msg[0])
                                         self.players.set_teams(team_defs)
+                                if event.group == "ctf:flags":
+                                    if event.type == "SHOUT":
+                                        flag_defs = bson.loads(event.msg[0])
+                                        self.flags[0].set_position_from_authority(flag_defs.get("red"))
+                                        self.flags[1].set_position_from_authority(flag_defs.get("blue"))
 
                                 if network_player:
                                     network_player.set_position(Position(**new_position))

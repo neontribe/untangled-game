@@ -120,7 +120,7 @@ class MainMenu(Screen):
     def update(self, event):
         # Update menu state based off of key press or joystick
         from client import GameState
-
+            
         if event.type == pygame.locals.JOYAXISMOTION:
             # up/down
             if event.axis == 1:
@@ -137,7 +137,7 @@ class MainMenu(Screen):
             elif event.key == pygame.locals.K_DOWN:
                 self.selected += 1
                 self.selected %= self.options_length
-
+ 
         if(self.state == MenuState.CHOICE):
             if event.type == pygame.locals.KEYDOWN:
                 if event.key == pygame.locals.K_SPACE:
@@ -165,9 +165,54 @@ class MainMenu(Screen):
                     elif(self.selected == 4):
                         #QUIT
                         return GameState.QUIT
+            if event.type == pygame.locals.JOYAXISMOTION:
+                if event.axis == 0:
+                    self.info_message = ''
+
+                    if(self.selected == 0):
+                        #PLAY GAME
+                        self.set_state(MenuState.CHAR_SETUP)
+                        return GameState.MENU
+                    elif(self.selected == 1):
+                        #LOAD SAVE
+                        load_state = self.player_manager.me.load_from_config()
+                        if load_state:
+                            self.set_state(MenuState.RESUME)
+                            return GameState.PLAY
+                        else:
+                            self.info_message = 'No Saved Player :-('
+                            return GameState.MENU
+                    elif(self.selected == 2):
+                        #HELP
+                        return GameState.HELP
+                    elif(self.selected == 3):
+                        #MUTE
+                        return GameState.MUTE
+                    elif(self.selected == 4):
+                        #QUIT
+                        return GameState.QUIT
+                
         elif(self.state == MenuState.RESUME):
             if event.type == pygame.locals.KEYDOWN:
                 if event.key == pygame.locals.K_SPACE:
+                    self.info_message = ''
+
+                    if(self.selected == 0):
+                        #CONTINUE GAME
+                        return GameState.PLAY
+                    elif(self.selected == 1):
+                        #SAVE CHAR
+                        load_state = self.player_manager.me.save_to_config()
+                        self.info_message = 'Successfully Saved! :-)'
+                        return GameState.MENU
+                    elif(self.selected == 2):
+                        #QUIT
+                        return GameState.MUTE
+                    elif(self.selected == 3):
+                        #QUIT
+                        return GameState.QUIT
+            if event.type == pygame.locals.JOYAXISMOTION:
+                if event.axis == 0:
                     self.info_message = ''
 
                     if(self.selected == 0):
@@ -199,4 +244,10 @@ class MainMenu(Screen):
                         self.set_state(MenuState.RESUME)
                         self.selected = 0
                         return GameState.PLAY
+            if(event.type == pygame.locals.JOYAXISMOTION):
+                if event.axis == 1:
+                    self.setup_player()
+                    self.set_state(MenuState.RESUME)
+                    self.selected = 0
+                    return GameState.PLAY
         return

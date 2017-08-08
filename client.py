@@ -172,7 +172,7 @@ class GameClient():
                                
                             pygame.event.clear(pygame.locals.KEYDOWN)
                             
-                        if time.time() - me.steptime >10:
+                        if time.time() - me.steptime >30:
                             me.canstepability = True
                         elif time.time() - me.steptime >3:
                             me.step = 1

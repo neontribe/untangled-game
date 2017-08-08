@@ -210,8 +210,8 @@ class GameClient():
                                 me.move(Movement.LEFT)
                                 last_direction = Movement.LEFT
                                 toMove = True
-                        # A
-                        if joystick.get_button(1):
+                        # R
+                        if joystick.get_button(5):
                             cast = True
                             me.attack(Action.SPELL, last_direction)
                         last_update = pygame.time.get_ticks()

@@ -17,6 +17,7 @@ from enum import Enum
 from map import *
 from network import Network
 from player import *
+from flag import *
 from screen import MainMenu
 from level import SaveLevel
 from tile import Tileset
@@ -50,6 +51,7 @@ class GameClient():
         me = Player(self.screen, self.map, self.network)
 
         self.players = PlayerManager(me, self.network)
+        self.flags = [Flag(self.screen, self.map, "red"), Flag(self.screen, self.map, "blue")]
         self.map.set_centre_player(self.players.me)
         self.menu = MainMenu(self.screen, self.players)
 
@@ -103,6 +105,7 @@ class GameClient():
         toMove = False # Flag for when player moves - reduces network stress
         cast = False # Flag for when player casts spell.
         me = self.players.me
+        flags = self.flags
 
         if me.mute == "False":
             LevelMusic.play_music_repeat()
@@ -236,6 +239,8 @@ class GameClient():
 
                     self.map.render()
                     me.render()
+                    for flag in flags:
+                        flag.render()
                     for spell in me.cast_spells:
                         spell.render()
 
@@ -280,6 +285,11 @@ class GameClient():
                                     if event.type == "SHOUT":
                                         team_defs = bson.loads(event.msg[0])
                                         self.players.set_teams(team_defs)
+                                if event.group == "ctf:flags":
+                                    if event.type == "SHOUT":
+                                        flag_defs = bson.loads(event.msg[0])
+                                        self.flags[0].set_position_from_authority(flag_defs.get("red"))
+                                        self.flags[1].set_position_from_authority(flag_defs.get("blue"))
 
                                 if network_player:
                                     network_player.set_position(Position(**new_position))

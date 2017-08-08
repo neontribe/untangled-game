@@ -26,7 +26,7 @@ class PlayerException(Exception):
     pass
 
 class Player():
-    def __init__(self, screen, map):
+    def __init__(self, screen, map, network):
         self.screen = screen
         self.map = map
         self.ready = False
@@ -40,6 +40,7 @@ class Player():
         self.name = ''
         self.x, self.y = (0, 0)
         self.animation_ticker = 0
+        self.network = network
 
         self.initial_position = (0, 0)
         found = False
@@ -76,7 +77,7 @@ class Player():
 
         if 'Player' in config:
             player_save_info = config['Player']
-
+            self.network.node.set_header('NAME', self.name)
             self.set_name(player_save_info['name'])
             self.set_mute(player_save_info.get('mute', 'True'))
             return True
@@ -85,7 +86,9 @@ class Player():
 
     def set_name(self, name, save = False):
         self.name = name
-        if save: self.save_to_config()
+        if save:
+            self.network.node.set_header('NAME', self.name)
+            self.save_to_config()
 
     def set_tileset(self, tileset):
         self.tileset = tileset
@@ -292,9 +295,12 @@ class PlayerManager():
                 continue
 
             random.seed(str(uuid))
-            newPlayers[str(uuid)] = self.others.get(str(uuid), Player(self.me.screen, self.me.map))
+            newPlayers[str(uuid)] = self.others.get(
+                str(uuid),
+                Player(self.me.screen, self.me.map, self.network)
+            )
+
         self.others = newPlayers
-        # print(self.others)
 
     def all(self):
         return list(self.others.values()).push(self.me)

@@ -47,7 +47,7 @@ class GameClient():
     def __init__(self):
         self.network = Network()
         self.setup_pygame()
-        me = Player(self.screen, self.map)
+        me = Player(self.screen, self.map, self.network)
         self.players = PlayerManager(me, self.network)
         self.map.set_centre_player(self.players.me)
         self.menu = MainMenu(self.screen, self.players)
@@ -228,12 +228,17 @@ class GameClient():
                     if events:
                         try:
                             for event in self.network.get_events():
-                                #print(event.peer_uuid, event.type, event.group, event.msg)
                                 if event.type == 'ENTER':
                                     auth_status = event.headers.get('AUTHORITY')
                                     if auth_status == 'TRUE':
                                         self.players.authority_uuid = str(event.peer_uuid)
                                         self.players.remove(event.peer_uuid)
+                                        continue
+
+                                    player_name = event.headers.get('NAME')
+                                    if player_name:
+                                        player = self.players.get(event.peer_uuid)
+                                        player.set_name(player_name)
 
                                 if event.group == "world:position":
                                     new_position = bson.loads(event.msg[0])

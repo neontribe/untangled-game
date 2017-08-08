@@ -76,6 +76,9 @@ class Authority():
 
         print("Teams: " + "RED: " + ','.join(red_players) + " | BLUE: " + ','.join(blue_players))
         self.node.shout("ctf:teams", bson.dumps(self.teams))
+    
+    def set_flags(self):
+        self.node.shout("ctf:flags",  bson.dumps(self.flags))
 
     def serve(self):
         while True:

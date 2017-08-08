@@ -90,6 +90,9 @@ class Authority():
         elif flag_info.get("flag") == "blue":
             self.flags["blue"]["owner"] = int(flag_info.get("owner"))
         
+        self.update_flags()
+        
+    def update_flags(self):
         self.node.shout("ctf:flags",  bson.dumps(self.flags))
 
     def serve(self):

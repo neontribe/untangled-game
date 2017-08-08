@@ -4,7 +4,7 @@ import bson
 import zmq
 from pyre import Pyre
 
-from player import PlayerManager
+from flag import *
 
 
 class AuthorityPlayerManager():
@@ -47,8 +47,8 @@ class Authority():
         }
         
         self.flags = {
-            "blue": "", 
-            "red": ""
+            "blue": {"x":0, "y":0, "owner":0, "timer":0}, 
+            "red": {"x":0, "y":0, "owner":0, "timer":0}
         }
 
         self.serve()

@@ -145,11 +145,19 @@ class Player():
     def move(self, direction):
         if not self.ready:
             self.__raiseNoPosition()
+        
+        c = (255,255,255)
+        if self.team:
+            if self.team == "blue":
+                c = (0, 0, 255)
+            elif self.team == "red":
+                c = (255, 0, 0)
 
         tmp_x = 0
         tmp_y = 0
 
         while self.map.level.can_move_to(self.x + tmp_x, self.y + tmp_y) and abs(tmp_x) <= self.step and abs(tmp_y) <= self.step:
+            self.add_particle(3,(self.x+tmp_x+ 0.5,self.y+tmp_y+0.9),c,3,None,(-tmp_x/5,-tmp_y/5),15,2,0.1)
             if direction == Movement.RIGHT:
                 tmp_x += 1
             elif direction == Movement.LEFT:
@@ -164,6 +172,7 @@ class Player():
             tmp_x += (-1 if tmp_x > 0 else 1)
         if tmp_y != 0:
             tmp_y += (-1 if tmp_y > 0 else 1)
+
 
         self.set_position(Position(self.x + tmp_x, self.y + tmp_y))
 
@@ -201,11 +210,11 @@ class Player():
     def set_team(self, team):
         self.team = team
 
-    def add_particle(self,amount, position, colour=(255,255,255), size=3, velocity=None, wiggle=(0,0), life=40, metadata=0,grow=0):
+    def add_particle(self,amount, position, colour=(255,255,255), size=3, velocity=None, gravity=(0,0), life=40, metadata=0,grow=0):
         for i in range(amount):        
             if(len(self.particle_list) > self.particle_limit):
                 self.particle_list[0].destroy()
-            self.particle_list.append(Particle(self, position, colour, size, velocity, wiggle, life, metadata,grow))
+            self.particle_list.append(Particle(self, position, colour, size, velocity, gravity, life, metadata,grow))
         return
         
     def remove_particle(self,particle):

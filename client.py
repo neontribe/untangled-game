@@ -214,6 +214,9 @@ class GameClient():
                         if joystick.get_button(5):
                             cast = True
                             me.attack(Action.SPELL, last_direction)
+                        if joystick.get_button (9):
+                            self.set_state(GameState.MENU)
+
                         last_update = pygame.time.get_ticks()
 
                     self.map.render()

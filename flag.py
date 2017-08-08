@@ -30,7 +30,8 @@ class Flag():
         self.set_position(self.initial_position)
         self.team = team
     
-    def set_position(self, position):
+    def set_position(self, received):
+        position = [0,  0]
         self.x, self.y = position
         self.ready = True
     

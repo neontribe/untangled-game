@@ -275,6 +275,10 @@ class GameClient():
                                     if event.type == "SHOUT":
                                         team_defs = bson.loads(event.msg[0])
                                         self.players.set_teams(team_defs)
+                                if event.group == "ctf:flags":
+                                    if event.type == "SHOUT":
+                                        flag_defs = bson.loads(event.msg[0])
+                                        self.flags.set_position(flag_defs)
 
                                 if network_player:
                                     network_player.set_position(Position(**new_position))

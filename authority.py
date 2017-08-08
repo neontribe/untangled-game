@@ -7,6 +7,7 @@ from pyre import Pyre
 from flag import *
 
 
+RESETTIME = 5
 class AuthorityPlayerManager():
     def __init__(self):
         self.players = {}
@@ -35,6 +36,7 @@ class Authority():
         self.node.start()
         self.node.join("ctf:teams")
         self.node.join("ctf:flags")
+        self.node.join("ctf:gotflag")
 
         self.poller = zmq.Poller()
         self.poller.register(self.node.socket(), zmq.POLLIN)
@@ -50,7 +52,6 @@ class Authority():
             "blue": {"x":0, "y":0, "owner":0, "timer":0}, 
             "red": {"x":0, "y":0, "owner":0, "timer":0}
         }
-
         self.serve()
 
     def set_teams(self):
@@ -77,7 +78,18 @@ class Authority():
         print("Teams: " + "RED: " + ','.join(red_players) + " | BLUE: " + ','.join(blue_players))
         self.node.shout("ctf:teams", bson.dumps(self.teams))
     
-    def set_flags(self):
+    def set_flags(self, flag_info):
+        if flag_info.get("flag") == "red":
+            self.flags["red"]["owner"] = int(flag_info.get("owner"))
+            self.flags["red"]["x"] = self.players[self.flags["red"]["owner"]].x
+            self.flags["red"]["y"] = self.players[self.flags["red"]["owner"]].y
+            if self.flags["red"]["owner"] == "0":
+                self.flags["red"]["timer"] = RESETTIME
+            else:
+                self.flags["red"]["timer"] = 0
+        elif flag_info.get("flag") == "blue":
+            self.flags["blue"]["owner"] = int(flag_info.get("owner"))
+        
         self.node.shout("ctf:flags",  bson.dumps(self.flags))
 
     def serve(self):
@@ -93,6 +105,10 @@ class Authority():
                             self.set_teams()
                         elif event.type == 'EXIT':
                             self.set_teams()
+                        elif event.type == 'SHOUT':
+                            if event.group == 'ctf:gotflags':
+                                flag_info = bson.loads(event.msg[0])
+                                self.set_flags(flag_info)
 
                 except Exception as e:
                     print(e)

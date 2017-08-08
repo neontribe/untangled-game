@@ -191,7 +191,7 @@ class MainMenu(Screen):
                 elif event.key == pygame.locals.K_ESCAPE:
                     if self.state == MenuState.CHAR_SETUP:
                         self.set_state(MenuState.CHOICE)
-                elif(event.key < 122 and event.key != 13):
+                elif(event.key < 123 and event.key != 13):
                     self.char_name += chr(event.key)
                 elif event.key == pygame.locals.K_RETURN:
                     if self.state == MenuState.CHAR_SETUP:

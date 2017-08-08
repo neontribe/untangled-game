@@ -48,6 +48,7 @@ class GameClient():
         self.network = Network()
         self.setup_pygame()
         me = Player(self.screen, self.map, self.network)
+
         self.players = PlayerManager(me, self.network)
         self.map.set_centre_player(self.players.me)
         self.menu = MainMenu(self.screen, self.players)
@@ -175,8 +176,8 @@ class GameClient():
                     # Handle controller input by setting flags (move, neutral)
                     # and using timers (delay, pressed).
                     # Move if pressed timer is greater than delay.
-                    
-                    if(pygame.joystick.get_count() > 0 and not me.name.startswith("windows")):
+
+                    if(pygame.joystick.get_count() > 0 and not me.name.startswith("windows") and not toMove):
                         joystick = pygame.joystick.Joystick(0)
                         move = False
                         delay = 100
@@ -236,16 +237,26 @@ class GameClient():
                         try:
                             for event in self.network.get_events():
                                 if event.type == 'ENTER':
+                                    # Force update on first join.
+                                    toMove = True
+
                                     auth_status = event.headers.get('AUTHORITY')
                                     if auth_status == 'TRUE':
                                         self.players.authority_uuid = str(event.peer_uuid)
                                         self.players.remove(event.peer_uuid)
-                                        continue
 
-                                    player_name = event.headers.get('NAME')
-                                    if player_name:
-                                        player = self.players.get(event.peer_uuid)
-                                        player.set_name(player_name)
+                                if event.group == "players:whois":
+                                    self.network.node.shout("player:name", bson.dumps(
+                                        {
+                                            "name": self.players.me.name
+                                        }
+                                    ))
+
+                                if event.group == "player:name":
+                                    new_name = bson.loads(event.msg[0])
+                                    player = self.players.get(event.peer_uuid)
+                                    if new_name['name']:
+                                        player.set_name(new_name['name'])
 
                                 if event.group == "world:position":
                                     new_position = bson.loads(event.msg[0])

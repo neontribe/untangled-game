@@ -34,6 +34,7 @@ class Authority():
         self.node.set_header("AUTHORITY", "TRUE")
         self.node.start()
         self.node.join("ctf:teams")
+        self.node.join("ctf:flags")
 
         self.poller = zmq.Poller()
         self.poller.register(self.node.socket(), zmq.POLLIN)
@@ -43,6 +44,11 @@ class Authority():
         self.teams = {
             "blue": [],
             "red": []
+        }
+        
+        self.flags = {
+            "blue": "", 
+            "red": ""
         }
 
         self.serve()

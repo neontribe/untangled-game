@@ -22,7 +22,7 @@ class TileType(Enum):
     WATER = ([205,206,207],  [ TileAttribute.COLLIDE ])
     SHELTER = ([37],  [ TileAttribute.COLLIDE ])
     SAND = ([18],  [])
-    LAVA = ([166, 167, 168, 182, 183, 184, 198, 199, 200, 214, 215, 216, 227, 228, 229, 230],  [ TileAttribute.SPIKES ])
+    LAVA = ([166, 167, 168, 182, 183, 184, 198, 199, 200, 214, 215, 216, 229, 230, 229, 216, 215, 214, 299, 199, 198, 184, 183, 182, 168, 167],  [ TileAttribute.SPIKES ])
 
     def __init__(self, tileset_id, attributes):
         self.tileset_id = tileset_id

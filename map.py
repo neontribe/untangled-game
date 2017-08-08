@@ -23,7 +23,7 @@ class Map():
 
     def render(self):
         self.animationFrame += 1
-        self.animationFrame %= 8
+        self.animationFrame %= 16
         
         # get the tile at the top left and bottom right
         top_left_pos = self.get_map_pos(0, 0)
@@ -35,7 +35,7 @@ class Map():
                 if len(tile_ids) > 1:
                     pixel_pos = self.get_pixel_pos(x, y)
                     tile_image = self.tileset.get_surface_by_id(
-                        tile_ids[self.animationFrame % len(tile_ids)]
+                        tile_ids[self.animationFrame % len(tile_ids)-1]
                     )
                    
                 else:

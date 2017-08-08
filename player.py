@@ -10,6 +10,7 @@ from pygame.rect import Rect
 import client
 import bson
 from tile import Tileset
+from level import Place
 import map as map_module
 
 class Movement(Enum):
@@ -43,20 +44,17 @@ class Player():
         self.x, self.y = (0, 0)
         self.animation_ticker = 0
         self.network = network
+
+        self.particle_list = []
+        self.particle_limit = 500
+
         self.steptime = 0
         self.can_step_ability = True
-        
-        self.initial_position = (0, 0)
-        found = False
-        for x in range(map.level.width):
-            for y in range(map.level.height):
-                if map.level.can_move_to(x, y):
-                    self.initial_position = (x, y)
-                    found = True
-                    break
-            if found:
-                break
+
+        self.initial_position = map.level.get_place(Place.RED_SPAWN)
+
         self.set_position(self.initial_position)
+
         self.team = None
 
     def __raiseNoPosition(self):
@@ -151,12 +149,20 @@ class Player():
     def move(self, direction):
         if not self.ready:
             self.__raiseNoPosition()
+        
+        c = (255,255,255)
+        if self.team:
+            if self.team == "blue":
+                c = (0, 0, 255)
+            elif self.team == "red":
+                c = (255, 0, 0)
 
         tmp_x = 0
         tmp_y = 0
 
         # while (can keep moving) and (x difference is not more than step) and (y difference is not more than step)
         while self.map.level.can_move_to(self.x + tmp_x, self.y + tmp_y) and abs(tmp_x) <= self.step and abs(tmp_y) <= self.step:
+            self.add_particle(3,(self.x+tmp_x+ 0.5,self.y+tmp_y+0.9),c,3,None,(-tmp_x/5,-tmp_y/5),15,2,0.1)
             if direction == Movement.RIGHT:
                 tmp_x += 1
             elif direction == Movement.LEFT:
@@ -171,6 +177,7 @@ class Player():
             tmp_x += (-1 if tmp_x > 0 else 1)
         if tmp_y != 0:
             tmp_y += (-1 if tmp_y > 0 else 1)
+
 
         self.set_position(Position(self.x + tmp_x, self.y + tmp_y))
 
@@ -207,6 +214,17 @@ class Player():
 
     def set_team(self, team):
         self.team = team
+
+    def add_particle(self,amount, position, colour=(255,255,255), size=3, velocity=None, gravity=(0,0), life=40, metadata=0,grow=0):
+        for i in range(amount):        
+            if(len(self.particle_list) > self.particle_limit):
+                self.particle_list[0].destroy()
+            self.particle_list.append(Particle(self, position, colour, size, velocity, gravity, life, metadata,grow))
+        return
+        
+    def remove_particle(self,particle):
+        self.particle_list.remove(particle)
+        return
 
 class Spell():
     def __init__(self, player, velocity, position=None, size=(0.25, 0.25), colour=(0,0,0), life=100):
@@ -251,6 +269,7 @@ class Spell():
     #destroy the spell
     def destroy(self):
         self.player.remove_spell(self)
+        self.player.add_particle(5,(self.x,self.y),self.colour,2,None,(self.velo_x*3,self.velo_y*3),40,0,0.1)
         del(self)
 
     def get_properties(self):
@@ -323,3 +342,55 @@ class PlayerManager():
 
     def get(self, uuid):
         return self.others[str(uuid)]
+
+class Particle():
+    def __init__(self,player, position, colour=(255,255,255), size=3, velocity=None, gravity=(0,0), life=40, metadata=0, grow=0):
+        self.player = player
+        self.colour = colour
+        self.size = size
+        self.life = life
+        self.maxlife = life
+        self.meta = metadata
+        self.grow = grow
+
+        self.set_position(position)
+        i = 1000
+        if velocity != None:
+            self.set_velocity(velocity)
+        else:
+            self.set_velocity((random.randrange(-i,i)/(i*40),random.randrange(-i,i)/(i*40)))
+        self.set_gravity(gravity)
+        
+    def render(self):
+        pixel_pos = self.player.map.get_pixel_pos(self.x,self.y)
+        progress = self.life/self.maxlife
+        #if progress <= self.fade:
+            #self.alpha = int(self.startalpha*(progress*2))
+        
+        if self.life <= 0 :
+            self.destroy()
+
+        self.life -= 1
+
+        #colour = (self.colour[0],self.colour[1],self.colour[2],self.alpha)
+
+        self.rect = pygame.draw.circle(self.player.screen, self.colour, (int(pixel_pos[0]),int(pixel_pos[1])), int(self.size), self.meta)
+
+        self.x += self.velo_x
+        self.y += self.velo_y
+        self.velo_x += self.grav_x
+        self.velo_y += self.grav_y
+        self.size += self.grow
+
+    def set_position(self,position):
+        self.x = position[0]
+        self.y = position[1]
+    def set_velocity(self, velocity):
+        self.velo_x, self.velo_y = velocity
+    def set_gravity(self, gravity):
+        self.grav_x = gravity[0]/100
+        self.grav_y = gravity[1]/100
+
+    def destroy(self):
+        self.player.remove_particle(self)
+        del(self)

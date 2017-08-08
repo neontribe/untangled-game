@@ -9,6 +9,7 @@ import zmq
 import pdb
 import bson
 import uuid
+import webbrowser
 from pyre import Pyre, pyre_event
 from pyre import zhelper
 from collections import namedtuple
@@ -126,7 +127,7 @@ class GameClient():
                     running = False
                     break
                 elif(self.game_state.value == GameState.HELP.value):
-                    print("Help menu option pressed")
+                    webbrowser.open_new_tab("https://github.com/neontribe/untangled-2017/wiki")
                     self.game_state = GameState.MENU
                 elif(self.game_state.value == GameState.MUTE.value):
                     if me.mute == "False":
@@ -231,10 +232,15 @@ class GameClient():
                                 me.move(Movement.LEFT)
                                 last_direction = Movement.LEFT
                                 toMove = True
-                        # A
-                        if joystick.get_button(1) or joystick.get_button(0):
+
+                        # R
+                        if joystick.get_button(5):
+
                             cast = True
                             me.attack(Action.SPELL, last_direction)
+                        if joystick.get_button (9):
+                            self.set_state(GameState.MENU)
+
                         last_update = pygame.time.get_ticks()
 
                     self.map.render()
@@ -243,6 +249,8 @@ class GameClient():
                         flag.render()
                     for spell in me.cast_spells:
                         spell.render()
+                    for particle in me.particle_list:
+                        particle.render()
 
                     self.players.set(self.network.node.peers())
 

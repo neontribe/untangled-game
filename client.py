@@ -235,13 +235,11 @@ class GameClient():
 
                         # R
                         if joystick.get_button(5):
+
                             cast = True
                             me.attack(Action.SPELL, last_direction)
-                        try:
-                            if joystick.get_button(9):
-                                self.set_state(GameState.MENU)
-                        except:
-                            pass
+                        if joystick.get_button (9):
+                            self.set_state(GameState.MENU)
 
                         last_update = pygame.time.get_ticks()
 

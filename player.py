@@ -133,14 +133,19 @@ class Player():
         centre = self.map.get_pixel_pos(self.x, self.y)
 
         name_tag_pos = (
-            centre[0] + ((self.size[0] - name_tag.get_width()) // 2),
+            centre[0] + ((self.size[0] - (name_tag.get_width()+10)) // 2),
             centre[1] - ((self.size[1] + name_tag.get_height()) // 2)
         )
 
-        rect = pygame.Surface((name_tag.get_width(), name_tag.get_height()), pygame.SRCALPHA, 32)
+        rect = pygame.Surface((name_tag.get_width() + 10, name_tag.get_height()), pygame.SRCALPHA, 32)
         rect.fill((0,0,0, 127))
         self.screen.blit(rect, name_tag_pos)
 
+        name_tag_pos = (
+            centre[0] + ((self.size[0] - name_tag.get_width()) // 2),
+            centre[1] - ((self.size[1] + name_tag.get_height()) // 2)
+        )
+        
         self.screen.blit(name_tag, name_tag_pos)
 
         sprite = self.tileset.get_surface_by_id(self.animation_ticker)

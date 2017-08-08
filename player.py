@@ -10,6 +10,7 @@ from pygame.rect import Rect
 import client
 import bson
 from tile import Tileset
+from level import Place
 import map as map_module
 
 class Movement(Enum):
@@ -50,17 +51,10 @@ class Player():
         self.steptime = 0
         self.can_step_ability = True
 
-        self.initial_position = (0, 0)
-        found = False
-        for x in range(map.level.width):
-            for y in range(map.level.height):
-                if map.level.can_move_to(x, y):
-                    self.initial_position = (x, y)
-                    found = True
-                    break
-            if found:
-                break
+        self.initial_position = map.level.get_place(Place.RED_SPAWN)
+
         self.set_position(self.initial_position)
+
         self.team = None
 
     def __raiseNoPosition(self):

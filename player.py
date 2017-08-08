@@ -4,9 +4,11 @@ import math
 import random
 import pygame
 import configparser
+
 from pygame.rect import Rect
 
 import client
+import bson
 from tile import Tileset
 import map as map_module
 
@@ -41,8 +43,12 @@ class Player():
         self.x, self.y = (0, 0)
         self.animation_ticker = 0
         self.network = network
+
         self.particle_list = []
         self.particle_limit = 500
+
+        self.steptime = 0
+        self.can_step_ability = True
 
         self.initial_position = (0, 0)
         found = False
@@ -89,7 +95,11 @@ class Player():
     def set_name(self, name, save = False):
         self.name = name
         if save:
-            self.network.node.set_header('NAME', self.name)
+            self.network.node.shout("player:name", bson.dumps(
+                {
+                    "name": self.name
+                }
+            ))
             self.save_to_config()
 
     def set_tileset(self, tileset):
@@ -156,6 +166,7 @@ class Player():
         tmp_x = 0
         tmp_y = 0
 
+        # while (can keep moving) and (x difference is not more than step) and (y difference is not more than step)
         while self.map.level.can_move_to(self.x + tmp_x, self.y + tmp_y) and abs(tmp_x) <= self.step and abs(tmp_y) <= self.step:
             self.add_particle(3,(self.x+tmp_x+ 0.5,self.y+tmp_y+0.9),c,3,None,(-tmp_x/5,-tmp_y/5),15,2,0.1)
             if direction == Movement.RIGHT:

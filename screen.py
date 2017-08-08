@@ -81,11 +81,13 @@ class MainMenu(Screen):
         font = self.fonts['large']
         info_font = self.fonts['small']
         header_font = self.fonts['heading']
+        logo = pygame.image.load('assets/images/logo.jpg')
+        logo = pygame.transform.scale(logo, (700, 200))
 
         self.ticker += 2
         self.ticker %= 100
-
-        self.render_text(header_font, "Untangled 2017", (offset[0] - 125, 300), (100, 200,100))
+        
+        self.pygame_screen.blit(logo,(offset[0] - 320, 220))
         self.render_text(info_font, self.info_message, (offset[0] - 50, 375), (255, 100,100))
 
         if(self.state == MenuState.CHOICE):
@@ -236,7 +238,7 @@ class MainMenu(Screen):
                 elif event.key == pygame.locals.K_ESCAPE:
                     if self.state == MenuState.CHAR_SETUP:
                         self.set_state(MenuState.CHOICE)
-                elif(event.key < 122 and event.key != 13):
+                elif(event.key < 123 and event.key != 13):
                     self.char_name += chr(event.key)
                 elif event.key == pygame.locals.K_RETURN:
                     if self.state == MenuState.CHAR_SETUP:

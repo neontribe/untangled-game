@@ -5,11 +5,16 @@ from tile import TileType
 
 import tmx
 
+class Place():
+    RED_SPAWN = 0
+    BLUE_SPAWN = 1
+
 class Level():
     def load_tiles(self):
         self.width = 0
         self.height = 0
         self.grid = [[]]
+        self.places = {}
 
     def get_tile(self, x, y):
         return self.grid[y][x]
@@ -22,6 +27,16 @@ class Level():
         elif self.get_tile(x, y).has_attribute(TileAttribute.COLLIDE):
             return False
         return True
+    
+    def is_safe(self,  x,  y):
+        if self.get_tile(x,  y).has_attribute(TileAttribute.SPIKES):
+            return False
+        elif not self.can_move_to(x,  y):
+            return False
+        return True
+    
+    def get_place(self,  place):
+        return self.places[place]
 
 
 class ProceduralLevel(Level):
@@ -47,33 +62,49 @@ class ProceduralLevel(Level):
 class SaveLevel(Level):
     def __init__(self,  path):
         tile_map = tmx.TileMap.load(path)
-        layer = tile_map.layers[0]
         self.width = tile_map.width
         self.height = tile_map.height
         self.grid = [
             [None for x in range(self.width)] for y in range(self.height)
         ]
-        for index, tile in enumerate(layer.tiles):
-            x = index % self.width
-            y = index // self.width
-            if tile.gid == 54: # bush block
-                self.grid[y][x] = TileType.BUSH
-            elif tile.gid == 80: # tree
-                self.grid[y][x] = TileType.TREE
-            elif tile.gid == 178: #blue base block
-                self.grid[y][x] = TileType.BLUE_BLOCK
-            elif tile.gid == 8: #brick
-                self.grid[y][x] = TileType.BRICK
-            elif tile.gid == 22: #bridge
-                self.grid[y][x] = TileType.BRIDGE
-            elif tile.gid == 206: #water
-                self.grid[y][x] = TileType.WATER
-            elif tile.gid == 38: #shelter
-                self.grid[y][x] = TileType.SHELTER
-            elif tile.gid == 19: #sand
-                self.grid[y][x] = TileType.SAND
-            elif tile.gid == 130: #red base block
-                self.grid[y][x] = TileType.RED_BLOCK
-            else: # empty/other
-                self.grid[y][x] = TileType.LAVA
+        self.places = {}
+        for layer in tile_map.layers:
+            if isinstance(layer,  tmx.Layer):
+                for index, tile in enumerate(layer.tiles):
+                    x = index % self.width
+                    y = index // self.width
+                    if tile.gid == 54: # bush block
+                        self.grid[y][x] = TileType.BUSH
+                    elif tile.gid == 80: # tree
+                        self.grid[y][x] = TileType.TREE
+                    elif tile.gid == 178: #blue base block
+                        self.grid[y][x] = TileType.BLUE_BLOCK
+                    elif tile.gid == 8: #brick
+                        self.grid[y][x] = TileType.BRICK
+                    elif tile.gid == 22: #bridge
+                        self.grid[y][x] = TileType.BRIDGE
+                    elif tile.gid == 206: #water
+                        self.grid[y][x] = TileType.WATER
+                    elif tile.gid == 38: #shelter
+                        self.grid[y][x] = TileType.SHELTER
+                    elif tile.gid == 19: #sand
+                        self.grid[y][x] = TileType.SAND
+                    elif tile.gid == 130: #red base block
+                        self.grid[y][x] = TileType.RED_BLOCK
+                    elif tile.gid == 138: #plant block
+                        self.grid[y][x] = TileType.MELON
+                    else: # empty/other
+                        self.grid[y][x] = TileType.LAVA
+            elif isinstance(layer,  tmx.ObjectGroup):
+                if layer.name == 'spawns':
+                    for object in layer.objects:
+                        x = object.x // tile_map.tilewidth
+                        y = object.y // tile_map.tileheight
+                        if object.name == 'Blue':
+                            type = Place.BLUE_SPAWN
+                            self.places[type] = (x,  y)
+                        elif object.name == 'Red':
+                            type = Place.RED_SPAWN
+                            self.places[type] = (x,  y)
+                        
         

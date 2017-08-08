@@ -1,5 +1,6 @@
 import pygame
 import time
+import random
 
 from enum import Enum
 

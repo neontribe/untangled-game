@@ -220,6 +220,8 @@ class GameClient():
                     me.render()
                     for spell in me.cast_spells:
                         spell.render()
+                    for particle in me.particle_list:
+                        particle.render()
 
                     self.players.set(self.network.node.peers())
 

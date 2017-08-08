@@ -91,6 +91,8 @@ class SaveLevel(Level):
                         self.grid[y][x] = TileType.SAND
                     elif tile.gid == 130: #red base block
                         self.grid[y][x] = TileType.RED_BLOCK
+                    elif tile.gid == 138: #plant block
+                        self.grid[y][x] = TileType.MELON
                     else: # empty/other
                         self.grid[y][x] = TileType.LAVA
             elif isinstance(layer,  tmx.ObjectGroup):

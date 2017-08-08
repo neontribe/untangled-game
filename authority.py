@@ -93,7 +93,7 @@ class Authority():
         self.update_flags()
         
     def update_flags(self):
-        self.node.shout("ctf:flags",  bson.dumps(self.flags))
+        self.node.shout("ctf:flags", bson.dumps(self.flags))
 
     def serve(self):
         while True:

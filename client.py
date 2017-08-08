@@ -165,15 +165,15 @@ class GameClient():
                                 cast = True
                                 me.attack(Action.SPELL, last_direction)
                                 
-                            if event.key == pygame.locals.K_r and me.canstepability:
+                            if event.key == pygame.locals.K_r and me.can_step_ability:
                                 me.step = 2
                                 me.steptime = time.time()
-                                me.canstepability = False
+                                me.can_step_ability = False
                                
                             pygame.event.clear(pygame.locals.KEYDOWN)
                             
                         if time.time() - me.steptime >30:
-                            me.canstepability = True
+                            me.can_step_ability = True
                         elif time.time() - me.steptime >3:
                             me.step = 1
                     if pygame.mouse.get_pressed()[0]:

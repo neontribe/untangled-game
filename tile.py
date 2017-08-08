@@ -11,13 +11,18 @@ TileAttribute represents the actions which a tile is able to inflict upon a play
 class TileAttribute(Enum):
     COLLIDE =   0b0001
     SPIKES =    0b0010
-    LAVA =      0b0100
-    WATER =     0b1000
-
 
 class TileType(Enum):
-    DIRT = (2, [])
-    BRICK = (1, [ TileAttribute.COLLIDE ])
+    BUSH = (53,  [ TileAttribute.COLLIDE ])
+    TREE = (79,  [ TileAttribute.COLLIDE ])
+    BLUE_BLOCK = (177,  [])
+    RED_BLOCK = (129,  [])
+    BRICK = (7,  [])
+    BRIDGE = (21,  [])
+    WATER = (205,  [ TileAttribute.COLLIDE ])
+    SHELTER = (37,  [ TileAttribute.COLLIDE ])
+    SAND = (18,  [])
+    LAVA = (237,  [ TileAttribute.SPIKES ])
 
     def __init__(self, tileset_id, attributes):
         self.tileset_id = tileset_id

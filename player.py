@@ -41,6 +41,7 @@ class Player():
         self.x, self.y = (0, 0)
         self.animation_ticker = 0
         self.network = network
+
         self.initial_position = (0, 0)
         found = False
         for x in range(map.level.width):
@@ -120,7 +121,6 @@ class Player():
                 name_tag_colour = (0, 0, 255)
             elif self.team == "red":
                 name_tag_colour = (255, 0, 0)
-
 
         name_tag = font.render(self.name, False, name_tag_colour)
 

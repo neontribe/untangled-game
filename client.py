@@ -78,7 +78,7 @@ class GameClient():
             pygame.locals.KEYDOWN, pygame.locals.MOUSEBUTTONDOWN,  pygame.locals.JOYBUTTONDOWN])
 
         self.levels = {
-            "main": SaveLevel('./assets/maps/CAPFLAG MAP NAT')
+            "main": SaveLevel('./assets/maps/CAPFLAG MAP')
         }
 
         self.map = Map(
@@ -235,11 +235,13 @@ class GameClient():
 
                         # R
                         if joystick.get_button(5):
-
                             cast = True
                             me.attack(Action.SPELL, last_direction)
-                        if joystick.get_button (9):
-                            self.set_state(GameState.MENU)
+                        try:
+                            if joystick.get_button(9):
+                                self.set_state(GameState.MENU)
+                        except:
+                            pass
 
                         last_update = pygame.time.get_ticks()
 

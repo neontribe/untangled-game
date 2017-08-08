@@ -7,6 +7,7 @@ import configparser
 from pygame.rect import Rect
 
 import client
+import bson
 from tile import Tileset
 import map as map_module
 
@@ -87,7 +88,11 @@ class Player():
     def set_name(self, name, save = False):
         self.name = name
         if save:
-            self.network.node.set_header('NAME', self.name)
+            self.network.node.shout("player:name", bson.dumps(
+                {
+                    "name": self.name
+                }
+            ))
             self.save_to_config()
 
     def set_tileset(self, tileset):

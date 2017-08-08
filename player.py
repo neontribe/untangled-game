@@ -144,23 +144,26 @@ class Player():
         if not self.ready:
             self.__raiseNoPosition()
 
-        tmp_x = self.x
-        tmp_y = self.y
+        tmp_x = 0
+        tmp_y = 0
 
-        if direction == Movement.UP:
-            tmp_y -= self.step
-        elif direction == Movement.DOWN:
-            tmp_y += self.step
+        while self.map.level.can_move_to(self.x + tmp_x, self.y + tmp_y) and abs(tmp_x) <= self.step and abs(tmp_y) <= self.step:
+            if direction == Movement.RIGHT:
+                tmp_x += 1
+            elif direction == Movement.LEFT:
+                tmp_x -= 1
 
-        if direction == Movement.RIGHT:
-            tmp_x += self.step
-        elif direction == Movement.LEFT:
-            tmp_x -= self.step
+            if direction == Movement.UP:
+                tmp_y -= 1
+            elif direction == Movement.DOWN:
+                tmp_y += 1
 
-        if not self.map.level.can_move_to(tmp_x, tmp_y):
-            return
+        if tmp_x != 0:
+            tmp_x += (-1 if tmp_x > 0 else 1)
+        if tmp_y != 0:
+            tmp_y += (-1 if tmp_y > 0 else 1)
 
-        self.set_position(Position(tmp_x, tmp_y))
+        self.set_position(Position(self.x + tmp_x, self.y + tmp_y))
 
     def get_position(self):
         if not self.ready:

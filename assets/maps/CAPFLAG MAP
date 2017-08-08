@@ -8,4 +8,8 @@
    eJzt3VFqwkAUhlEf+15wCV2C63BNLsmFdE1FSKBcRicakBn/c+C+KMnLx3RMJPZwAAAAAAAAAAAAAAAAAAB4v1OZ8zLXJ2c9rp6PsemfTf9s+mfTP1vt9bVz9J+L/tn0z3av/29jjsu03tN/Tvpn0z+b/tn0z6Z/Nv2zuf7Ppn+2c5m9/ev5GFuv509nescztr3rXf+56Z9N/2z6Z9M/261R/Txfr+G2TutcjK21Zus9nK1j/c9H/2yP+m/d4/Wf1/9W6x6+p3+9h8zYrP9srTVb/yas738vU1+/d5z+4+ut7Vf7W/9zsP9ns/9n0z/bo57u/3w+/bPdGvn+J9fWPf7VYWz6Z9M/m/7Z9M/W6+f5j8/m+a9snv/Mpn82v/+QTf9s+mfTP5v+2fTPpn821//Z9M+mf7baa/3e5vLk+P9Pc9I/m/7Z9M+mPwAAAAAAAAAAAAAAAAAAAAAAADCCP+I5PxQ=
   </data>
  </layer>
+ <objectgroup name="spawns">
+  <object name="Blue" x="4368" y="1920" width="56" height="64"/>
+  <object name="Red" x="4380" y="5592" width="64" height="56"/>
+ </objectgroup>
 </map>

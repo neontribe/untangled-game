@@ -44,6 +44,7 @@ class Player():
         self.animation_ticker = 0
         self.network = network
         self.steptime = 0
+        self.canstepability = True
         
         self.initial_position = (0, 0)
         found = False

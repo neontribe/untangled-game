@@ -142,6 +142,10 @@ class Player():
         sprite = self.tileset.get_surface_by_id(self.animation_ticker)
         self.screen.blit(sprite, centre)
 
+        rect = pygame.Surface((name_tag.get_width(), name_tag.get_height()), pygame.SRCALPHA, 32)
+        rect.fill((0,0,0, 127))
+        self.screen.blit(rect, name_tag_pos)
+        
         # create collision rectangle
         self.rect = sprite.get_rect()
         self.rect.topleft = centre

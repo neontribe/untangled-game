@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="64" tileheight="64">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="128" height="128" tilewidth="64" tileheight="64">
  <tileset firstgid="1" name="main" tilewidth="64" tileheight="64">
-  <image source="../code/untangled-2017/assets/tilesets/main.png" width="1024" height="1024"/>
+  <image source="../tilesets/main.png" width="1024" height="1024"/>
  </tileset>
- <layer name="Tile Layer 1" width="100" height="100">
+ <layer name="Tile Layer 1" width="128" height="128">
   <data encoding="base64" compression="zlib">
-   eJzt3MGJwlAUhtEsZz9gCVNC6rCmKWkKsaZBSEAuT5OXF/RfnAN3o8TF+xJiQnSepml+mOsyf52zbjeXoU9dPz0+S48semTRI0tdv6/B0WOMHln0yPKsx60xl2Va7+lxDj2y6JFFjyx6ZNEjix5ZXH9k0SPLtcxoj/p59Nla35+N2dqePqPHgx7n0iOLHln0yKJHlvua1e9L9Tvr3ml9Fn1a+3S9pts7jo9xemR51WPvOUKP8zyu3XoOGOlR77nQx/GRpbVP12Nmff97mfr6s+306Le17x/t4fg4xvkji/NHFj2yvFpf14Pvp0eW+5q5n5hj7zni6NBHjyx6ZNEjix5ZttbT83Dv5XnRLJ6nzqJHFr/HyaJHFj2y6JFFjyx6ZNEji+uPLHpk0SNLXb/1PuBv5/g/y3PokUWPLHpk0QMAAAAAAAAAAAAAAAAAAPiUf7fQPxQ=
+   eJzt3c1pw0AQgFEfcw+khJTgOlxTji4nhaSmYLBADPqzrDWznvdgLwkWhI+xlFXknE4AAAAAAAAAAAAAAAAAAK93DutyX78PruF113A8cju6fzweud0ajWdW/1rMf2361zZ0Gs4BH08u/fsSex3Z//rCn4N9WvY3//nN9f+bWF/3NfU9/fsU92v0r8X819ai//g9hdzMf23616Z/bS33/+z/5Gf/p7ZLWM/2j8cjt7We3ytr7fXk9uy86983/WvTvzb9a9O/tlujeD0ff4fbuqaORW5TMxv3cOKKfzOwtHdEbnv6zy39+7PUf+s5Xv9+jVsN5/A9/a/hGPr3Yarno/cCzX+/pmY2vicM3/+8r/j1udfpn9/abO/tb/77cNT5/xyOoX8fjrj+X7peILe163nXf+9tqefafp/9n/5t6W//733dGrn/U9fWc/zeRW7616Z/bfrXpn9ta/08//HePP9Vm+c/a5v7/Cf9a2j5+Q+e/88v3t85sr/5z6/l/Oufn/61tejv8//6Ea/XzH8t3v9ra7X/M5wDyM3+X2361xav14f7Nj8PLv//qU+x15H97f/m17K/+c9P/9r0BwAAAAAAAAAAAAAAAAAAAAAAADL4BwHNRkw=
   </data>
  </layer>
+ <objectgroup name="spawns">
+  <object name="Blue" x="4368" y="1920" width="56" height="64"/>
+  <object name="Red" x="4380" y="5592" width="64" height="56"/>
+ </objectgroup>
 </map>

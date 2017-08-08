@@ -232,10 +232,15 @@ class GameClient():
                                 me.move(Movement.LEFT)
                                 last_direction = Movement.LEFT
                                 toMove = True
-                        # A
-                        if joystick.get_button(1) or joystick.get_button(0):
+
+                        # R
+                        if joystick.get_button(5):
+
                             cast = True
                             me.attack(Action.SPELL, last_direction)
+                        if joystick.get_button (9):
+                            self.set_state(GameState.MENU)
+
                         last_update = pygame.time.get_ticks()
 
                     self.map.render()
@@ -244,6 +249,8 @@ class GameClient():
                         flag.render()
                     for spell in me.cast_spells:
                         spell.render()
+                    for particle in me.particle_list:
+                        particle.render()
 
                     self.players.set(self.network.node.peers())
 

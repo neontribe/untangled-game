@@ -14,6 +14,7 @@ class TileAttribute(Enum):
 
 class TileType(Enum):
     BUSH = (53,  [ TileAttribute.COLLIDE ])
+    MELON = (137, [ TileAttribute.COLLIDE])
     TREE = (79,  [ TileAttribute.COLLIDE ])
     BLUE_BLOCK = (177,  [])
     RED_BLOCK = (129,  [])

@@ -124,7 +124,7 @@ class Player():
         name_tag_colour = (255, 255, 255)
         if self.team:
             if self.team == "blue":
-                name_tag_colour = (0, 0, 255)
+                name_tag_colour = (0, 191, 255)
             elif self.team == "red":
                 name_tag_colour = (255, 0, 0)
 
@@ -138,7 +138,7 @@ class Player():
         )
 
         rect = pygame.Surface((name_tag.get_width() + 10, name_tag.get_height()), pygame.SRCALPHA, 32)
-        rect.fill((0,0,0, 127))
+        rect.fill((0,0,0, 160))
         self.screen.blit(rect, name_tag_pos)
 
         name_tag_pos = (

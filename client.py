@@ -9,6 +9,7 @@ import zmq
 import pdb
 import bson
 import uuid
+import webbrowser
 from pyre import Pyre, pyre_event
 from pyre import zhelper
 from collections import namedtuple
@@ -126,7 +127,7 @@ class GameClient():
                     running = False
                     break
                 elif(self.game_state.value == GameState.HELP.value):
-                    print("Help menu option pressed")
+                    webbrowser.open_new_tab("https://github.com/neontribe/untangled-2017/wiki")
                     self.game_state = GameState.MENU
                 elif(self.game_state.value == GameState.MUTE.value):
                     if me.mute == "False":

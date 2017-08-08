@@ -10,7 +10,6 @@ import client
 from tile import Tileset
 import map as map_module
 
-
 class Movement(Enum):
     UP = 1
     RIGHT = 2
@@ -27,24 +26,33 @@ class PlayerException(Exception):
     pass
 
 class Player():
-    def __init__(self, screen, map, network, colour=(255, 255, 255)):
+    def __init__(self, screen, map, network):
         self.screen = screen
         self.map = map
         self.ready = False
         self.is_centre = False
         self.size = (map_module.TILE_PIX_WIDTH, map_module.TILE_PIX_HEIGHT)
         self.step = 1
-        self.colour = colour
         self.cast_spells = []
         self.spell_limit = 50
         self.mute = 'True'
         self.tileset = Tileset(client.player_animation_tileset_path, (3, 4), (32, 32))
         self.name = ''
         self.x, self.y = (0, 0)
-        self.initial_position = (0, 0)
         self.animation_ticker = 0
-        self.set_position(self.initial_position)
         self.network = network
+        self.initial_position = (0, 0)
+        found = False
+        for x in range(map.level.width):
+            for y in range(map.level.height):
+                if map.level.can_move_to(x, y):
+                    self.initial_position = (x, y)
+                    found = True
+                    break
+            if found:
+                break
+        self.set_position(self.initial_position)
+        self.team = None
 
     def __raiseNoPosition(self):
         raise PlayerException({"message": "Player does not have a position set", "player": self})
@@ -55,8 +63,6 @@ class Player():
 
         config['Player'] = {}
         config['Player']['name'] = self.name
-        config['Player']['x'] = str(self.x)
-        config['Player']['y'] = str(self.y)
         config['Player']['mute'] = str(self.mute)
 
         with open('player_save', 'w') as configfile:
@@ -70,24 +76,18 @@ class Player():
 
         if 'Player' in config:
             player_save_info = config['Player']
-
+            self.network.node.set_header('NAME', self.name)
             self.set_name(player_save_info['name'])
-            self.set_position(
-                (
-                    int(player_save_info['x']),
-                    int(player_save_info['y'])
-                )
-            )
             self.set_mute(player_save_info.get('mute', 'True'))
             return True
 
         return False
 
     def set_name(self, name, save = False):
-        self.network.node.set_header("playername", name)
-        
         self.name = name
-        if save: self.save_to_config()
+        if save:
+            self.network.node.set_header('NAME', self.name)
+            self.save_to_config()
 
     def set_tileset(self, tileset):
         self.tileset = tileset
@@ -113,7 +113,16 @@ class Player():
 
     def render(self):
         font = pygame.font.Font(client.font, 30)
-        name_tag = font.render(self.name, False, (255, 255, 255))
+
+        name_tag_colour = (255, 255, 255)
+        if self.team:
+            if self.team == "blue":
+                name_tag_colour = (0, 0, 255)
+            elif self.team == "red":
+                name_tag_colour = (255, 0, 0)
+
+
+        name_tag = font.render(self.name, False, name_tag_colour)
 
         centre = self.map.get_pixel_pos(self.x, self.y)
 
@@ -159,16 +168,18 @@ class Player():
 
         return Position(self.x, self.y)
 
-    def attack(self, action, direction):
+    def attack(self, action, direction,position=None):
         if action == Action.SPELL:
             if direction == Movement.UP:
-                spell = Spell(self, (0, -0.25))
+                spell = Spell(self, (0, -0.25),position)
             elif direction == Movement.RIGHT:
-                spell = Spell(self, (0.25, 0))
+                spell = Spell(self, (0.25, 0),position)
             elif direction == Movement.DOWN:
-                spell = Spell(self, (0, 0.25))
+                spell = Spell(self, (0, 0.25),position)
             elif direction == Movement.LEFT:
-                spell = Spell(self, (-0.25, 0))
+                spell = Spell(self, (-0.25, 0),position)
+            else:
+                spell = Spell(self, direction,position)
 
             # Remove first element of list if limit reached.
             if len(self.cast_spells) > self.spell_limit:
@@ -178,11 +189,20 @@ class Player():
             #TODO
             return
 
+    def remove_spell(self,spell):
+        self.cast_spells.remove(spell)
+        return
+
+    def set_team(self, team):
+        self.team = team
+
 class Spell():
-    def __init__(self, player, velocity, position=None, size=(0.25, 0.25), colour=(0,0,0)):
+    def __init__(self, player, velocity, position=None, size=(0.25, 0.25), colour=(0,0,0), life=100):
         self.player = player
         self.size = size
         self.colour = colour
+        self.life = life
+        self.maxLife = life
         if position == None:
             # spawn at player - additional maths centres the spell
             self.x = self.player.x + 0.5 - (size[0] / 2)
@@ -193,16 +213,33 @@ class Spell():
         self.set_velocity(velocity)
 
     def render(self):
+        self.colour = (random.randrange(255),random.randrange(255),random.randrange(255))
+        newSize = self.life/self.maxLife #random.randrange(100)/100
+        self.size = (newSize,newSize)
+        if(self.life <= 0):
+            self.destroy()
+
+        self.life -= 1
+
         pixel_pos = self.player.map.get_pixel_pos(self.x, self.y);
         pixel_size = (
             self.size[0] * map_module.TILE_PIX_WIDTH,
             self.size[1] * map_module.TILE_PIX_HEIGHT
         )
-        self.rect = pygame.draw.rect(self.player.screen, self.colour, Rect(pixel_pos, pixel_size))
+        offset_pos = (
+            pixel_pos[0] - (pixel_size[0]/2),
+            pixel_pos[1] - (pixel_size[1]/2)
+        )
+        self.rect = pygame.draw.rect(self.player.screen, self.colour, Rect(offset_pos, pixel_size))
 
         # move the projectile by its velocity
         self.x += self.velo_x
         self.y += self.velo_y
+
+    #destroy the spell
+    def destroy(self):
+        self.player.remove_spell(self)
+        del(self)
 
     def get_properties(self):
         return SpellProperties(self.x, self.y, self.velo_x, self.velo_y)
@@ -211,7 +248,8 @@ class Spell():
         self.x, self.y, self.velo_x, self.velo_y = properties
 
     def set_position(self, position):
-        self.x, self.y = position
+        self.x = position[0] + 0.5 - (self.size[0] / 2)
+        self.y = position[1] + 0.5 - (self.size[1] / 2)
 
     def set_velocity(self, velocity):
         self.velo_x, self.velo_y = velocity
@@ -227,19 +265,49 @@ class PlayerManager():
         self.network = network
         self.me.load_from_config()
         self.others = {}
+        self.authority_uuid = ''
+
+    def set_teams(self, teams):
+        blue_team = teams.get('blue')
+        red_team = teams.get('red')
+
+        # Set team for current player
+        self_uuid = str(self.network.node.uuid())
+
+        if self_uuid in blue_team:
+            self.me.set_team("blue")
+        elif self_uuid in red_team:
+            self.me.set_team("red")
+
+        # Set teams for other players
+        for uuid, player in self.others.items():
+            str_uuid = str(uuid)
+            if str_uuid in blue_team:
+                player.set_team("blue")
+            elif str_uuid in red_team:
+                player.set_team("red")
+
 
     def set(self, players):
         newPlayers = {}
-        for uuid, player in enumerate(players):
-            random.seed(uuid)
-            colour = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-            newPlayers[uuid] = self.others.get(uuid, Player(self.me.screen, self.me.map, self.network, colour=colour))
-            print(uuid)
-            #newPlayers[uuid].set_name(str(player.name))
+        for uuid in players:
+            if str(uuid) == self.authority_uuid:
+                continue
+
+            random.seed(str(uuid))
+            newPlayers[str(uuid)] = self.others.get(
+                str(uuid),
+                Player(self.me.screen, self.me.map, self.network)
+            )
+
         self.others = newPlayers
 
     def all(self):
         return list(self.others.values()).push(self.me)
 
+    def remove(self, uuid):
+        if str(uuid) in self.others:
+            del self.others[str(uuid)]
+
     def get(self, uuid):
-        return self.others[uuid]
+        return self.others[str(uuid)]

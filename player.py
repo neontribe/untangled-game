@@ -47,7 +47,7 @@ class Player():
         found = False
         for x in range(map.level.width):
             for y in range(map.level.height):
-                if map.level.can_move_to(x, y):
+                if map.level.is_safe(x, y):
                     self.initial_position = (x, y)
                     found = True
                     break

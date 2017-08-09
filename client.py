@@ -35,6 +35,7 @@ font = 'assets/fonts/alterebro-pixel-font.ttf'
 level_tileset_path = 'assets/tilesets/main.png'
 player_animation_tileset_path = 'assets/tilesets/player.png'
 spell_image_path = 'assets/images/fireball.png'
+arrow_image_path = 'assets/images/arrow.png'
 
 buttons = {"A":1, "B":2, "X":0, "Y":3, "L":4, "R":5, "Start":9, "Select":8} #Use these for the PiHut SNES controller
 #buttons = {"A":0, "B":1, "X":2, "Y":3, "L":4, "R":5, "Start":7, "Select":6} #Use these for the iBuffalo SNES controller
@@ -175,7 +176,7 @@ class GameClient():
                             elif event.key == pygame.locals.K_RETURN or event.key == pygame.locals.K_SPACE :
                                 if me.can_fire_ability:
                                     cast = True
-                                    me.attack(Action.SPELL, last_direction, self.spell_image)
+                                    me.attack(Action.SPELL, last_direction, arrow_image_path)
 
                             if event.key == pygame.locals.K_r and me.can_step_ability:
                                 me.step = 2
@@ -258,7 +259,7 @@ class GameClient():
 
                         last_update = pygame.time.get_ticks()
 
-                    if cast:
+                    if cast == True:
                         me.can_fire_ability = False
                         me.firetime = time.time()                        
                     elif time.time() - me.firetime > 2:
@@ -341,6 +342,8 @@ class GameClient():
                             self.network.node.shout("world:combat", bson.dumps(me.cast_spells[-1].get_properties()._asdict()))
                             cast = False
 
+                    if cast == True:
+                        cast = False
                     for playerUUID, player in self.players.others.items():
                         try:
                             player.render()

@@ -276,7 +276,7 @@ class Player():
         return
 
 class Spell():
-    def __init__(self, player, velocity, image, position=None, size=(0.25, 0.25), colour=(0,0,0), life=100):
+    def __init__(self, player, velocity, image, position=None, size=(0.1, 0.1), colour=(0,0,0), life=100):
         self.player = player
         self.image = image
         self.size = size
@@ -292,27 +292,37 @@ class Spell():
 
         self.set_velocity(velocity)
 
+        self.image = pygame.image.load(image)
+
     def render(self):
         self.colour = (random.randrange(255),random.randrange(255),random.randrange(255))
-        newSize = self.life/self.maxLife #random.randrange(100)/100
-        self.size = (newSize,newSize)
+        progress = self.life/self.maxLife #random.randrange(100)/100
+        newSize = (progress*self.size[0],progress*self.size[1])
         if(self.life <= 0):
             self.destroy()
 
         self.life -= 1
 
+        # Complicated mathmatical equations
+        image_size = self.image.get_size()
+        newImageSize = (
+            int(image_size[0]*newSize[0]),
+            int(image_size[1]*newSize[1])
+        )
+        # Look at all this math!
+        newRotation = math.atan2(self.velo_x,self.velo_y)*(180/math.pi)-180
+
+
         pixel_pos = self.player.map.get_pixel_pos(self.x, self.y);
-        pixel_size = (
-            self.size[0] * map_module.TILE_PIX_WIDTH,
-            self.size[1] * map_module.TILE_PIX_HEIGHT
-        )
         offset_pos = (
-            pixel_pos[0] - (pixel_size[0]/2),
-            pixel_pos[1] - (pixel_size[1]/2)
+            pixel_pos[0] - (newImageSize[0]/2),
+            pixel_pos[1] - (newImageSize[1]/2)
         )
-        self.rect = pygame.draw.rect(self.player.screen, self.colour, Rect(offset_pos, pixel_size))
-        # self.image = pygame.transform.scale(self.image, (20, 20))
-        # self.player.screen.blit(self.image, offset_pos)
+
+        print(newImageSize)
+        surf = pygame.transform.scale(self.image, newImageSize)
+        surf = pygame.transform.rotate(surf, newRotation)
+        self.player.screen.blit(surf, offset_pos)
 
         # move the projectile by its velocity
         self.x += self.velo_x

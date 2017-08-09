@@ -4,6 +4,8 @@ import bson
 import zmq
 
 from pyre import Pyre
+from pygame.time import Clock
+
 from level import SaveLevel, Place
 from tile import TileType
 
@@ -71,7 +73,7 @@ class Authority():
                 "timer":0
             }
         }
-   
+
         self.serve()
         
 
@@ -116,7 +118,10 @@ class Authority():
         return place
 
     def serve(self):
+        clock = Clock()
         while True:
+            clock.tick(60)
+
             # check network
             events = self.get_events()
             if events:

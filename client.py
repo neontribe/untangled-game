@@ -18,7 +18,7 @@ from enum import Enum
 from map import *
 from network import Network
 from player import *
-from flag import *
+from sprite import *
 from screen import MainMenu
 from level import SaveLevel
 from tile import Tileset
@@ -34,6 +34,8 @@ height = 1024
 font = 'assets/fonts/alterebro-pixel-font.ttf'
 level_tileset_path = 'assets/tilesets/main.png'
 player_animation_tileset_path = 'assets/tilesets/player.png'
+red_flag = "assets/tilesets/Red Flag.png"
+blue_flag = "assets/tilesets/Blue Flag.png"
 
 class GameState(Enum):
     MENU = 0
@@ -50,9 +52,14 @@ class GameClient():
         self.network = Network()
         self.setup_pygame()
         me = Player(self.screen, self.map, self.network)
-
         self.players = PlayerManager(me, self.network)
-        self.flags = [Flag(self.screen, self.map, "red"), Flag(self.screen, self.map, "blue")]
+
+        red = Sprite(self.screen, self.map, red_flag)
+        blue = Sprite(self.screen, self.map, blue_flag)
+        self.flags = {
+            'red': red,
+            'blue': blue
+        }
         self.map.set_centre_player(self.players.me)
         self.menu = MainMenu(self.screen, self.players)
 
@@ -106,7 +113,6 @@ class GameClient():
         toMove = False # Flag for when player moves - reduces network stress
         cast = False # Flag for when player casts spell.
         me = self.players.me
-        flags = self.flags
 
         if me.mute == "False":
             LevelMusic.play_music_repeat()
@@ -245,7 +251,7 @@ class GameClient():
 
                     self.map.render()
                     me.render()
-                    for flag in flags:
+                    for flag in self.flags.values():
                         flag.render()
                     for spell in me.cast_spells:
                         spell.render()

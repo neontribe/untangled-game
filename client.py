@@ -246,7 +246,7 @@ class GameClient():
                         if joystick.get_button(buttons["R"]) or joystick.get_button(buttons["A"]):
                             if me.can_fire_ability:
                                 cast = True
-                                me.attack(Action.SPELL, last_direction)
+                                me.attack(Action.SPELL, last_direction, self.spell_image)
                         #Menu
                         if joystick.get_button(buttons["Start"]) or joystick.get_button(buttons["Select"]):
                             self.set_state(GameState.MENU)
@@ -312,7 +312,6 @@ class GameClient():
                                     new_spell_properties = bson.loads(event.msg[0])
                                     network_spell_caster = self.players.get(event.peer_uuid)
                                     network_spell_caster.cast_spells.append(Spell(network_spell_caster, (0, 0), self.spell_image))
-                                    print(len(network_spell_caster.cast_spells))
                                     network_spell_caster.cast_spells[-1].set_properties(SpellProperties(**new_spell_properties))
                                 if event.group == "ctf:teams":
                                     if event.type == "SHOUT":

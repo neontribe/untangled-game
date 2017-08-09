@@ -50,6 +50,7 @@ class Player():
         self.animation_ticker = 0
         self.network = network
 
+        self.healthcount = 0
 
         self.particle_list = []
         self.particle_limit = 500
@@ -195,6 +196,8 @@ class Player():
 
         if isMe:
             self.hudRender()
+            if self.map.level.get_tile(self.x,self.y).has_attribute(TileAttribute.SPIKES):
+                self.health -= 1
 
     def render_particles(self):
         toRemove = []
@@ -239,7 +242,7 @@ class Player():
 
         if self.map.level.get_tile(self.x,self.y).colour != None:
             c = self.map.level.get_tile(self.x,self.y).colour
-
+            
         # while (can keep moving) and (x difference is not more than step) and (y difference is not more than step)
         while self.map.level.can_move_to(self.x + tmp_x, self.y + tmp_y) and abs(tmp_x) <= self.step and abs(tmp_y) <= self.step:
             #               amount,    position,              colour,size,velocity,gravity,life,metadata,grow

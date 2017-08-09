@@ -31,7 +31,7 @@ class Level():
     def is_safe(self,  x,  y):
         if self.get_tile(x,  y).has_attribute(TileAttribute.SPIKES):
             return False
-        elif not self.can_move_to(x,  y):
+        elif not self.can_move_to(x,y):
             return False
         return True
     

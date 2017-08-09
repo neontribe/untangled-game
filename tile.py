@@ -23,7 +23,8 @@ class TileType(Enum):
     BIGTREE3 = ([172], [])
     BIGTREE4 = ([173], [])
     BUSH = ([137], [ TileAttribute.COLLIDE ])
-    TREE = ([79],  [ TileAttribute.COLLIDE ])
+    TREE = ([145],  [ TileAttribute.COLLIDE ])
+    SANDTREE = ([160],  [ TileAttribute.COLLIDE ]) 
     BLUE_BLOCK = ([177],  [])
     RED_BLOCK = ([129],  [])
     BLUE_SPAWN = ([121],  [])
@@ -38,16 +39,14 @@ class TileType(Enum):
 
     def __init__(self, tileset_id, attributes):
         self.tileset_id = tileset_id
-        self.attributes = 0
+        self.attributes = attributes
         self.animationFrame = 0
-        for attribute in attributes:
-            # bitwise or - combines each binaru number into one number
-            # a TileType with WATER and COLLIDE would look like 1001
-            self.attributes = self.attributes | attribute.value
 
     def has_attribute(self, attribute):
-        # bitwise and - sees if one binaru number contains another
-        return self.attributes & attribute.value == attribute.value
+        return attribute in self.attributes
+
+    def get_attributes(self):
+        return self.attributes
 
 
 class Tileset():

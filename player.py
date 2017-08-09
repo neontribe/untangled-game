@@ -95,7 +95,7 @@ class Player():
         return False
 
     def set_name(self, name, save = False):
-        self.name = name
+        self.name = name[:14]
         if save:
             self.network.node.shout("player:name", bson.dumps(
                 {
@@ -241,7 +241,7 @@ class Player():
 
     def attack(self, action, direction, image, position=None):
         if action == Action.SPELL:
-            if self.mana >= 5:
+            if self.mana > 5:
                 self.depleatMana(5)
                 if direction == Movement.UP:
                     spell = Spell(self, (0, -0.25), image, position)

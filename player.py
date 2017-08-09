@@ -203,7 +203,7 @@ class Player():
         # while (can keep moving) and (x difference is not more than step) and (y difference is not more than step)
         while self.map.level.can_move_to(self.x + tmp_x, self.y + tmp_y) and abs(tmp_x) <= self.step and abs(tmp_y) <= self.step:
             #               amount,    position,              colour,size,velocity,gravity,life,metadata,grow
-            self.add_particle(3,(self.x+tmp_x+ 0.5,self.y+tmp_y+0.9),c,3,None,(-tmp_x/1000,-tmp_y/1000),15,2,0.1)
+            self.add_particle(3,(self.x+tmp_x+ 0.5,self.y+tmp_y+0.9),c,3,None,(-tmp_x/1000,-tmp_y/1000),5,2,0.1)
             if direction == Movement.RIGHT:
                 tmp_x += 1
             elif direction == Movement.LEFT:
@@ -265,7 +265,7 @@ class Player():
             if velocity != None:
                 newParticle["velocity"] = velocity
             else:
-                newParticle["velocity"] = (random.randrange(-i,i)/(i*20),random.randrange(-i,i)/(i*20))
+                newParticle["velocity"] = (random.randrange(-i,i)/(i*10),random.randrange(-i,i)/(i*10))
             self.particle_list.append(newParticle)
         
     def remove_particle(self,particle):
@@ -316,7 +316,7 @@ class Spell():
     #destroy the spell
     def destroy(self):
         self.player.remove_spell(self)
-        self.player.add_particle(5,(self.x,self.y),self.colour,2,None,(self.velo_x*3,self.velo_y*3),40,0,0.1)
+        #self.player.add_particle(5,(self.x,self.y),self.colour,2,None,(self.velo_x*3,self.velo_y*3),40,0,0.1)
         del(self)
 
     def get_properties(self):

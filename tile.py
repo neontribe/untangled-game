@@ -13,8 +13,13 @@ class TileAttribute(Enum):
     SPIKES =    0b0010
 
 class TileType(Enum):
-    BUSH = ([53],  [ TileAttribute.COLLIDE ])
-    MELON = ([137], [ TileAttribute.COLLIDE ])
+    GRASS = ([53],  [])
+    DIRT = ([2], [])
+    BIGTREE1 = ([156], [])
+    BIGTREE2 = ([157], [])
+    BIGTREE3 = ([172], [])
+    BIGTREE4 = ([173], [])
+    BUSH = ([137], [ TileAttribute.COLLIDE ])
     TREE = ([79],  [ TileAttribute.COLLIDE ])
     BLUE_BLOCK = ([177],  [])
     RED_BLOCK = ([129],  [])

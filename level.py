@@ -68,33 +68,16 @@ class SaveLevel(Level):
             [None for x in range(self.width)] for y in range(self.height)
         ]
         self.places = {}
+        TILES = [TileType.GRASS, TileType.DIRT, TileType.BIGTREE1, TileType.BIGTREE2, TileType.BIGTREE3, TileType.BIGTREE4, TileType.BUSH, TileType.TREE, TileType.BLUE_BLOCK, TileType.RED_BLOCK, TileType.BRICK, TileType.BRIDGE, TileType.WATER, TileType.SHELTER, TileType.SAND, TileType.LAVA]
         for layer in tile_map.layers:
             if isinstance(layer,  tmx.Layer):
                 for index, tile in enumerate(layer.tiles):
                     x = index % self.width
                     y = index // self.width
-                    if tile.gid == 54: # bush block
-                        self.grid[y][x] = TileType.BUSH
-                    elif tile.gid == 80: # tree
-                        self.grid[y][x] = TileType.TREE
-                    elif tile.gid == 178: #blue base block
-                        self.grid[y][x] = TileType.BLUE_BLOCK
-                    elif tile.gid == 8: #brick
-                        self.grid[y][x] = TileType.BRICK
-                    elif tile.gid == 22: #bridge
-                        self.grid[y][x] = TileType.BRIDGE
-                    elif tile.gid == 206: #water
-                        self.grid[y][x] = TileType.WATER
-                    elif tile.gid == 38: #shelter
-                        self.grid[y][x] = TileType.SHELTER
-                    elif tile.gid == 19: #sand
-                        self.grid[y][x] = TileType.SAND
-                    elif tile.gid == 130: #red base block
-                        self.grid[y][x] = TileType.RED_BLOCK
-                    elif tile.gid == 138: #plant block
-                        self.grid[y][x] = TileType.MELON
-                    else: # empty/other
-                        self.grid[y][x] = TileType.LAVA
+                    self.grid[y][x] = TileType.LAVA #default to lava
+                    for i in TILES:
+                        if i.value[0][0] == tile.gid - 1:
+                            self.grid[y][x] = i
             elif isinstance(layer,  tmx.ObjectGroup):
                 if layer.name == 'spawns':
                     for object in layer.objects:

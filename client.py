@@ -36,8 +36,8 @@ level_tileset_path = 'assets/tilesets/main.png'
 player_animation_tileset_path = 'assets/tilesets/player.png'
 spell_image_path = 'assets/images/fireball.png'
 
-buttons = {"A":1, "B":2, "X":0, "Y":3, "L":4, "R":5, "Start":9, "Select":8} #Use these for the PiHut SNES controller
-#buttons = {"A":0, "B":1, "X":2, "Y":3, "L":4, "R":5, "Start":7, "Select":6} #Use these for the iBuffalo SNES controller
+#buttons = {"A":1, "B":2, "X":0, "Y":3, "L":4, "R":5, "Start":9, "Select":8} #Use these for the PiHut SNES controller
+buttons = {"A":0, "B":1, "X":2, "Y":3, "L":4, "R":5, "Start":7, "Select":6} #Use these for the iBuffalo SNES controller
 
 error_message = "Everything is lava"
 
@@ -84,7 +84,7 @@ class GameClient():
             pygame.locals.KEYDOWN, pygame.locals.MOUSEBUTTONDOWN,  pygame.locals.JOYBUTTONDOWN])
 
         self.levels = {
-            "main": SaveLevel('./assets/maps/CAPFLAG MAP')
+            "main": SaveLevel('./assets/maps/CAPFLAG MAP NAT')
         }
 
         self.map = Map(

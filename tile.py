@@ -10,7 +10,7 @@ TileAttribute represents the actions which a tile is able to inflict upon a play
 '''
 class TileAttribute(Enum): #I don't actually know how this works, someone else needs to fix it - Nat
     COLLIDE =   0b0001
-    SPIKES  =   0b0010 #Make this hurt you but allow you to move through normally
+    SPIKES  =   0b0010
     SWIM    =   0b0011
     SLOW    =   0b0100
     HIDE    =   0b0101
@@ -23,8 +23,7 @@ class TileType(Enum):
     BIGTREE3 = ([172], [])
     BIGTREE4 = ([173], [])
     BUSH = ([137], [ TileAttribute.COLLIDE ])
-    TREE = ([145],  [ TileAttribute.COLLIDE ])
-    SANDTREE = ([160], [ TileAttribute.HIDE ])
+    TREE = ([79],  [ TileAttribute.COLLIDE ])
     BLUE_BLOCK = ([177],  [])
     RED_BLOCK = ([129],  [])
     BLUE_SPAWN = ([121],  [])
@@ -41,14 +40,8 @@ class TileType(Enum):
         self.tileset_id = tileset_id
         self.attributes = attributes
         self.animationFrame = 0
-        #for attribute in attributes:
-            # bitwise or - combines each binaru number into one number
-            # a TileType with WATER and COLLIDE would look like 1001
-        #    self.attributes = self.attributes | attribute.value
 
     def has_attribute(self, attribute):
-        # bitwise and - sees if one binaru number contains another
-        #return self.attributes & attribute.value == attribute.value
         return attribute in self.attributes
 
     def get_attributes(self):

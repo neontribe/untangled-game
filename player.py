@@ -25,8 +25,12 @@ Position = namedtuple('Position', ['x', 'y'])
 SpellProperties = namedtuple('SpellProperties', ['x', 'y', 'x_velocity', 'y_velocity',])
 
 class Action(Enum):
-    SPELL = 1
-    SWIPE = 2
+    ARROW = 0
+    FIRE = 1
+    FROST = 2
+    ICE = 3
+    LIGHTENING = 4
+    POISON = 5
 
 class PlayerException(Exception):
     pass
@@ -39,9 +43,6 @@ class Player():
         self.is_centre = False
         self.size = (map_module.TILE_PIX_WIDTH, map_module.TILE_PIX_HEIGHT)
         self.step = 1
-        self.projSpeed = 1.5
-        self.cast_spells = []
-        self.spell_limit = 50
         self.mute = 'True'
         self.tileset = Tileset(client.player_animation_tileset_path, (3, 4), (32, 32))
         self.name = ''
@@ -55,16 +56,21 @@ class Player():
 
         self.steptime = 0
         self.can_step_ability = True
-        
+
         self.firetime = 0
         self.can_fire_ability = True
+
+        self.projSpeed = 1.5
+        self.cast_spells = []
+        self.current_spell = 0
+        self.spell_limit = 50
 
         self.initial_position = map.level.get_place(Place.RED_SPAWN)
 
         self.set_position(self.initial_position)
 
         self.team = None
-        
+
         self.health = health
         self.mana = mana
         self.maxMana = mana
@@ -130,6 +136,12 @@ class Player():
         self.mute = mute
         if save: self.save_to_config()
 
+    def change_spell(self):
+        if(self.current_spell == 5):
+            self.current_spell = 0
+        else:
+            self.current_spell += 1
+
     def hudRender(self):
         font = pygame.font.Font(client.font, 30)
         mana = font.render("Mana: "+str(self.mana)+"/100", False, (255,255,255))
@@ -178,7 +190,7 @@ class Player():
         self.rect.topleft = centre
 
         self.render_particles()
-        
+
         if isMe:
             self.hudRender()
 
@@ -186,7 +198,7 @@ class Player():
         toRemove = []
         for particle in self.particle_list:
             pixel_pos = self.map.get_pixel_pos(particle["position"][0],particle["position"][1])
-        
+
             if particle["life"] <= 0:
                 toRemove.append(particle)
 
@@ -225,7 +237,7 @@ class Player():
 
         if self.map.level.get_tile(self.x,self.y).colour != None:
             c = self.map.level.get_tile(self.x,self.y).colour
-        
+
         # while (can keep moving) and (x difference is not more than step) and (y difference is not more than step)
         while self.map.level.can_move_to(self.x + tmp_x, self.y + tmp_y) and abs(tmp_x) <= self.step and abs(tmp_y) <= self.step:
             #               amount,    position,              colour,size,velocity,gravity,life,metadata,grow
@@ -255,31 +267,25 @@ class Player():
         return Position(self.x, self.y)
 
     def attack(self, action, direction, image, position=None):
-        if action == Action.SPELL:
-            if self.mana > 5:
-                self.depleatMana(5)
-                if direction == Movement.UP:
-                    spell = Spell(self, (0, -self.projSpeed), image, position)
-                elif direction == Movement.RIGHT:
-                    spell = Spell(self, (self.projSpeed, 0), image, position)
-                elif direction == Movement.DOWN:
-                    spell = Spell(self, (0, self.projSpeed), image, position)
-                elif direction == Movement.LEFT:
-                    spell = Spell(self, (-self.projSpeed, 0), image, position)
-                else:
-                    spell = Spell(self, direction, image, position)
-
-                # Remove first element of list if limit reached.
-                if len(self.cast_spells) > self.spell_limit:
-                    self.cast_spells[1:]
-                self.cast_spells.append(spell)
-                return True
+        if self.mana > 5:
+            if direction == Movement.UP:
+                spell = Spell(self, (0, -self.projSpeed), image, position)
+            elif direction == Movement.RIGHT:
+                spell = Spell(self, (self.projSpeed, 0), image, position)
+            elif direction == Movement.DOWN:
+                spell = Spell(self, (0, self.projSpeed), image, position)
+            elif direction == Movement.LEFT:
+                spell = Spell(self, (-self.projSpeed, 0), image, position)
             else:
-                return False
-        elif action == Action.SWIPE:
-            #TODO
+                spell = Spell(self, direction, image, position)
+
+            # Remove first element of list if limit reached.
+            if len(self.cast_spells) > self.spell_limit:
+                self.cast_spells[1:]
+            self.cast_spells.append(spell)
+            return True
+        else:
             return False
-        return False
 
     def remove_spell(self,spell):
         self.cast_spells.remove(spell)
@@ -289,7 +295,7 @@ class Player():
         self.team = team
 
     def add_particle(self,amount, position, colour=(255,255,255), size=3, velocity=None, gravity=(0,0), life=40, metadata=0,grow=0):
-        for i in range(amount):        
+        for i in range(amount):
             if(len(self.particle_list) >= self.particle_limit):
                 self.particle_list[0].destroy()
             newParticle = {"position":position, "velocity":velocity, "gravity":gravity, "colour":colour, "size":size, "life":life, "metadata":metadata, "grow":grow}
@@ -303,29 +309,30 @@ class Player():
     def remove_particle(self,particle):
         self.particle_list.remove(particle)
         return
-        
+
     def depleatHealth(self, amount):
         self.health -= amount
         if self.health < 0:
             self.die()
-            
+
     def die(self): # Don't get confused with `def` and `death`!!! XD
         pass
-    
+
     def addMana(self, amount):
         self.mana += amount
-    
+
     def depleatMana(self, amount):
         self.mana -= amount
 
 class Spell():
-    def __init__(self, player, velocity, image, position=None, size=(0.1, 0.1), colour=(0,0,0), life=100):
+    def __init__(self, player, velocity, image, position=None, size=(0.1, 0.1), colour=(0,0,0), life=100, mana_cost = 5):
         self.player = player
         self.image = image
         self.size = size
         self.colour = colour
         self.life = life
         self.maxLife = life
+        self.mana_cost = mana_cost
         if position == None:
             # spawn at player - additional maths centres the spell
             self.x = self.player.x + 0.5 - (size[0] / 2)
@@ -335,6 +342,7 @@ class Spell():
 
         self.set_velocity(velocity)
 
+        self.player.depleatMana(self.mana_cost)
         self.image = pygame.image.load(image)
 
     def render(self):

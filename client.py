@@ -83,7 +83,7 @@ class GameClient():
             pygame.locals.KEYDOWN, pygame.locals.MOUSEBUTTONDOWN,  pygame.locals.JOYBUTTONDOWN])
 
         self.levels = {
-            "main": SaveLevel('./assets/maps/CAPFLAG MAP NAT')
+            "main": SaveLevel('./assets/maps/CAPFLAG MAP')
         }
 
         self.map = Map(

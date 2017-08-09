@@ -1,15 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="128" height="128" tilewidth="64" tileheight="64">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="49" height="98" tilewidth="64" tileheight="64">
  <tileset firstgid="1" name="main" tilewidth="64" tileheight="64">
   <image source="../tilesets/main.png" width="1024" height="1024"/>
  </tileset>
- <layer name="Tile Layer 1" width="128" height="128">
+ <layer name="Tile Layer 1" width="49" height="98">
   <data encoding="base64" compression="zlib">
-   eJzt2kFO60AMBuAINt1H4ig9HEuWLDkKJ3gn6JkeEakSGWdqx54Zd/xb+iWCopD6az1J6Oc0TZ9PnpHK2ovvB3kX7AOPrWp7SAKPreARq+ARq+ARq+ARq+ARq6y9uK15W3MThO4Lj608LKweVpORysPCw8NiMlItr+cqyMtPXtfsf6ah+0mObQk8yqH7wUNX0TxmQTJ5fK3pMa/u/S6tPdQEHr8/c9vc7z0tOJPRPSzziu6j9ZBY7E3goQs89KXx4GYSPHxreT1H1y5Sm1K8144M6wd9ndJrTY9YLEb3kPbC06VkkfX+QzO3uT55fD6oi/TYI3rQ/p6x8ZpbWucRPR71RXrPXGN9ye6hmSnSea8NPLbQ5yX77Xm3rV1zJLkfe2b+NrcND3jULun9+aP1xTOYV8+ZywSPKLlM8IiUjB61Zj7m1XEdebRYtz18s3hEMJEkk8czOMEjllt2jwuTnm7ZPahJy+speMQPPGzx/lzBw27haQIPeNQszKtYxX2fgUtLs+weLb/fA49yab9/1fv5SIb7jxr/C28VeMTKgB7/bk+c5fx799Cz4BGrltczB0t2j2ugaG3g0c+GCzyOc1nT0gweZYvWJvCAR83CvIpVkdfzrB7cdUvLnlrmXBYPaTwtzpjAo48bPPoEHv0NLE4jekjfixFNRvRofc9wxjfT56PHfRzWc77gEat6zit4/C3t85Jo17yje3yt4bbn3XaN/4Xfjz0zf5vbhgc8aleveVVy0cyu7B4eOeNyZJTVw7rulo6pmWn0HDJ6cH3zctHMsYzf99HOe4/PiXaOZfHQ9sJrbklm49H7Y1SPmhYvimi9RvbQrqvS9/vS51dBztjAo54HtYFHGw+JDzzkJtp1fN9/OpPo70se2Z6XaO6ZNddLtM+lzwQ89NeaGotroeeYV3+rxfMreMirhYfXvMricSZ0XXlbI7keONr37Ln07qFnne0BNbF6WM6jdw89y9KHvYnFw3oOvXvoWdZefPwcwxp4bAWPWAWPWAWPWAWPWAWPWFXb412wDzy2svYiQnr3EIVCtan/nVgfLg==
+   eJztms2NwyAQhZFy8T1SStgSXNwe92hpm9kKXEFq2sTCkjUZYP5gcMLhHZxgeB+8gdjKEkJYPlx/BX0T2vTOQNFgGAyDYTBY6h51i7oTBNv24F/L4MVB8cVh0HLMBH2FsOZ0ebS5IO0ofWvEZdh95gTbfSLDlSACwzojGYB5oTBws7R7zNUS5NAw5GpAwkDxj3FYZwm24TJQ/B85atVD7wxYXnphSNU8lScn61pI1QP8jrqvWUjjH2Og3m/JkvPPOR84OcT6tlgHyELtG6sHSW1ZrIs0t9i+lFq/1hmjirq3Slikmpm/TxCG9aCX68iwRrHriKD1io8P/WkYtjEcGKBKWcquZeQwyU2lLJ1K08kZpg9iYOa4uyzVrFvLObFcBy9J68HbtwVDT6wShgmRJ6t0HSz9a1nPfD7s8mCwXr/WDNZ1NBj0HFb9pd4JYGrJKWFo+S7Gi8H6ub/GOV3p2biJ3ohhvZ9YS5S3DwuGa2eSMMwdicvTI0OOB5M1wxTVktOSYQIaDD4MR45W/msweCh3PrT0ocmgxRln6V/C0fKc9siSl96BgcvG3Zd65NgZWu/pkjkprYPH2WRd0+/C4O1Fy8C8L1Su3VAan8AQEtr97+8Uajwfb/0fOF7GB9clBuy6OkPkwOaTw9AkSzkWyp6qZFBLwpLi4jBwzh0uCydv0AOVARvLioWTMeq7GW5+LdaDm7EcA/d+q0xRcpua0yNDTf9fYft/NUlcRsjArS3qvD69XcL2P/esJDy9MUCenhkoTFIGKge3lo+eYV7g5wWGMBd+83HOTs4+A73l5l7LQN3XOP7njE/rLNXUOzCUakBzViwKwTq5RVH2hFRbjR8LDi2Dh3/IoWHw9P/UzyO3Wg2GwTAYBkNLht8TMPSgf4XsHk8=
+  </data>
+ </layer>
+ <layer name="Tile Layer 2" width="49" height="98">
+  <data encoding="base64" compression="zlib">
+   eJzt2jsKhDAQANC5f2mvN3DP4NFWBZuwYgrXTOS9JkyayQfCDCQCAIAshoilZo6Iz3ouc+dnM63rHzvfAwCQV1kvXcUZc5f10lV8p5a54SlHv6nvBOiTdzwH9wAAAGyGYqQN9wDQN+84bzHG/qegOs6Ye479b0d1fKeWuQEA/lmrPUW9dO5Xv6kHBQDI5QszRUhV
   </data>
  </layer>
  <objectgroup name="spawns">
-  <object name="Blue" x="4368" y="1920" width="56" height="64"/>
-  <object name="Red" x="4380" y="5592" width="64" height="56"/>
+  <object name="Blue" x="1536" y="64" width="64" height="64"/>
+  <object name="Red" x="1536" y="6143" width="64" height="64"/>
  </objectgroup>
 </map>

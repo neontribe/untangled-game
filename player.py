@@ -118,6 +118,16 @@ class Player():
         self.mute = mute
         if save: self.save_to_config()
 
+    def hudRender(self):
+        font = pygame.font.Font(client.font, 30)
+        mana = font.render("Mana: "+str(self.mana)+"/100", False, (255,255,255))
+        health = font.render("Health: "+str(self.health)+"/100", False, (255,255,255))
+        rect = pygame.Surface((health.get_width() + 15, 50), pygame.SRCALPHA, 32)
+        rect.fill((0,0,0, 255))
+        self.screen.blit(rect, (0,0))
+        self.screen.blit(mana, (10,0))
+        self.screen.blit(health, (10,25))
+
     def render(self):
         font = pygame.font.Font(client.font, 30)
 

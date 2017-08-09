@@ -50,7 +50,7 @@ class Player():
         self.steptime = 0
         self.can_step_ability = True
 
-        self.initial_position = map.level.get_place(Place.RED_SPAWN)
+        self.initial_position = (0, 0)
 
         self.set_position(self.initial_position)
 

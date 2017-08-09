@@ -104,6 +104,16 @@ class Authority():
     def update_flags(self):
         self.node.shout("ctf:flags", bson.dumps(self.flags))
 
+    def get_team_from_uuid(self, uuid):
+        place = None
+
+        if str(uuid) in self.teams['red']:
+            place = Place.RED_SPAWN
+        elif str(uuid) in self.teams['blue']:
+            place = Place.BLUE_SPAWN
+
+        return place
+
     def serve(self):
         while True:
             # check network
@@ -131,10 +141,7 @@ class Authority():
                             elif event.group == 'ctf:teams':
                                 self.players.set(self.node.peers())
                                 self.set_teams()
-                                if str(event.peer_uuid) in self.teams['red']:
-                                    place = Place.RED_SPAWN
-                                elif str(event.peer_uuid) in self.teams['blue']:
-                                    place = Place.BLUE_SPAWN
+                                place = self.get_team_from_uuid(event.peer_uuid)
                                 pos = self.level.get_place(place)
                                 self.node.whisper(event.peer_uuid, bson.dumps({
                                     'type': 'teleport',
@@ -175,14 +182,24 @@ class Authority():
                 if flag["owner"] != '': continue
                 for uuid, player in self.players.players.items():
                     if flag['x'] == player.x and flag['y'] == player.y:
-                        flag["owner"] = uuid
-                        self.node.shout('ctf:gotflag', bson.dumps({
-                            'uuid': uuid,
-                            'team': team
-                        }))
-                        break
+                        team_place = self.get_team_from_uuid(uuid)
+                        pos = self.level.get_place(team_place)
+                        if team == 'red' and team_place == Place.RED_SPAWN or team == 'blue' and team_place == Place.BLUE_SPAWN:
+                            if player.x == pos[0] and player.y == pos[1]:
+                                continue
 
-            
+                            self.node.shout('ctf:dropflag', bson.dumps({
+                                'x': pos[0],
+                                'y': pos[1],
+                                'team': team
+                            }));
+                        else:
+                            flag["owner"] = uuid
+                            self.node.shout('ctf:gotflag', bson.dumps({
+                                'uuid': uuid,
+                                'team': team
+                            }))
+                            break
 
     def poll(self):
         return dict(self.poller.poll(0))

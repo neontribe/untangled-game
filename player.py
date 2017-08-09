@@ -270,9 +270,9 @@ class Spell():
             pixel_pos[0] - (pixel_size[0]/2),
             pixel_pos[1] - (pixel_size[1]/2)
         )
-        # self.rect = pygame.draw.rect(self.player.screen, self.colour, Rect(offset_pos, pixel_size))
-        self.image = pygame.transform.scale(self.image, (20, 20))
-        self.player.screen.blit(self.image, offset_pos)
+        self.rect = pygame.draw.rect(self.player.screen, self.colour, Rect(offset_pos, pixel_size))
+        # self.image = pygame.transform.scale(self.image, (20, 20))
+        # self.player.screen.blit(self.image, offset_pos)
 
         # move the projectile by its velocity
         self.x += self.velo_x

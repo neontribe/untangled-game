@@ -4,7 +4,7 @@ import bson
 import zmq
 
 from pyre import Pyre
-
+from level import SaveLevel, Place
 
 RESETTIME = 5
 class AuthorityPlayerManager():
@@ -51,12 +51,28 @@ class Authority():
             "blue": [],
             "red": []
         }
-        
+  
+        self.level = SaveLevel('./assets/maps/CAPFLAG MAP')
+        red_spawn_pos = self.level.get_place(Place.RED_SPAWN)
+        blue_spawn_pos = self.level.get_place(Place.BLUE_SPAWN)
+
         self.flags = {
-            "blue": {"x":0, "y":0, "owner":'', "timer":0}, 
-            "red": {"x":0, "y":0, "owner":'', "timer":0}
+            "blue": {
+                "x": blue_spawn_pos[0],
+                "y": blue_spawn_pos[1],
+                "owner": '',
+                "timer":0
+            }, 
+            "red": {
+                "x": red_spawn_pos[0],
+                "y": red_spawn_pos[1],
+                "owner":'',
+                "timer":0
+            }
         }
+   
         self.serve()
+        
 
     def set_teams(self):
         blue_players = self.teams["blue"]
@@ -97,20 +113,24 @@ class Authority():
                     for event in events:
                         # Update the teams on JOIN and EXIT
                         if event.type == 'JOIN':
-                            for team, flag in self.flags.items():
-                                if flag['owner'] == '':
-                                    self.node.shout('ctf:dropflag', bson.dumps({
-                                        'x': flag['x'],
-                                        'y': flag['y'],
-                                        'team': team
-                                    }));
-                                else:
-                                    self.node.shout('ctf:gotflag', bson.dumps({
-                                        'uuid': flag['owner'],
-                                        'team': team
-                                    }));
-                            self.players.set(self.node.peers())
-                            self.set_teams()
+                            if event.group == 'ctf:dropflag':
+                                for team, flag in self.flags.items():
+                                    if flag['owner'] == '':
+                                        self.node.shout('ctf:dropflag', bson.dumps({
+                                            'x': flag['x'],
+                                            'y': flag['y'],
+                                            'team': team
+                                        }));
+                            elif event.group == 'ctf:gotflag':
+                                for team, flag in self.flags.items():
+                                    if flag['owner'] != '':
+                                        self.node.shout('ctf:gotflag', bson.dumps({
+                                            'uuid': flag['owner'],
+                                            'team': team
+                                        }));
+                            elif event.group == 'ctf:teams':
+                                self.players.set(self.node.peers())
+                                self.set_teams()
                         elif event.type == 'EXIT':
                             for team, flag in self.flags.items():
                                 if flag['owner'] == str(event.peer_uuid):

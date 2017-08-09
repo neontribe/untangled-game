@@ -283,7 +283,6 @@ class GameClient():
                                     ))
 
                                 if event.type == "SHOUT":
-                                    print(event.group)
                                     if event.group == "player:name":
                                         new_name = bson.loads(event.msg[0])
                                         player = self.players.get(event.peer_uuid)

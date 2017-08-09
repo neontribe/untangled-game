@@ -241,7 +241,7 @@ class Player():
 
     def attack(self, action, direction, image, position=None):
         if action == Action.SPELL:
-            if self.mana > 5:
+            if self.mana >= 5:
                 self.depleatMana(5)
                 if direction == Movement.UP:
                     spell = Spell(self, (0, -0.25), image, position)

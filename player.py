@@ -10,6 +10,7 @@ from pygame.rect import Rect
 import client
 import bson
 from tile import Tileset
+from level import Place
 import map as map_module
 
 class Movement(Enum):
@@ -43,24 +44,24 @@ class Player():
         self.x, self.y = (0, 0)
         self.animation_ticker = 0
         self.network = network
+
+        self.particle_list = []
+        self.particle_limit = 500
+
         self.steptime = 0
         self.can_step_ability = True
         
-        self.initial_position = (0, 0)
-        found = False
-        for x in range(map.level.width):
-            for y in range(map.level.height):
-                if map.level.can_move_to(x, y):
-                    self.initial_position = (x, y)
-                    found = True
-                    break
-            if found:
-                break
+        self.firetime = 0
+        self.can_fire_ability = True
+
+        self.initial_position = map.level.get_place(Place.RED_SPAWN)
+
         self.set_position(self.initial_position)
+
         self.team = None
 
     def __raiseNoPosition(self):
-        raise PlayerException({"message": "Player does not have a position set", "player": self})
+        raise PlayerException({"message": "Everything is lava: Player does not have a position set", "player": self})
 
 
     def save_to_config(self):
@@ -120,19 +121,38 @@ class Player():
         self.mute = mute
         if save: self.save_to_config()
 
+    def hudRender(self):
+        font = pygame.font.Font(client.font, 30)
+        mana = font.render("Mana: "+str(self.mana)+"/100", False, (255,255,255))
+        health = font.render("Health: "+str(self.health)+"/100", False, (255,255,255))
+        rect = pygame.Surface((health.get_width() + 15, 50), pygame.SRCALPHA, 32)
+        rect.fill((0,0,0, 255))
+        self.screen.blit(rect, (0,0))
+        self.screen.blit(mana, (10,0))
+        self.screen.blit(health, (10,25))
+
     def render(self):
         font = pygame.font.Font(client.font, 30)
 
         name_tag_colour = (255, 255, 255)
         if self.team:
             if self.team == "blue":
-                name_tag_colour = (0, 0, 255)
+                name_tag_colour = (0, 191, 255)
             elif self.team == "red":
                 name_tag_colour = (255, 0, 0)
 
         name_tag = font.render(self.name, False, name_tag_colour)
 
         centre = self.map.get_pixel_pos(self.x, self.y)
+
+        name_tag_pos = (
+            centre[0] + ((self.size[0] - (name_tag.get_width()+10)) // 2),
+            centre[1] - ((self.size[1] + name_tag.get_height()) // 2)
+        )
+
+        rect = pygame.Surface((name_tag.get_width() + 10, name_tag.get_height()), pygame.SRCALPHA, 32)
+        rect.fill((0,0,0, 160))
+        self.screen.blit(rect, name_tag_pos)
 
         name_tag_pos = (
             centre[0] + ((self.size[0] - name_tag.get_width()) // 2),
@@ -148,15 +168,45 @@ class Player():
         self.rect = sprite.get_rect()
         self.rect.topleft = centre
 
+        self.render_particles();
+
+    def render_particles(self):
+        toRemove = []
+        for particle in self.particle_list:
+            pixel_pos = self.map.get_pixel_pos(particle["position"][0],particle["position"][1])
+        
+            if particle["life"] <= 0:
+                toRemove.append(particle)
+
+            particle["life"] -= 1
+
+            pygame.draw.circle(self.screen, particle["colour"], (int(pixel_pos[0]),int(pixel_pos[1])), int(particle["size"]), particle["metadata"])
+
+            particle["position"] = (particle["position"][0] + particle["velocity"][0],particle["position"][1] + particle["velocity"][1])
+            particle["velocity"] = (particle["velocity"][0] + particle["gravity"][0], particle["velocity"][1] + particle["gravity"][1])
+            particle["size"] += particle["grow"]
+
+        for p in toRemove:
+            self.remove_particle(p)
+
     def move(self, direction):
         if not self.ready:
             self.__raiseNoPosition()
+
+        c = (255,255,255)
+        if self.team:
+            if self.team == "blue":
+                c = (0, 0, 255)
+            elif self.team == "red":
+                c = (255, 0, 0)
 
         tmp_x = 0
         tmp_y = 0
 
         # while (can keep moving) and (x difference is not more than step) and (y difference is not more than step)
         while self.map.level.can_move_to(self.x + tmp_x, self.y + tmp_y) and abs(tmp_x) <= self.step and abs(tmp_y) <= self.step:
+            #               amount,    position,              colour,size,velocity,gravity,life,metadata,grow
+            self.add_particle(3,(self.x+tmp_x+ 0.5,self.y+tmp_y+0.9),c,3,None,(-tmp_x/1000,-tmp_y/1000),5,2,0.1)
             if direction == Movement.RIGHT:
                 tmp_x += 1
             elif direction == Movement.LEFT:
@@ -172,6 +222,7 @@ class Player():
         if tmp_y != 0:
             tmp_y += (-1 if tmp_y > 0 else 1)
 
+
         self.set_position(Position(self.x + tmp_x, self.y + tmp_y))
 
     def get_position(self):
@@ -180,18 +231,18 @@ class Player():
 
         return Position(self.x, self.y)
 
-    def attack(self, action, direction,position=None):
+    def attack(self, action, direction, image, position=None):
         if action == Action.SPELL:
             if direction == Movement.UP:
-                spell = Spell(self, (0, -0.25),position)
+                spell = Spell(self, (0, -0.25), image, position)
             elif direction == Movement.RIGHT:
-                spell = Spell(self, (0.25, 0),position)
+                spell = Spell(self, (0.25, 0), image, position)
             elif direction == Movement.DOWN:
-                spell = Spell(self, (0, 0.25),position)
+                spell = Spell(self, (0, 0.25), image, position)
             elif direction == Movement.LEFT:
-                spell = Spell(self, (-0.25, 0),position)
+                spell = Spell(self, (-0.25, 0), image, position)
             else:
-                spell = Spell(self, direction,position)
+                spell = Spell(self, direction, image, position)
 
             # Remove first element of list if limit reached.
             if len(self.cast_spells) > self.spell_limit:
@@ -208,9 +259,26 @@ class Player():
     def set_team(self, team):
         self.team = team
 
+    def add_particle(self,amount, position, colour=(255,255,255), size=3, velocity=None, gravity=(0,0), life=40, metadata=0,grow=0):
+        for i in range(amount):        
+            if(len(self.particle_list) >= self.particle_limit):
+                self.particle_list[0].destroy()
+            newParticle = {"position":position, "velocity":velocity, "gravity":gravity, "colour":colour, "size":size, "life":life, "metadata":metadata, "grow":grow}
+            i = 1000
+            if velocity != None:
+                newParticle["velocity"] = velocity
+            else:
+                newParticle["velocity"] = (random.randrange(-i,i)/(i*10),random.randrange(-i,i)/(i*10))
+            self.particle_list.append(newParticle)
+
+    def remove_particle(self,particle):
+        self.particle_list.remove(particle)
+        return
+
 class Spell():
-    def __init__(self, player, velocity, position=None, size=(0.25, 0.25), colour=(0,0,0), life=100):
+    def __init__(self, player, velocity, image, position=None, size=(0.25, 0.25), colour=(0,0,0), life=100):
         self.player = player
+        self.image = image
         self.size = size
         self.colour = colour
         self.life = life
@@ -243,14 +311,18 @@ class Spell():
             pixel_pos[1] - (pixel_size[1]/2)
         )
         self.rect = pygame.draw.rect(self.player.screen, self.colour, Rect(offset_pos, pixel_size))
+        # self.image = pygame.transform.scale(self.image, (20, 20))
+        # self.player.screen.blit(self.image, offset_pos)
 
         # move the projectile by its velocity
         self.x += self.velo_x
         self.y += self.velo_y
 
+
     #destroy the spell
     def destroy(self):
         self.player.remove_spell(self)
+        #self.player.add_particle(5,(self.x,self.y),self.colour,2,None,(self.velo_x*3,self.velo_y*3),40,0,0.1)
         del(self)
 
     def get_properties(self):
@@ -266,10 +338,10 @@ class Spell():
     def set_velocity(self, velocity):
         self.velo_x, self.velo_y = velocity
 
-    def hit_target(self, target):
-        if self.rect.colliderect(target.rect):
-            # TODO - decide on what to do with collision
-            pass
+    # def hit_target(self, target):
+    #     if self.rect.colliderect(target.rect):
+    #         # TODO - decide on what to do with collision
+    #         pass
 
 class PlayerManager():
     def __init__(self, me, network):

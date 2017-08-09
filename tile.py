@@ -24,6 +24,7 @@ class TileType(Enum):
     SAND = ([18],  [])
     LAVA = ([166, 167, 168, 182, 183, 184, 198, 199, 200, 214, 215, 216, 229, 230, 229, 216, 215, 214, 299, 199, 198, 184, 183, 182, 168, 167],  [ TileAttribute.SPIKES ])
 
+
     def __init__(self, tileset_id, attributes):
         self.tileset_id = tileset_id
         self.attributes = 0

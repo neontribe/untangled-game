@@ -35,8 +35,10 @@ font = 'assets/fonts/alterebro-pixel-font.ttf'
 level_tileset_path = 'assets/tilesets/main.png'
 player_animation_tileset_path = 'assets/tilesets/player.png'
 
-#buttons = {"A":1, "B":2, "X":0, "Y":3, "L":4, "R":5, "Start":9, "Select":8} #Use these for the PiHut SNES controller
-buttons = {"A":0, "B":1, "X":2, "Y":3, "L":4, "R":5, "Start":7, "Select":6} #Use these for the iBuffalo SNES controller
+buttons = {"A":1, "B":2, "X":0, "Y":3, "L":4, "R":5, "Start":9, "Select":8} #Use these for the PiHut SNES controller
+#buttons = {"A":0, "B":1, "X":2, "Y":3, "L":4, "R":5, "Start":7, "Select":6} #Use these for the iBuffalo SNES controller
+
+error_message = "Everything is lava"
 
 class GameState(Enum):
     MENU = 0
@@ -81,7 +83,7 @@ class GameClient():
             pygame.locals.KEYDOWN, pygame.locals.MOUSEBUTTONDOWN,  pygame.locals.JOYBUTTONDOWN])
 
         self.levels = {
-            "main": SaveLevel('./assets/maps/CAPFLAG MAP NAT')
+            "main": SaveLevel('./assets/maps/CAPFLAG MAP')
         }
 
         self.map = Map(
@@ -240,16 +242,16 @@ class GameClient():
                         if joystick.get_button(buttons["Start"]) or joystick.get_button(buttons["Select"]):
                             self.set_state(GameState.MENU)
                         #Speed boost
-                        if joystick.get_button(buttons["X"]):
+                        if joystick.get_button(buttons["X"]) and me.can_step_ability:
                             me.step = 2
                             me.steptime = time.time()
                             me.can_step_ability = False
                         
                         last_update = pygame.time.get_ticks()
                         
-                        if time.time() - me.steptime >30:
+                        if time.time() - me.steptime > 10:
                             me.can_step_ability = True
-                        elif time.time() - me.steptime >3:
+                        elif time.time() - me.steptime > 3:
                             me.step = 1
                             
                     self.map.render()
@@ -312,7 +314,7 @@ class GameClient():
                                     network_player.set_position(Position(**new_position))
 
                         except Exception as e:
-                            print(e)
+                            print(error_message + ": " + str(e))
                             import traceback
                             print(traceback.format_exc())
                             pass
@@ -335,7 +337,7 @@ class GameClient():
 
                         except PlayerException as e:
                             # PlayerException due to no initial position being set for that player
-                            print(e)
+                            print(error_message + ": " + str(e))
                             pass
 
                 pygame.display.update()

@@ -58,7 +58,7 @@ class Player():
         self.team = None
 
     def __raiseNoPosition(self):
-        raise PlayerException({"message": "Player does not have a position set", "player": self})
+        raise PlayerException({"message": "Everything is lava: Player does not have a position set", "player": self})
 
 
     def save_to_config(self):

@@ -319,7 +319,6 @@ class Spell():
             pixel_pos[1] - (newImageSize[1]/2)
         )
 
-        print(newImageSize)
         surf = pygame.transform.scale(self.image, newImageSize)
         surf = pygame.transform.rotate(surf, newRotation)
         self.player.screen.blit(surf, offset_pos)

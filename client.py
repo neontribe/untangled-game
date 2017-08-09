@@ -182,7 +182,6 @@ class GameClient():
                                 toMove = True
                             elif event.key == pygame.locals.K_e:
                                 me.change_spell()
-                                print (me.current_spell)
                             elif event.key == pygame.locals.K_RETURN or event.key == pygame.locals.K_SPACE :
                                 if me.can_fire_ability:
                                     cast = me.attack(Action(me.current_spell), last_direction, projectile_paths[me.current_spell])
@@ -261,6 +260,9 @@ class GameClient():
                             me.step = 2
                             me.steptime = time.time()
                             me.can_step_ability = False
+                        #Change spell
+                        if joystick.get_button(buttons["L"]) and me.can_step_ability:
+                            me.change_spell()
 
                         last_update = pygame.time.get_ticks()
 

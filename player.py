@@ -135,7 +135,8 @@ class Player():
     def change_spell(self):
         if(self.current_spell == 5):
             self.current_spell = 0
-        self.current_spell += 1
+        else:
+            self.current_spell += 1
 
     def hudRender(self):
         font = pygame.font.Font(client.font, 30)

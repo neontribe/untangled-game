@@ -50,7 +50,6 @@ class Player():
         self.animation_ticker = 0
         self.network = network
 
-        self.healthcount = 0
 
         self.particle_list = []
         self.particle_limit = 500
@@ -148,7 +147,12 @@ class Player():
         mana = font.render("Mana: "+str(self.mana)+"/100", False, (255,255,255))
         health = font.render("Health: "+str(self.health)+"/100", False, (255,255,255))
         spell = font.render("Current Spell: "+str(Action(self.current_spell))[7:], False, (255,255,255)) # Removes first 7 characters off enum as we dont need them.
-        rect = pygame.Surface((spell.get_width() + 15, 75), pygame.SRCALPHA, 32)
+        if mana.get_width() > health.get_width() and mana.get_width() > spell.get_width():
+            rect = pygame.Surface((mana.get_width() + 20, 75), pygame.SRCALPHA, 32)
+        if health.get_width() > mana.get_width() and health.get_width() > spell.get_width():
+            rect = pygame.Surface((health.get_width() + 20, 75), pygame.SRCALPHA, 32)
+        if spell.get_width() > mana.get_width() and spell.get_width() > health.get_width():
+            rect = pygame.Surface((spell.get_width() + 20, 75), pygame.SRCALPHA, 32)
         rect.fill((0,0,0, 255))
         self.screen.blit(rect, (0,0))
         self.screen.blit(mana, (10,0))
@@ -196,8 +200,6 @@ class Player():
 
         if isMe:
             self.hudRender()
-            if self.map.level.get_tile(self.x,self.y).has_attribute(TileAttribute.SPIKES):
-                self.health -= 1
 
     def render_particles(self):
         toRemove = []
@@ -242,7 +244,7 @@ class Player():
 
         if self.map.level.get_tile(self.x,self.y).colour != None:
             c = self.map.level.get_tile(self.x,self.y).colour
-            
+
         # while (can keep moving) and (x difference is not more than step) and (y difference is not more than step)
         while self.map.level.can_move_to(self.x + tmp_x, self.y + tmp_y) and abs(tmp_x) <= self.step and abs(tmp_y) <= self.step:
             #               amount,    position,              colour,size,velocity,gravity,life,metadata,grow

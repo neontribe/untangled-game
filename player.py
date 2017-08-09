@@ -158,12 +158,12 @@ class Player():
             centre[0] + ((self.size[0] - name_tag.get_width()) // 2),
             centre[1] - ((self.size[1] + name_tag.get_height()) // 2)
         )
-        
+
         self.screen.blit(name_tag, name_tag_pos)
 
         sprite = self.tileset.get_surface_by_id(self.animation_ticker)
         self.screen.blit(sprite, centre)
-        
+
         # create collision rectangle
         self.rect = sprite.get_rect()
         self.rect.topleft = centre
@@ -192,7 +192,7 @@ class Player():
     def move(self, direction):
         if not self.ready:
             self.__raiseNoPosition()
-        
+
         c = (255,255,255)
         if self.team:
             if self.team == "blue":
@@ -231,18 +231,18 @@ class Player():
 
         return Position(self.x, self.y)
 
-    def attack(self, action, direction,position=None):
+    def attack(self, action, direction, image, position=None):
         if action == Action.SPELL:
             if direction == Movement.UP:
-                spell = Spell(self, (0, -0.25),position)
+                spell = Spell(self, (0, -0.25), image, position)
             elif direction == Movement.RIGHT:
-                spell = Spell(self, (0.25, 0),position)
+                spell = Spell(self, (0.25, 0), image, position)
             elif direction == Movement.DOWN:
-                spell = Spell(self, (0, 0.25),position)
+                spell = Spell(self, (0, 0.25), image, position)
             elif direction == Movement.LEFT:
-                spell = Spell(self, (-0.25, 0),position)
+                spell = Spell(self, (-0.25, 0), image, position)
             else:
-                spell = Spell(self, direction,position)
+                spell = Spell(self, direction, image, position)
 
             # Remove first element of list if limit reached.
             if len(self.cast_spells) > self.spell_limit:
@@ -270,14 +270,15 @@ class Player():
             else:
                 newParticle["velocity"] = (random.randrange(-i,i)/(i*10),random.randrange(-i,i)/(i*10))
             self.particle_list.append(newParticle)
-        
+
     def remove_particle(self,particle):
         self.particle_list.remove(particle)
         return
 
 class Spell():
-    def __init__(self, player, velocity, position=None, size=(0.25, 0.25), colour=(0,0,0), life=100):
+    def __init__(self, player, velocity, image, position=None, size=(0.25, 0.25), colour=(0,0,0), life=100):
         self.player = player
+        self.image = image
         self.size = size
         self.colour = colour
         self.life = life
@@ -310,6 +311,8 @@ class Spell():
             pixel_pos[1] - (pixel_size[1]/2)
         )
         self.rect = pygame.draw.rect(self.player.screen, self.colour, Rect(offset_pos, pixel_size))
+        # self.image = pygame.transform.scale(self.image, (20, 20))
+        # self.player.screen.blit(self.image, offset_pos)
 
         # move the projectile by its velocity
         self.x += self.velo_x
@@ -335,10 +338,10 @@ class Spell():
     def set_velocity(self, velocity):
         self.velo_x, self.velo_y = velocity
 
-    def hit_target(self, target):
-        if self.rect.colliderect(target.rect):
-            # TODO - decide on what to do with collision
-            pass
+    # def hit_target(self, target):
+    #     if self.rect.colliderect(target.rect):
+    #         # TODO - decide on what to do with collision
+    #         pass
 
 class PlayerManager():
     def __init__(self, me, network):

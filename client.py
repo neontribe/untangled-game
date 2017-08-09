@@ -95,7 +95,6 @@ class GameClient():
             LevelMusic('assets/music/song.mp3')
         )
         self.map.music.load_music()
-        self.spell_image = pygame.image.load(spell_image_path)
 
     def set_state(self, new_state):
         if(new_state and new_state != self.game_state):
@@ -192,7 +191,7 @@ class GameClient():
                     if pygame.mouse.get_pressed()[0]:
                         if me.can_fire_ability:
                             cast = True
-                            me.attack(Action.SPELL, last_direction, self.spell_image)
+                            me.attack(Action.SPELL, last_direction, arrow_image_path)
                         pygame.event.clear(pygame.locals.MOUSEBUTTONDOWN)  
 
 
@@ -247,7 +246,7 @@ class GameClient():
                         if joystick.get_button(buttons["R"]) or joystick.get_button(buttons["A"]):
                             if me.can_fire_ability:
                                 cast = True
-                                me.attack(Action.SPELL, last_direction, self.spell_image)
+                                me.attack(Action.SPELL, last_direction, arrow_image_path)
                         #Menu
                         if joystick.get_button(buttons["Start"]) or joystick.get_button(buttons["Select"]):
                             self.set_state(GameState.MENU)
@@ -312,7 +311,7 @@ class GameClient():
                                 if event.group == "world:combat":
                                     new_spell_properties = bson.loads(event.msg[0])
                                     network_spell_caster = self.players.get(event.peer_uuid)
-                                    network_spell_caster.cast_spells.append(Spell(network_spell_caster, (0, 0), self.spell_image))
+                                    network_spell_caster.cast_spells.append(Spell(network_spell_caster, (0, 0), arrow_image_path))
                                     network_spell_caster.cast_spells[-1].set_properties(SpellProperties(**new_spell_properties))
                                 if event.group == "ctf:teams":
                                     if event.type == "SHOUT":

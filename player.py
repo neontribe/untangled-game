@@ -39,6 +39,7 @@ class Player():
         self.is_centre = False
         self.size = (map_module.TILE_PIX_WIDTH, map_module.TILE_PIX_HEIGHT)
         self.step = 1
+        self.projSpeed = 1.5
         self.cast_spells = []
         self.spell_limit = 50
         self.mute = 'True'
@@ -258,13 +259,13 @@ class Player():
             if self.mana > 5:
                 self.depleatMana(5)
                 if direction == Movement.UP:
-                    spell = Spell(self, (0, -0.5), image, position)
+                    spell = Spell(self, (0, -self.projSpeed), image, position)
                 elif direction == Movement.RIGHT:
-                    spell = Spell(self, (0.5, 0), image, position)
+                    spell = Spell(self, (self.projSpeed, 0), image, position)
                 elif direction == Movement.DOWN:
-                    spell = Spell(self, (0, 0.5), image, position)
+                    spell = Spell(self, (0, self.projSpeed), image, position)
                 elif direction == Movement.LEFT:
-                    spell = Spell(self, (-0.5, 0), image, position)
+                    spell = Spell(self, (-self.projSpeed, 0), image, position)
                 else:
                     spell = Spell(self, direction, image, position)
 

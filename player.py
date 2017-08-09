@@ -60,6 +60,7 @@ class Player():
         self.firetime = 0
         self.can_fire_ability = True
 
+        self.projSpeed = 1.5
         self.cast_spells = []
         self.current_spell = 0
         self.spell_limit = 50
@@ -227,13 +228,16 @@ class Player():
         tmp_y = 0
         if self.map.level.get_tile(self.x,self.y).has_attribute(TileAttribute.SWIM):
             dif = round(time.time()) - time.time()
-            if abs(dif) < 0.45:
+            if abs(dif) < 0.40:
                 return
-            c = (0,128,255)
         if self.map.level.get_tile(self.x,self.y).has_attribute(TileAttribute.SLOW):
             dif = round(time.time()) - time.time()
-            if abs(dif) < 0.30:
+            if abs(dif) < 0.20:
                 return
+
+        if self.map.level.get_tile(self.x,self.y).colour != None:
+            c = self.map.level.get_tile(self.x,self.y).colour
+
         # while (can keep moving) and (x difference is not more than step) and (y difference is not more than step)
         while self.map.level.can_move_to(self.x + tmp_x, self.y + tmp_y) and abs(tmp_x) <= self.step and abs(tmp_y) <= self.step:
             #               amount,    position,              colour,size,velocity,gravity,life,metadata,grow
@@ -263,15 +267,15 @@ class Player():
         return Position(self.x, self.y)
 
     def attack(self, action, direction, image, position=None):
-        if self.mana >= 5:
+        if self.mana > 5:
             if direction == Movement.UP:
-                spell = Spell(self, (0, -0.25), image, position)
+                spell = Spell(self, (0, -self.projSpeed), image, position)
             elif direction == Movement.RIGHT:
-                spell = Spell(self, (0.25, 0), image, position)
+                spell = Spell(self, (self.projSpeed, 0), image, position)
             elif direction == Movement.DOWN:
-                spell = Spell(self, (0, 0.25), image, position)
+                spell = Spell(self, (0, self.projSpeed), image, position)
             elif direction == Movement.LEFT:
-                spell = Spell(self, (-0.25, 0), image, position)
+                spell = Spell(self, (-self.projSpeed, 0), image, position)
             else:
                 spell = Spell(self, direction, image, position)
 

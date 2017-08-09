@@ -10,7 +10,7 @@ class Network():
         self.node.join("world:position")
         self.node.join("world:combat")
         self.node.join("ctf:teams")
-        self.node.join("ctf:flags")
+        self.node.join("ctf:dropflag")
         self.node.join("ctf:gotflag")
 
         self.node.join("players:whois")

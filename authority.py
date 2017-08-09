@@ -39,7 +39,7 @@ class Authority():
         self.node.start()
         self.node.join("world:position")
         self.node.join("ctf:teams")
-        self.node.join("ctf:flags")
+        self.node.join("ctf:dropflag")
         self.node.join("ctf:gotflag")
 
         self.poller = zmq.Poller()
@@ -91,15 +91,40 @@ class Authority():
     def serve(self):
         while True:
             # check network
-            self.players.set(self.node.peers())
             events = self.get_events()
             if events:
                 try:
                     for event in events:
                         # Update the teams on JOIN and EXIT
                         if event.type == 'JOIN':
+                            for team, flag in self.flags.items():
+                                if flag['owner'] == '':
+                                    self.node.shout('ctf:dropflag', bson.dumps({
+                                        'x': flag['x'],
+                                        'y': flag['y'],
+                                        'team': team
+                                    }));
+                                else:
+                                    self.node.shout('ctf:gotflag', bson.dumps({
+                                        'uuid': flag['owner'],
+                                        'team': team
+                                    }));
+                            self.players.set(self.node.peers())
                             self.set_teams()
                         elif event.type == 'EXIT':
+                            for team, flag in self.flags.items():
+                                if flag['owner'] == str(event.peer_uuid):
+                                    # flag owner is leaving, drop
+                                    player = self.players.get(event.peer_uuid)
+                                    flag['x'] = player.x
+                                    flag['y'] = player.y
+                                    flag['owner'] =  ''
+                                    self.node.shout('ctf:dropflag', bson.dumps({
+                                        'x': flag['x'],
+                                        'y': flag['y'],
+                                        'team': team
+                                    }));
+                            self.players.set(self.node.peers())
                             self.set_teams()
                         elif event.type == 'SHOUT':
                             if event.group == "world:position":

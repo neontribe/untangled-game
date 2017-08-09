@@ -153,7 +153,6 @@ class GameClient():
                             break
                         elif event.type == pygame.locals.KEYDOWN and event.key == pygame.locals.K_ESCAPE:
                             self.set_state(GameState.MENU)
-
                         elif event.type == pygame.locals.KEYDOWN:
                             if event.key == pygame.locals.K_UP or event.key == pygame.locals.K_w:
                                 me.move(Movement.UP)
@@ -284,23 +283,25 @@ class GameClient():
                                     ))
 
                                 if event.type == "SHOUT":
+                                    print(event.group)
                                     if event.group == "player:name":
                                         new_name = bson.loads(event.msg[0])
                                         player = self.players.get(event.peer_uuid)
                                         if new_name['name']:
                                             player.set_name(new_name['name'])
-                                    if event.group == "world:position":
+                                    elif event.group == "world:position":
                                         new_position = bson.loads(event.msg[0])
                                         network_player = self.players.get(event.peer_uuid)
-                                    if event.group == "world:combat":
+                                        network_player.set_position(Position(**new_position))
+                                    elif event.group == "world:combat":
                                         new_spell_properties = bson.loads(event.msg[0])
                                         network_spell_caster = self.players.get(event.peer_uuid)
                                         network_spell_caster.cast_spells.append(Spell(network_spell_caster, (0, 0)))
                                         network_spell_caster.cast_spells[-1].set_properties(SpellProperties(**new_spell_properties))
-                                    if event.group == "ctf:teams":
+                                    elif event.group == "ctf:teams":
                                         team_defs = bson.loads(event.msg[0])
                                         self.players.set_teams(team_defs)
-                                    if event.group == "ctf:gotflag":
+                                    elif event.group == "ctf:gotflag":
                                         flag_info = bson.loads(event.msg[0])
                                         team = flag_info["team"]
                                         uuid = flag_info["uuid"]
@@ -310,17 +311,11 @@ class GameClient():
                                         else:
                                             network_player = self.players.get(uuid)
                                             flag.set_player(network_player)
-                                        
-                                        
-                                    if event.group == "ctf:flags":
-                                        pass
-                                        # flag_defs = bson.loads(event.msg[0])
-                                        # self.flags[0].set_position_from_authority(flag_defs.get("red"))
-                                        # self.flags[1].set_position_from_authority(flag_defs.get("blue"))
-
-                                if network_player:
-                                    network_player.set_position(Position(**new_position))
-
+                                    elif event.group == 'ctf:dropflag':
+                                        flag_info = bson.loads(event.msg[0])
+                                        flag = self.flags[flag_info['team']]
+                                        flag.set_player(None)
+                                        flag.set_position((flag_info['x'], flag_info['y']))
                         except Exception as e:
                             print(e)
                             import traceback

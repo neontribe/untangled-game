@@ -35,13 +35,14 @@ font = 'assets/fonts/alterebro-pixel-font.ttf'
 level_tileset_path = 'assets/tilesets/main.png'
 player_animation_tileset_path = 'assets/tilesets/player.png'
 
-# Proejctiles
-arrow_image_path = 'assets/images/arrow.png'
-fireball_image_path = 'assets/images/fireball.png'
-frostbolt_image_path = 'assets/images/frostbolt.png'
-icicle_image_path = 'assets/images/icicle.png'
-lightning_image_path = 'assets/images/lightning_bolt.png'
-posionball_image_path = 'assets/images/poisonball.png'
+projectile_paths = [
+                    'assets/images/arrow.png',
+                    'assets/images/fireball.png',
+                    'assets/images/frostbolt.png',
+                    'assets/images/icicle.png',
+                    'assets/images/lightning_bolt.png',
+                    'assets/images/poisonball.png'
+                    ]
 
 buttons = {"A":1, "B":2, "X":0, "Y":3, "L":4, "R":5, "Start":9, "Select":8} #Use these for the PiHut SNES controller
 #buttons = {"A":0, "B":1, "X":2, "Y":3, "L":4, "R":5, "Start":7, "Select":6} #Use these for the iBuffalo SNES controller
@@ -179,9 +180,12 @@ class GameClient():
                                 me.move(Movement.RIGHT)
                                 last_direction = Movement.RIGHT
                                 toMove = True
+                            elif event.key == pygame.locals.K_e:
+                                me.change_spell()
+                                print (me.current_spell)
                             elif event.key == pygame.locals.K_RETURN or event.key == pygame.locals.K_SPACE :
                                 if me.can_fire_ability:
-                                    cast = me.attack(Action.ARROW, last_direction, arrow_image_path)
+                                    cast = me.attack(Action(me.current_spell), last_direction, projectile_paths[me.current_spell])
 
                             if event.key == pygame.locals.K_r and me.can_step_ability:
                                 me.step = 2
@@ -196,7 +200,7 @@ class GameClient():
                             me.step = 1
                     if pygame.mouse.get_pressed()[0]:
                         if me.can_fire_ability:
-                            cast = me.attack(Action.ARROW, last_direction, arrow_image_path)
+                            cast = me.attack(Action(me.current_spell), last_direction, projectile_paths[me.current_spell])
                         pygame.event.clear(pygame.locals.MOUSEBUTTONDOWN)
 
                     # https://stackoverflow.com/a/15596758/3954432
@@ -248,7 +252,7 @@ class GameClient():
                         #Shoot
                         if joystick.get_button(buttons["R"]) or joystick.get_button(buttons["A"]):
                             if me.can_fire_ability:
-                                cast = me.attack(Action.ARROW, last_direction, arrow_image_path)
+                                cast = me.attack(Action(me.current_spell), last_direction, projectile_paths[me.current_spell])
                         #Menu
                         if joystick.get_button(buttons["Start"]) or joystick.get_button(buttons["Select"]):
                             self.set_state(GameState.MENU)

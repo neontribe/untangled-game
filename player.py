@@ -22,12 +22,12 @@ Position = namedtuple('Position', ['x', 'y'])
 SpellProperties = namedtuple('SpellProperties', ['x', 'y', 'x_velocity', 'y_velocity',])
 
 class Action(Enum):
-    ARROW = 1
-    FIRE = 2
-    FROST = 3
-    ICE = 4
-    LIGHTENING = 5
-    POISON = 6
+    ARROW = 0
+    FIRE = 1
+    FROST = 2
+    ICE = 3
+    LIGHTENING = 4
+    POISON = 5
 
 class PlayerException(Exception):
     pass
@@ -40,8 +40,6 @@ class Player():
         self.is_centre = False
         self.size = (map_module.TILE_PIX_WIDTH, map_module.TILE_PIX_HEIGHT)
         self.step = 1
-        self.cast_spells = []
-        self.spell_limit = 50
         self.mute = 'True'
         self.tileset = Tileset(client.player_animation_tileset_path, (3, 4), (32, 32))
         self.name = ''
@@ -58,6 +56,10 @@ class Player():
 
         self.firetime = 0
         self.can_fire_ability = True
+
+        self.cast_spells = []
+        self.current_spell = 0
+        self.spell_limit = 50
 
         self.initial_position = map.level.get_place(Place.RED_SPAWN)
 
@@ -129,6 +131,11 @@ class Player():
     def set_mute(self, mute, save = False):
         self.mute = mute
         if save: self.save_to_config()
+
+    def change_spell(self):
+        if(self.current_spell == 5):
+            self.current_spell = 0
+        self.current_spell += 1
 
     def hudRender(self):
         font = pygame.font.Font(client.font, 30)

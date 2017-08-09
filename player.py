@@ -155,6 +155,27 @@ class Player():
         self.rect = sprite.get_rect()
         self.rect.topleft = centre
 
+        self.render_particles();
+
+    def render_particles(self):
+        toRemove = []
+        for particle in self.particle_list:
+            pixel_pos = self.map.get_pixel_pos(particle["position"][0],particle["position"][1])
+        
+            if particle["life"] <= 0:
+                toRemove.append(particle)
+
+            particle["life"] -= 1
+
+            pygame.draw.circle(self.screen, particle["colour"], (int(pixel_pos[0]),int(pixel_pos[1])), int(particle["size"]), particle["metadata"])
+
+            particle["position"] = (particle["position"][0] + particle["velocity"][0],particle["position"][1] + particle["velocity"][1])
+            particle["velocity"] = (particle["velocity"][0] + particle["gravity"][0], particle["velocity"][1] + particle["gravity"][1])
+            particle["size"] += particle["grow"]
+
+        for p in toRemove:
+            self.remove_particle(p)
+
     def move(self, direction):
         if not self.ready:
             self.__raiseNoPosition()
@@ -171,7 +192,8 @@ class Player():
 
         # while (can keep moving) and (x difference is not more than step) and (y difference is not more than step)
         while self.map.level.can_move_to(self.x + tmp_x, self.y + tmp_y) and abs(tmp_x) <= self.step and abs(tmp_y) <= self.step:
-            self.add_particle(3,(self.x+tmp_x+ 0.5,self.y+tmp_y+0.9),c,3,None,(-tmp_x/5,-tmp_y/5),15,2,0.1)
+            #               amount,    position,              colour,size,velocity,gravity,life,metadata,grow
+            self.add_particle(3,(self.x+tmp_x+ 0.5,self.y+tmp_y+0.9),c,3,None,(-tmp_x/1000,-tmp_y/1000),15,2,0.1)
             if direction == Movement.RIGHT:
                 tmp_x += 1
             elif direction == Movement.LEFT:
@@ -226,10 +248,15 @@ class Player():
 
     def add_particle(self,amount, position, colour=(255,255,255), size=3, velocity=None, gravity=(0,0), life=40, metadata=0,grow=0):
         for i in range(amount):        
-            if(len(self.particle_list) > self.particle_limit):
+            if(len(self.particle_list) >= self.particle_limit):
                 self.particle_list[0].destroy()
-            self.particle_list.append(Particle(self, position, colour, size, velocity, gravity, life, metadata,grow))
-        return
+            newParticle = {"position":position, "velocity":velocity, "gravity":gravity, "colour":colour, "size":size, "life":life, "metadata":metadata, "grow":grow}
+            i = 1000
+            if velocity != None:
+                newParticle["velocity"] = velocity
+            else:
+                newParticle["velocity"] = (random.randrange(-i,i)/(i*20),random.randrange(-i,i)/(i*20))
+            self.particle_list.append(newParticle)
         
     def remove_particle(self,particle):
         self.particle_list.remove(particle)
@@ -274,6 +301,7 @@ class Spell():
         # move the projectile by its velocity
         self.x += self.velo_x
         self.y += self.velo_y
+
 
     #destroy the spell
     def destroy(self):
@@ -351,55 +379,3 @@ class PlayerManager():
 
     def get(self, uuid):
         return self.others[str(uuid)]
-
-class Particle():
-    def __init__(self,player, position, colour=(255,255,255), size=3, velocity=None, gravity=(0,0), life=40, metadata=0, grow=0):
-        self.player = player
-        self.colour = colour
-        self.size = size
-        self.life = life
-        self.maxlife = life
-        self.meta = metadata
-        self.grow = grow
-
-        self.set_position(position)
-        i = 1000
-        if velocity != None:
-            self.set_velocity(velocity)
-        else:
-            self.set_velocity((random.randrange(-i,i)/(i*40),random.randrange(-i,i)/(i*40)))
-        self.set_gravity(gravity)
-        
-    def render(self):
-        pixel_pos = self.player.map.get_pixel_pos(self.x,self.y)
-        progress = self.life/self.maxlife
-        #if progress <= self.fade:
-            #self.alpha = int(self.startalpha*(progress*2))
-        
-        if self.life <= 0 :
-            self.destroy()
-
-        self.life -= 1
-
-        #colour = (self.colour[0],self.colour[1],self.colour[2],self.alpha)
-
-        self.rect = pygame.draw.circle(self.player.screen, self.colour, (int(pixel_pos[0]),int(pixel_pos[1])), int(self.size), self.meta)
-
-        self.x += self.velo_x
-        self.y += self.velo_y
-        self.velo_x += self.grav_x
-        self.velo_y += self.grav_y
-        self.size += self.grow
-
-    def set_position(self,position):
-        self.x = position[0]
-        self.y = position[1]
-    def set_velocity(self, velocity):
-        self.velo_x, self.velo_y = velocity
-    def set_gravity(self, gravity):
-        self.grav_x = gravity[0]/100
-        self.grav_y = gravity[1]/100
-
-    def destroy(self):
-        self.player.remove_particle(self)
-        del(self)

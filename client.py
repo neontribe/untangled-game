@@ -273,16 +273,7 @@ class GameClient():
                                     if auth_status == 'TRUE':
                                         self.players.authority_uuid = str(event.peer_uuid)
                                         self.players.remove(event.peer_uuid)
-                                        # continue
-
-                                if event.group == "players:whois":
-                                    self.network.node.shout("player:name", bson.dumps(
-                                        {
-                                            "name": self.players.me.name
-                                        }
-                                    ))
-
-                                if event.type == "SHOUT":
+                                elif event.type == "SHOUT":
                                     if event.group == "player:name":
                                         new_name = bson.loads(event.msg[0])
                                         player = self.players.get(event.peer_uuid)
@@ -315,6 +306,17 @@ class GameClient():
                                         flag = self.flags[flag_info['team']]
                                         flag.set_player(None)
                                         flag.set_position((flag_info['x'], flag_info['y']))
+                                    elif event.group == "players:whois":
+                                        self.network.node.shout("player:name", bson.dumps(
+                                            {
+                                                "name": self.players.me.name
+                                            }
+                                        ))
+                                elif event.type == 'WHISPER':
+                                    msg = bson.loads(event.msg[0])
+                                    if self.players.authority_uuid == str(event.peer_uuid):
+                                        if msg['type'] == 'teleport':
+                                            me.set_position((msg['x'], msg['y']))
                         except Exception as e:
                             print(e)
                             import traceback

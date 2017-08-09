@@ -131,6 +131,16 @@ class Authority():
                             elif event.group == 'ctf:teams':
                                 self.players.set(self.node.peers())
                                 self.set_teams()
+                                if str(event.peer_uuid) in self.teams['red']:
+                                    place = Place.RED_SPAWN
+                                elif str(event.peer_uuid) in self.teams['blue']:
+                                    place = Place.BLUE_SPAWN
+                                pos = self.level.get_place(place)
+                                self.node.whisper(event.peer_uuid, bson.dumps({
+                                    'type': 'teleport',
+                                    'x': pos[0],
+                                    'y': pos[1]
+                                }));
                         elif event.type == 'EXIT':
                             for team, flag in self.flags.items():
                                 if flag['owner'] == str(event.peer_uuid):

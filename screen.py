@@ -125,7 +125,6 @@ class MainMenu(Screen):
     def update(self, event):
         # Update menu state based off of key press or joystick
         from client import GameState
-        print(event)
         if event.type == pygame.locals.JOYAXISMOTION:
             # up/down
             if event.axis == 1:

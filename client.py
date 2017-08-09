@@ -35,6 +35,9 @@ font = 'assets/fonts/alterebro-pixel-font.ttf'
 level_tileset_path = 'assets/tilesets/main.png'
 player_animation_tileset_path = 'assets/tilesets/player.png'
 
+buttons = {"A":1, "B":2, "X":0, "Y":3, "L":4, "R":5, "Start":9, "Select":8} #Use these for the PiHut SNES controller
+#buttons = {"A":0, "B":1, "X":2, "Y":3, "L":4, "R":5, "Start":7, "Select":6} #Use these for the iBuffalo SNES controller
+
 class GameState(Enum):
     MENU = 0
     PLAY = 1
@@ -176,10 +179,6 @@ class GameClient():
                                
                             pygame.event.clear(pygame.locals.KEYDOWN)
                             
-                        if time.time() - me.steptime >30:
-                            me.can_step_ability = True
-                        elif time.time() - me.steptime >3:
-                            me.step = 1
                     if pygame.mouse.get_pressed()[0]:
                         cast = True
                         me.attack(Action.SPELL, last_direction)
@@ -233,16 +232,26 @@ class GameClient():
                                 last_direction = Movement.LEFT
                                 toMove = True
 
-                        # R
-                        if joystick.get_button(5):
-
+                        #Shoot
+                        if joystick.get_button(buttons["R"]) or joystick.get_button(buttons["A"]):
                             cast = True
                             me.attack(Action.SPELL, last_direction)
-                        if joystick.get_button (9):
+                        #Menu
+                        if joystick.get_button(buttons["Start"]) or joystick.get_button(buttons["Select"]):
                             self.set_state(GameState.MENU)
-
+                        #Speed boost
+                        if joystick.get_button(buttons["X"]):
+                            me.step = 2
+                            me.steptime = time.time()
+                            me.can_step_ability = False
+                        
                         last_update = pygame.time.get_ticks()
-
+                        
+                        if time.time() - me.steptime >30:
+                            me.can_step_ability = True
+                        elif time.time() - me.steptime >3:
+                            me.step = 1
+                            
                     self.map.render()
                     me.render()
                     for flag in flags:

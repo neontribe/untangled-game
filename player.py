@@ -44,10 +44,9 @@ class Player():
         self.x, self.y = (0, 0)
         self.animation_ticker = 0
         self.network = network
-
         self.particle_list = []
+        self.attached = []
         self.particle_limit = 500
-
         self.steptime = 0
         self.can_step_ability = True
 
@@ -98,6 +97,13 @@ class Player():
 
     def set_tileset(self, tileset):
         self.tileset = tileset
+
+    # use this to "carry" any number of sprites on your player character.
+    def attach_sprite(self, sprite):
+        self.attached.append(sprite)
+
+    def remove_sprite(self, sprite):
+        self.attached.remove(sprite)
 
     def set_position(self, position):
         # Derive direction (for networked players)
@@ -154,6 +160,9 @@ class Player():
         # create collision rectangle
         self.rect = sprite.get_rect()
         self.rect.topleft = centre
+
+        for attached_sprite in self.attached:
+            attached_sprite.set_position((self.x, self.y))
 
     def move(self, direction):
         if not self.ready:

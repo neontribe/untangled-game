@@ -34,6 +34,7 @@ height = 1024
 font = 'assets/fonts/alterebro-pixel-font.ttf'
 level_tileset_path = 'assets/tilesets/main.png'
 player_animation_tileset_path = 'assets/tilesets/player.png'
+spell_image_path = 'assets/images/fireball.png'
 
 class GameState(Enum):
     MENU = 0
@@ -88,6 +89,7 @@ class GameClient():
             LevelMusic('assets/music/song.mp3')
         )
         self.map.music.load_music()
+        self.spell_image = pygame.image.load(spell_image_path)
 
     def set_state(self, new_state):
         if(new_state and new_state != self.game_state):
@@ -167,24 +169,24 @@ class GameClient():
                                 toMove = True
                             elif event.key == pygame.locals.K_RETURN or event.key == pygame.locals.K_SPACE :
                                 cast = True
-                                me.attack(Action.SPELL, last_direction)
-                                
+                                me.attack(Action.SPELL, last_direction, self.spell_image)
+
                             if event.key == pygame.locals.K_r and me.can_step_ability:
                                 me.step = 2
                                 me.steptime = time.time()
                                 me.can_step_ability = False
-                               
+
                             pygame.event.clear(pygame.locals.KEYDOWN)
-                            
+
                         if time.time() - me.steptime >30:
                             me.can_step_ability = True
                         elif time.time() - me.steptime >3:
                             me.step = 1
                     if pygame.mouse.get_pressed()[0]:
                         cast = True
-                        me.attack(Action.SPELL, last_direction)
-                        pygame.event.clear(pygame.locals.MOUSEBUTTONDOWN)  
-                    
+                        me.attack(Action.SPELL, last_direction, self.spell_image)
+                        pygame.event.clear(pygame.locals.MOUSEBUTTONDOWN)
+
 
                     # https://stackoverflow.com/a/15596758/3954432
                     # Handle controller input by setting flags (move, neutral)
@@ -235,9 +237,8 @@ class GameClient():
 
                         # R
                         if joystick.get_button(5):
-
                             cast = True
-                            me.attack(Action.SPELL, last_direction)
+                            me.attack(Action.SPELL, last_direction, self.spell_image)
                         if joystick.get_button (9):
                             self.set_state(GameState.MENU)
 
@@ -287,7 +288,8 @@ class GameClient():
                                 if event.group == "world:combat":
                                     new_spell_properties = bson.loads(event.msg[0])
                                     network_spell_caster = self.players.get(event.peer_uuid)
-                                    network_spell_caster.cast_spells.append(Spell(network_spell_caster, (0, 0)))
+                                    network_spell_caster.cast_spells.append(Spell(network_spell_caster, (0, 0), self.spell_image))
+                                    print(len(network_spell_caster.cast_spells))
                                     network_spell_caster.cast_spells[-1].set_properties(SpellProperties(**new_spell_properties))
                                 if event.group == "ctf:teams":
                                     if event.type == "SHOUT":
@@ -322,7 +324,7 @@ class GameClient():
                             player.render()
                             for spell in player.cast_spells:
                                 spell.render()
-                                spell.hit_target(me)
+                                # spell.hit_target(me)
 
                         except PlayerException as e:
                             # PlayerException due to no initial position being set for that player

@@ -168,6 +168,27 @@ class Authority():
                                 new_position = bson.loads(event.msg[0])
                                 network_player = self.players.get(event.peer_uuid)
                                 network_player.set_position(new_position)
+
+                                # check if flag has been captured
+                                for team, flag in self.flags.items():
+                                    if flag['owner'] != str(event.peer_uuid):
+                                        continue
+                                    tile = self.level.get_tile(new_position[0], new_position[1])
+                                    if tile == TileType.RED_BLOCK and team == 'blue':
+                                        # TODO: blue's flag has been captured
+                                        spawn = Place.BLUE_SPAWN
+                                    elif tile == TileType.BLUE_BLOCK and team == 'red':
+                                        # TODO: red's flag has been captured
+                                        spawn = Place.RED_SPAWN
+                                    position = self.level.get_place(spawn)
+                                    flag['x'] = position[0]
+                                    flag['y'] = position[1]
+                                    flag['owner'] = ''
+                                    self.node.shout('ctf:dropflag', bson.dumps({
+                                        'x': flag['x'],
+                                        'y': flag['y'],
+                                        'team': team
+                                    }))
                             if event.group == 'ctf:gotflags':
                                 flag_info = bson.loads(event.msg[0])
                                 self.set_flags(flag_info)

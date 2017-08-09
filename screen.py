@@ -4,7 +4,6 @@ import time
 from enum import Enum
 
 import client
-
 class Screen():
     def __init__(self, pygame_screen):
         self.pygame_screen = pygame_screen
@@ -38,6 +37,8 @@ class MainMenu(Screen):
         self.ticker = 0.0
         self.char_name = player_manager.me.name
         self.info_message = ''
+        self.letters = "abcdefghijklmnopqrstuvwxyz"
+        self.currentLetter = 0
 
         self.main_options = {
             'Play': {
@@ -100,6 +101,8 @@ class MainMenu(Screen):
                 self.render_text(font, self.char_name + '_', (offset[0], offset[1]))
             else:
                 self.render_text(font, self.char_name, (offset[0], offset[1]))
+            
+            self.render_text(font, self.letters[self.currentLetter], (offset[0] - 10, offset[1] + 125))
 
         elif(self.state == MenuState.RESUME):
             self.options_length = len(self.resume_options)
@@ -122,7 +125,7 @@ class MainMenu(Screen):
     def update(self, event):
         # Update menu state based off of key press or joystick
         from client import GameState
-            
+        print(event)
         if event.type == pygame.locals.JOYAXISMOTION:
             # up/down
             if event.axis == 1:
@@ -139,6 +142,15 @@ class MainMenu(Screen):
             elif event.key == pygame.locals.K_DOWN:
                 self.selected += 1
                 self.selected %= self.options_length
+        elif event.type == pygame.locals.JOYBUTTONDOWN:
+            if event.button == 5:
+                self.currentLetter += 1
+                if self.currentLetter == 26:
+                    self.currentLetter = 0
+            if event.button == 4:
+                self.currentLetter -= 1
+                if self.currentLetter == -1:
+                    self.currentLetter = 25
  
         if(self.state == MenuState.CHOICE):
             if event.type == pygame.locals.KEYDOWN:
@@ -241,16 +253,16 @@ class MainMenu(Screen):
                         self.set_state(MenuState.CHOICE)
                 elif(event.key < 123 and event.key != 13 and len(self.char_name)<10):
                     self.char_name += chr(event.key)
-            if event.key == pygame.locals.K_RETURN:
-                if self.state == MenuState.CHAR_SETUP:
-                    self.setup_player()
-                    self.set_state(MenuState.RESUME)
-                    self.selected = 0
-                    return GameState.PLAY
-            if(event.type == pygame.locals.JOYAXISMOTION):
-                if event.axis == 1:
-                    self.setup_player()
-                    self.set_state(MenuState.RESUME)
-                    self.selected = 0
-                    return GameState.PLAY
+#            if event.key == pygame.locals.K_RETURN:
+#                if self.state == MenuState.CHAR_SETUP:
+#                    self.setup_player()
+#                    self.set_state(MenuState.RESUME)
+#                    self.selected = 0
+#                    return GameState.PLAY
+#            if(event.type == pygame.locals.JOYAXISMOTION):
+#                if event.axis == 1:
+#                    self.setup_player()
+#                    self.set_state(MenuState.RESUME)
+#                    self.selected = 0
+#                    return GameState.PLAY
         return

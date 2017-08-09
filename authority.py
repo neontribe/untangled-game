@@ -204,6 +204,22 @@ class Authority():
                             msg = bson.loads(event.msg[0])
                             network_player = self.players.get(event.peer_uuid)
                             if msg['type'] == 'death_report':
+                                player = self.players.get(event.peer_uuid)
+                                previously_owned_flag = None
+                                if self.flags['blue']['owner'] == str(event.peer_uuid):
+                                    previously_owned_flag = 'blue'
+                                elif self.flags['red']['owner'] == str(event.peer_uuid):
+                                    previously_owned_flag = 'red'
+
+                                if previously_owned_flag:
+                                    flag = self.flags[previously_owned_flag]
+                                    flag['owner'] = ''
+                                    self.node.shout('ctf:dropflag', bson.dumps({
+                                        'x': flag['x'],
+                                        'y': flag['y'],
+                                        'team': previously_owned_flag
+                                    }))
+
                                 place = self.get_team_from_uuid(event.peer_uuid)
                                 pos = self.level.get_place(place)
                                 self.node.whisper(event.peer_uuid, bson.dumps({

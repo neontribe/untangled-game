@@ -339,7 +339,7 @@ class Spell():
         self.life = life
         self.maxLife = life
         self.mana_cost = mana_cost
-        self.damage = 10
+        self.damage = 50
         if position == None:
             # spawn at player - additional maths centres the spell
             self.x = self.player.x + 0.5 - (size[0] / 2)

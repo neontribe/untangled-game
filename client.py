@@ -356,6 +356,7 @@ class GameClient():
                                     if self.players.authority_uuid == str(event.peer_uuid):
                                         if msg['type'] == 'teleport':
                                             me.set_position((msg['x'], msg['y']))
+                                            toMove = True
 
                         except Exception as e:
                             import traceback

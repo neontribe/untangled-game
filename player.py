@@ -95,7 +95,7 @@ class Player():
         return False
 
     def set_name(self, name, save = False):
-        self.name = name
+        self.name = name[:14]
         if save:
             self.network.node.shout("player:name", bson.dumps(
                 {

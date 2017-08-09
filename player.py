@@ -12,6 +12,9 @@ import bson
 from tile import Tileset
 from level import Place
 import map as map_module
+from tile import TileAttribute
+from tile import TileType
+import time
 
 class Movement(Enum):
     UP = 1
@@ -101,7 +104,7 @@ class Player():
         return False
 
     def set_name(self, name, save = False):
-        self.name = name
+        self.name = name[:14]
         if save:
             self.network.node.shout("player:name", bson.dumps(
                 {
@@ -222,7 +225,15 @@ class Player():
 
         tmp_x = 0
         tmp_y = 0
-
+        if self.map.level.get_tile(self.x,self.y).has_attribute(TileAttribute.SWIM):
+            dif = round(time.time()) - time.time()
+            if abs(dif) < 0.45:
+                return
+            c = (0,128,255)
+        if self.map.level.get_tile(self.x,self.y).has_attribute(TileAttribute.SLOW):
+            dif = round(time.time()) - time.time()
+            if abs(dif) < 0.30:
+                return
         # while (can keep moving) and (x difference is not more than step) and (y difference is not more than step)
         while self.map.level.can_move_to(self.x + tmp_x, self.y + tmp_y) and abs(tmp_x) <= self.step and abs(tmp_y) <= self.step:
             #               amount,    position,              colour,size,velocity,gravity,life,metadata,grow

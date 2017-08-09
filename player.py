@@ -310,7 +310,7 @@ class Spell():
             int(image_size[1]*newSize[1])
         )
         # Look at all this math!
-        newRotation = math.atan2(self.velo_x,self.velo_y)*(180/math.pi)-180
+        newRotation = round(math.atan2(self.velo_x,self.velo_y)*(180/math.pi)-180,4)
 
 
         pixel_pos = self.player.map.get_pixel_pos(self.x, self.y);

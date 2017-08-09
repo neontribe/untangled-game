@@ -258,13 +258,13 @@ class Player():
             if self.mana > 5:
                 self.depleatMana(5)
                 if direction == Movement.UP:
-                    spell = Spell(self, (0, -0.25), image, position)
+                    spell = Spell(self, (0, -0.5), image, position)
                 elif direction == Movement.RIGHT:
-                    spell = Spell(self, (0.25, 0), image, position)
+                    spell = Spell(self, (0.5, 0), image, position)
                 elif direction == Movement.DOWN:
-                    spell = Spell(self, (0, 0.25), image, position)
+                    spell = Spell(self, (0, 0.5), image, position)
                 elif direction == Movement.LEFT:
-                    spell = Spell(self, (-0.25, 0), image, position)
+                    spell = Spell(self, (-0.5, 0), image, position)
                 else:
                     spell = Spell(self, direction, image, position)
 

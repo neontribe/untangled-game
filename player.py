@@ -241,7 +241,7 @@ class Player():
 
     def attack(self, action, direction, image, position=None):
         if action == Action.SPELL:
-            if self.mana > 5:
+            if self.mana >= 5:
                 self.depleatMana(5)
                 if direction == Movement.UP:
                     spell = Spell(self, (0, -0.25), image, position)
@@ -258,9 +258,13 @@ class Player():
                 if len(self.cast_spells) > self.spell_limit:
                     self.cast_spells[1:]
                 self.cast_spells.append(spell)
+                return True
+            else:
+                return False
         elif action == Action.SWIPE:
             #TODO
-            return
+            return False
+        return False
 
     def remove_spell(self,spell):
         self.cast_spells.remove(spell)

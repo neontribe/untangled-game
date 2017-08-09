@@ -45,6 +45,7 @@ class Player():
         self.animation_ticker = 0
         self.network = network
 
+
         self.particle_list = []
         self.particle_limit = 500
 
@@ -135,9 +136,7 @@ class Player():
         self.screen.blit(mana, (10,0))
         self.screen.blit(health, (10,25))
 
-    def render(self):
-        self.hudRender()
-        
+    def render(self, isMe = False):
         font = pygame.font.Font(client.font, 30)
 
         name_tag_colour = (255, 255, 255)
@@ -174,7 +173,10 @@ class Player():
         self.rect = sprite.get_rect()
         self.rect.topleft = centre
 
-        self.render_particles();
+        self.render_particles()
+        
+        if isMe:
+            self.hudRender()
 
     def render_particles(self):
         toRemove = []
@@ -287,22 +289,15 @@ class Player():
         self.health -= amount
         if self.health < 0:
             self.die()
-        self.hudRender()
             
     def die(self): # Don't get confused with `def` and `death`!!! XD
         pass
     
     def addMana(self, amount):
         self.mana += amount
-        if self.mana > self.maxMana:
-            self.mana -= amount
-        self.hudRender()
     
     def depleatMana(self, amount):
         self.mana -= amount
-        if self.mana < 0:
-            self.mana += amount
-        self.hudRender()
 
 class Spell():
     def __init__(self, player, velocity, image, position=None, size=(0.25, 0.25), colour=(0,0,0), life=100):

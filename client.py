@@ -114,7 +114,7 @@ class GameClient():
         cast = False # Flag for when player casts spell.
         me = self.players.me
         flags = self.flags
-
+        
         if me.mute == "False":
             LevelMusic.play_music_repeat()
 
@@ -122,6 +122,7 @@ class GameClient():
             while running:
                 self.screen.fill((white))
                 clock.tick(tickspeed)
+                
                 if(self.game_state.value == GameState.MENU.value):
                     self.menu.render((self.map.screen.get_width() * 0.45, self.map.screen.get_height()*0.4))
                     for event in pygame.event.get():
@@ -270,7 +271,7 @@ class GameClient():
                         me.step = 1
 
                     self.map.render()
-                    me.render()
+                    me.render(True)
                     for flag in flags:
                         flag.render()
                     for spell in me.cast_spells:

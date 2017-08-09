@@ -22,8 +22,12 @@ Position = namedtuple('Position', ['x', 'y'])
 SpellProperties = namedtuple('SpellProperties', ['x', 'y', 'x_velocity', 'y_velocity',])
 
 class Action(Enum):
-    SPELL = 1
-    SWIPE = 2
+    ARROW = 1
+    FIRE = 2
+    FROST = 3
+    ICE = 4
+    LIGHTENING = 5
+    POISON = 6
 
 class PlayerException(Exception):
     pass
@@ -51,7 +55,7 @@ class Player():
 
         self.steptime = 0
         self.can_step_ability = True
-        
+
         self.firetime = 0
         self.can_fire_ability = True
 
@@ -60,7 +64,7 @@ class Player():
         self.set_position(self.initial_position)
 
         self.team = None
-        
+
         self.health = health
         self.mana = mana
         self.maxMana = mana
@@ -174,7 +178,7 @@ class Player():
         self.rect.topleft = centre
 
         self.render_particles()
-        
+
         if isMe:
             self.hudRender()
 
@@ -182,7 +186,7 @@ class Player():
         toRemove = []
         for particle in self.particle_list:
             pixel_pos = self.map.get_pixel_pos(particle["position"][0],particle["position"][1])
-        
+
             if particle["life"] <= 0:
                 toRemove.append(particle)
 
@@ -240,31 +244,25 @@ class Player():
         return Position(self.x, self.y)
 
     def attack(self, action, direction, image, position=None):
-        if action == Action.SPELL:
-            if self.mana >= 5:
-                self.depleatMana(5)
-                if direction == Movement.UP:
-                    spell = Spell(self, (0, -0.25), image, position)
-                elif direction == Movement.RIGHT:
-                    spell = Spell(self, (0.25, 0), image, position)
-                elif direction == Movement.DOWN:
-                    spell = Spell(self, (0, 0.25), image, position)
-                elif direction == Movement.LEFT:
-                    spell = Spell(self, (-0.25, 0), image, position)
-                else:
-                    spell = Spell(self, direction, image, position)
-
-                # Remove first element of list if limit reached.
-                if len(self.cast_spells) > self.spell_limit:
-                    self.cast_spells[1:]
-                self.cast_spells.append(spell)
-                return True
+        if self.mana >= 5:
+            if direction == Movement.UP:
+                spell = Spell(self, (0, -0.25), image, position)
+            elif direction == Movement.RIGHT:
+                spell = Spell(self, (0.25, 0), image, position)
+            elif direction == Movement.DOWN:
+                spell = Spell(self, (0, 0.25), image, position)
+            elif direction == Movement.LEFT:
+                spell = Spell(self, (-0.25, 0), image, position)
             else:
-                return False
-        elif action == Action.SWIPE:
-            #TODO
+                spell = Spell(self, direction, image, position)
+
+            # Remove first element of list if limit reached.
+            if len(self.cast_spells) > self.spell_limit:
+                self.cast_spells[1:]
+            self.cast_spells.append(spell)
+            return True
+        else:
             return False
-        return False
 
     def remove_spell(self,spell):
         self.cast_spells.remove(spell)
@@ -274,7 +272,7 @@ class Player():
         self.team = team
 
     def add_particle(self,amount, position, colour=(255,255,255), size=3, velocity=None, gravity=(0,0), life=40, metadata=0,grow=0):
-        for i in range(amount):        
+        for i in range(amount):
             if(len(self.particle_list) >= self.particle_limit):
                 self.particle_list[0].destroy()
             newParticle = {"position":position, "velocity":velocity, "gravity":gravity, "colour":colour, "size":size, "life":life, "metadata":metadata, "grow":grow}
@@ -288,29 +286,30 @@ class Player():
     def remove_particle(self,particle):
         self.particle_list.remove(particle)
         return
-        
+
     def depleatHealth(self, amount):
         self.health -= amount
         if self.health < 0:
             self.die()
-            
+
     def die(self): # Don't get confused with `def` and `death`!!! XD
         pass
-    
+
     def addMana(self, amount):
         self.mana += amount
-    
+
     def depleatMana(self, amount):
         self.mana -= amount
 
 class Spell():
-    def __init__(self, player, velocity, image, position=None, size=(0.1, 0.1), colour=(0,0,0), life=100):
+    def __init__(self, player, velocity, image, position=None, size=(0.1, 0.1), colour=(0,0,0), life=100, mana_cost = 5):
         self.player = player
         self.image = image
         self.size = size
         self.colour = colour
         self.life = life
         self.maxLife = life
+        self.mana_cost = mana_cost
         if position == None:
             # spawn at player - additional maths centres the spell
             self.x = self.player.x + 0.5 - (size[0] / 2)
@@ -320,6 +319,7 @@ class Spell():
 
         self.set_velocity(velocity)
 
+        self.player.depleatMana(self.mana_cost)
         self.image = pygame.image.load(image)
 
     def render(self):

@@ -29,7 +29,7 @@ class PlayerException(Exception):
     pass
 
 class Player():
-    def __init__(self, screen, map, network):
+    def __init__(self, screen, map, network, health=100, mana=100):
         self.screen = screen
         self.map = map
         self.ready = False
@@ -45,6 +45,7 @@ class Player():
         self.animation_ticker = 0
         self.network = network
 
+
         self.particle_list = []
         self.particle_limit = 500
 
@@ -59,6 +60,10 @@ class Player():
         self.set_position(self.initial_position)
 
         self.team = None
+        
+        self.health = health
+        self.mana = mana
+        self.maxMana = mana
 
     def __raiseNoPosition(self):
         raise PlayerException({"message": "Everything is lava: Player does not have a position set", "player": self})
@@ -131,7 +136,7 @@ class Player():
         self.screen.blit(mana, (10,0))
         self.screen.blit(health, (10,25))
 
-    def render(self):
+    def render(self, isMe = False):
         font = pygame.font.Font(client.font, 30)
 
         name_tag_colour = (255, 255, 255)
@@ -168,7 +173,10 @@ class Player():
         self.rect = sprite.get_rect()
         self.rect.topleft = centre
 
-        self.render_particles();
+        self.render_particles()
+        
+        if isMe:
+            self.hudRender()
 
     def render_particles(self):
         toRemove = []
@@ -233,21 +241,23 @@ class Player():
 
     def attack(self, action, direction, image, position=None):
         if action == Action.SPELL:
-            if direction == Movement.UP:
-                spell = Spell(self, (0, -0.25), image, position)
-            elif direction == Movement.RIGHT:
-                spell = Spell(self, (0.25, 0), image, position)
-            elif direction == Movement.DOWN:
-                spell = Spell(self, (0, 0.25), image, position)
-            elif direction == Movement.LEFT:
-                spell = Spell(self, (-0.25, 0), image, position)
-            else:
-                spell = Spell(self, direction, image, position)
+            if self.mana > 5:
+                self.depleatMana(5)
+                if direction == Movement.UP:
+                    spell = Spell(self, (0, -0.25), image, position)
+                elif direction == Movement.RIGHT:
+                    spell = Spell(self, (0.25, 0), image, position)
+                elif direction == Movement.DOWN:
+                    spell = Spell(self, (0, 0.25), image, position)
+                elif direction == Movement.LEFT:
+                    spell = Spell(self, (-0.25, 0), image, position)
+                else:
+                    spell = Spell(self, direction, image, position)
 
-            # Remove first element of list if limit reached.
-            if len(self.cast_spells) > self.spell_limit:
-                self.cast_spells[1:]
-            self.cast_spells.append(spell)
+                # Remove first element of list if limit reached.
+                if len(self.cast_spells) > self.spell_limit:
+                    self.cast_spells[1:]
+                self.cast_spells.append(spell)
         elif action == Action.SWIPE:
             #TODO
             return
@@ -274,6 +284,20 @@ class Player():
     def remove_particle(self,particle):
         self.particle_list.remove(particle)
         return
+        
+    def depleatHealth(self, amount):
+        self.health -= amount
+        if self.health < 0:
+            self.die()
+            
+    def die(self): # Don't get confused with `def` and `death`!!! XD
+        pass
+    
+    def addMana(self, amount):
+        self.mana += amount
+    
+    def depleatMana(self, amount):
+        self.mana -= amount
 
 class Spell():
     def __init__(self, player, velocity, image, position=None, size=(0.1, 0.1), colour=(0,0,0), life=100):

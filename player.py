@@ -320,7 +320,8 @@ class Spell():
         )
 
         surf = pygame.transform.scale(self.image, newImageSize)
-        surf = pygame.transform.rotate(surf, newRotation)
+        if newImageSize[0] != 0 and newImageSize[1] != 0:
+            surf = pygame.transform.rotate(surf, newRotation)
         self.player.screen.blit(surf, offset_pos)
 
         # move the projectile by its velocity

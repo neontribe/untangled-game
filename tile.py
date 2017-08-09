@@ -10,7 +10,7 @@ TileAttribute represents the actions which a tile is able to inflict upon a play
 '''
 class TileAttribute(Enum): #I don't actually know how this works, someone else needs to fix it - Nat
     COLLIDE =   0b0001
-    SPIKES  =   0b0010
+    SPIKES  =   0b0010 #Make this hurt you but allow you to move through normally
     SWIM    =   0b0011
     SLOW    =   0b0100
     HIDE    =   0b0101
@@ -23,7 +23,8 @@ class TileType(Enum):
     BIGTREE3 = ([172], [])
     BIGTREE4 = ([173], [])
     BUSH = ([137], [ TileAttribute.COLLIDE ])
-    TREE = ([79],  [ TileAttribute.COLLIDE ])
+    TREE = ([145],  [ TileAttribute.COLLIDE ])
+    SANDTREE = ([160], [ TileAttribute.HIDE ])
     BLUE_BLOCK = ([177],  [])
     RED_BLOCK = ([129],  [])
     BLUE_SPAWN = ([121],  [])

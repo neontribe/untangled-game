@@ -39,6 +39,8 @@ spell_image_path = 'assets/images/fireball.png'
 buttons = {"A":1, "B":2, "X":0, "Y":3, "L":4, "R":5, "Start":9, "Select":8} #Use these for the PiHut SNES controller
 #buttons = {"A":0, "B":1, "X":2, "Y":3, "L":4, "R":5, "Start":7, "Select":6} #Use these for the iBuffalo SNES controller
 
+error_message = "Everything is lava"
+
 class GameState(Enum):
     MENU = 0
     PLAY = 1
@@ -171,8 +173,9 @@ class GameClient():
                                 last_direction = Movement.RIGHT
                                 toMove = True
                             elif event.key == pygame.locals.K_RETURN or event.key == pygame.locals.K_SPACE :
-                                cast = True
-                                me.attack(Action.SPELL, last_direction, self.spell_image)
+                                if me.can_fire_ability:
+                                    cast = True
+                                    me.attack(Action.SPELL, last_direction, self.spell_image)
 
                             if event.key == pygame.locals.K_r and me.can_step_ability:
                                 me.step = 2
@@ -186,9 +189,10 @@ class GameClient():
                         elif time.time() - me.steptime >3:
                             me.step = 1
                     if pygame.mouse.get_pressed()[0]:
-                        cast = True
-                        me.attack(Action.SPELL, last_direction, self.spell_image)
-                        pygame.event.clear(pygame.locals.MOUSEBUTTONDOWN)
+                        if me.can_fire_ability:
+                            cast = True
+                            me.attack(Action.SPELL, last_direction, self.spell_image)
+                        pygame.event.clear(pygame.locals.MOUSEBUTTONDOWN)  
 
 
                     # https://stackoverflow.com/a/15596758/3954432
@@ -240,23 +244,30 @@ class GameClient():
 
                         #Shoot
                         if joystick.get_button(buttons["R"]) or joystick.get_button(buttons["A"]):
-                            cast = True
-                            me.attack(Action.SPELL, last_direction)
+                            if me.can_fire_ability:
+                                cast = True
+                                me.attack(Action.SPELL, last_direction)
                         #Menu
                         if joystick.get_button(buttons["Start"]) or joystick.get_button(buttons["Select"]):
                             self.set_state(GameState.MENU)
                         #Speed boost
-                        if joystick.get_button(buttons["X"]):
+                        if joystick.get_button(buttons["X"]) and me.can_step_ability:
                             me.step = 2
                             me.steptime = time.time()
                             me.can_step_ability = False
 
                         last_update = pygame.time.get_ticks()
 
-                        if time.time() - me.steptime >30:
-                            me.can_step_ability = True
-                        elif time.time() - me.steptime >3:
-                            me.step = 1
+                    if cast:
+                        me.can_fire_ability = False
+                        me.firetime = time.time()                        
+                    elif time.time() - me.firetime > 2:
+                        me.can_fire_ability = True
+                          
+                    if time.time() - me.steptime >30:
+                        me.can_step_ability = True
+                    elif time.time() - me.steptime >3:
+                        me.step = 1
 
                     self.map.render()
                     me.render()
@@ -264,8 +275,6 @@ class GameClient():
                         flag.render()
                     for spell in me.cast_spells:
                         spell.render()
-                    for particle in me.particle_list:
-                        particle.render()
 
                     self.players.set(self.network.node.peers())
 
@@ -319,7 +328,7 @@ class GameClient():
                                     network_player.set_position(Position(**new_position))
 
                         except Exception as e:
-                            print(e)
+                            print(error_message + ": " + str(e))
                             import traceback
                             print(traceback.format_exc())
                             pass
@@ -342,7 +351,7 @@ class GameClient():
 
                         except PlayerException as e:
                             # PlayerException due to no initial position being set for that player
-                            print(e)
+                            print(error_message + ": " + str(e))
                             pass
 
                 pygame.display.update()

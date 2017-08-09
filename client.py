@@ -246,7 +246,7 @@ class GameClient():
                         if joystick.get_button(buttons["R"]) or joystick.get_button(buttons["A"]):
                             if me.can_fire_ability:
                                 cast = True
-                                me.attack(Action.SPELL, last_direction)
+                                me.attack(Action.SPELL, last_direction, self.spell_image)
                         #Menu
                         if joystick.get_button(buttons["Start"]) or joystick.get_button(buttons["Select"]):
                             self.set_state(GameState.MENU)

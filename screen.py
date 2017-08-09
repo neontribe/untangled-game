@@ -147,10 +147,16 @@ class MainMenu(Screen):
                 self.currentLetter += 1
                 if self.currentLetter == 26:
                     self.currentLetter = 0
-            if event.button == 4:
+            elif event.button == 4:
                 self.currentLetter -= 1
                 if self.currentLetter == -1:
                     self.currentLetter = 25
+            elif event.button == 1:
+                self.char_name = self.char_name + self.letters[self.currentLetter]
+                if len(self.char_name) > 10:
+                    self.char_name = self.char_name[:10]
+            elif event.button == 2:
+                self.char_name = self.char_name[:-1]
  
         if(self.state == MenuState.CHOICE):
             if event.type == pygame.locals.KEYDOWN:
@@ -179,8 +185,8 @@ class MainMenu(Screen):
                     elif(self.selected == 4):
                         #QUIT
                         return GameState.QUIT
-            if event.type == pygame.locals.JOYAXISMOTION:
-                if event.axis == 0:
+            if event.type == pygame.locals.JOYBUTTONDOWN:
+                if event.button == 1:
                     self.info_message = ''
 
                     if(self.selected == 0):
@@ -225,8 +231,8 @@ class MainMenu(Screen):
                     elif(self.selected == 3):
                         #QUIT
                         return GameState.QUIT
-            if event.type == pygame.locals.JOYAXISMOTION:
-                if event.axis == 0:
+            if event.type == pygame.locals.JOYBUTTONDOWN:
+                if event.button == 1:
                     self.info_message = ''
 
                     if(self.selected == 0):
@@ -259,8 +265,8 @@ class MainMenu(Screen):
                         self.set_state(MenuState.RESUME)
                         self.selected = 0
                         return GameState.PLAY
-            if(event.type == pygame.locals.JOYAXISMOTION):
-                if event.axis == 1:
+            if event.type == pygame.locals.JOYBUTTONDOWN:
+                if event.button == 9:
                     self.setup_player()
                     self.set_state(MenuState.RESUME)
                     self.selected = 0

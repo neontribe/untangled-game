@@ -24,6 +24,7 @@ class TileType(Enum):
     BIGTREE4 = ([173], [])
     BUSH = ([137], [ TileAttribute.COLLIDE ])
     TREE = ([145],  [ TileAttribute.COLLIDE ])
+    SANDTREE = ([160],  [ TileAttribute.COLLIDE ]) 
     BLUE_BLOCK = ([177],  [])
     RED_BLOCK = ([129],  [])
     BLUE_SPAWN = ([121],  [])

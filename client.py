@@ -251,6 +251,7 @@ class GameClient():
 
                     self.map.render()
                     me.render()
+
                     for flag in self.flags.values():
                         flag.render()
                     for spell in me.cast_spells:
@@ -273,6 +274,7 @@ class GameClient():
                                     if auth_status == 'TRUE':
                                         self.players.authority_uuid = str(event.peer_uuid)
                                         self.players.remove(event.peer_uuid)
+                                        # continue
 
                                 if event.group == "players:whois":
                                     self.network.node.shout("player:name", bson.dumps(
@@ -281,29 +283,40 @@ class GameClient():
                                         }
                                     ))
 
-                                if event.group == "player:name":
-                                    new_name = bson.loads(event.msg[0])
-                                    player = self.players.get(event.peer_uuid)
-                                    if new_name['name']:
-                                        player.set_name(new_name['name'])
-
-                                if event.group == "world:position":
-                                    new_position = bson.loads(event.msg[0])
-                                    network_player = self.players.get(event.peer_uuid)
-                                if event.group == "world:combat":
-                                    new_spell_properties = bson.loads(event.msg[0])
-                                    network_spell_caster = self.players.get(event.peer_uuid)
-                                    network_spell_caster.cast_spells.append(Spell(network_spell_caster, (0, 0)))
-                                    network_spell_caster.cast_spells[-1].set_properties(SpellProperties(**new_spell_properties))
-                                if event.group == "ctf:teams":
-                                    if event.type == "SHOUT":
+                                if event.type == "SHOUT":
+                                    if event.group == "player:name":
+                                        new_name = bson.loads(event.msg[0])
+                                        player = self.players.get(event.peer_uuid)
+                                        if new_name['name']:
+                                            player.set_name(new_name['name'])
+                                    if event.group == "world:position":
+                                        new_position = bson.loads(event.msg[0])
+                                        network_player = self.players.get(event.peer_uuid)
+                                    if event.group == "world:combat":
+                                        new_spell_properties = bson.loads(event.msg[0])
+                                        network_spell_caster = self.players.get(event.peer_uuid)
+                                        network_spell_caster.cast_spells.append(Spell(network_spell_caster, (0, 0)))
+                                        network_spell_caster.cast_spells[-1].set_properties(SpellProperties(**new_spell_properties))
+                                    if event.group == "ctf:teams":
                                         team_defs = bson.loads(event.msg[0])
                                         self.players.set_teams(team_defs)
-                                if event.group == "ctf:flags":
-                                    if event.type == "SHOUT":
-                                        flag_defs = bson.loads(event.msg[0])
-                                        self.flags[0].set_position_from_authority(flag_defs.get("red"))
-                                        self.flags[1].set_position_from_authority(flag_defs.get("blue"))
+                                    if event.group == "ctf:gotflag":
+                                        flag_info = bson.loads(event.msg[0])
+                                        team = flag_info["team"]
+                                        uuid = flag_info["uuid"]
+                                        flag = self.flags[team]
+                                        if uuid == str(self.network.node.uuid()):
+                                            flag.set_player(self.players.me)
+                                        else:
+                                            network_player = self.players.get(uuid)
+                                            flag.set_player(network_player)
+                                        
+                                        
+                                    if event.group == "ctf:flags":
+                                        pass
+                                        # flag_defs = bson.loads(event.msg[0])
+                                        # self.flags[0].set_position_from_authority(flag_defs.get("red"))
+                                        # self.flags[1].set_position_from_authority(flag_defs.get("blue"))
 
                                 if network_player:
                                     network_player.set_position(Position(**new_position))
@@ -315,13 +328,12 @@ class GameClient():
                             pass
 
                     # if there are other peers we can start sending to groups.
-                    if self.players.others:
-                        if toMove == True or cast == True:
-                            self.network.node.shout("world:position", bson.dumps(me.get_position()._asdict()))
-                            toMove = False
-                        if cast == True:
-                            self.network.node.shout("world:combat", bson.dumps(me.cast_spells[-1].get_properties()._asdict()))
-                            cast = False
+                    if toMove == True or cast == True:
+                        self.network.node.shout("world:position", bson.dumps(me.get_position()._asdict()))
+                        toMove = False
+                    if cast == True:
+                        self.network.node.shout("world:combat", bson.dumps(me.cast_spells[-1].get_properties()._asdict()))
+                        cast = False
 
                     for playerUUID, player in self.players.others.items():
                         try:

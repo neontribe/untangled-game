@@ -98,13 +98,6 @@ class Player():
     def set_tileset(self, tileset):
         self.tileset = tileset
 
-    # use this to "carry" any number of sprites on your player character.
-    def attach_sprite(self, sprite):
-        self.attached.append(sprite)
-
-    def remove_sprite(self, sprite):
-        self.attached.remove(sprite)
-
     def set_position(self, position):
         # Derive direction (for networked players)
         if self.x < position[0]:

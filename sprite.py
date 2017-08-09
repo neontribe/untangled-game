@@ -6,14 +6,20 @@ class Sprite():
         self.screen = screen
         self.map = map
         self.image = pygame.image.load(image)
-
+        self.player = None
         self.x, self.y = (0, 0)
         self.animation_ticker = 0
     
     def set_position(self, position):
         self.x, self.y = position
 
-    def render(self):
+    def set_player(self, player):
+        self.player = player
+
+    def render(self):                   
+        if self.player:
+            self.x, self.y = self.player.x, self.player.y
+
         centre = self.map.get_pixel_pos(self.x, self.y)
         self.screen.blit(self.image, centre)
         # create collision rectangle

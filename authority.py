@@ -2,9 +2,8 @@ import random
 
 import bson
 import zmq
-from pyre import Pyre
 
-from flag import *
+from pyre import Pyre
 
 
 RESETTIME = 5
@@ -27,13 +26,18 @@ class AuthorityPlayerManager():
 class Player():
     def __init__(self, uuid):
         self.uuid = uuid
+        self.x, self.y = (None, None)
 
+    def set_position(self, position):
+        self.x = position['x']
+        self.y = position['y']
 
 class Authority():
     def __init__(self):
         self.node = Pyre("GAME_AUTH")
         self.node.set_header("AUTHORITY", "TRUE")
         self.node.start()
+        self.node.join("world:position")
         self.node.join("ctf:teams")
         self.node.join("ctf:flags")
         self.node.join("ctf:gotflag")
@@ -49,8 +53,8 @@ class Authority():
         }
         
         self.flags = {
-            "blue": {"x":0, "y":0, "owner":0, "timer":0}, 
-            "red": {"x":0, "y":0, "owner":0, "timer":0}
+            "blue": {"x":0, "y":0, "owner":'', "timer":0}, 
+            "red": {"x":0, "y":0, "owner":'', "timer":0}
         }
         self.serve()
 
@@ -79,18 +83,7 @@ class Authority():
         self.node.shout("ctf:teams", bson.dumps(self.teams))
     
     def set_flags(self, flag_info):
-        if flag_info.get("flag") == "red":
-            self.flags["red"]["owner"] = int(flag_info.get("owner"))
-            self.flags["red"]["x"] = self.players[self.flags["red"]["owner"]].x
-            self.flags["red"]["y"] = self.players[self.flags["red"]["owner"]].y
-            if self.flags["red"]["owner"] == "0":
-                self.flags["red"]["timer"] = RESETTIME
-            else:
-                self.flags["red"]["timer"] = 0
-        elif flag_info.get("flag") == "blue":
-            self.flags["blue"]["owner"] = int(flag_info.get("owner"))
-        
-        self.update_flags()
+        return
         
     def update_flags(self):
         self.node.shout("ctf:flags", bson.dumps(self.flags))
@@ -109,6 +102,10 @@ class Authority():
                         elif event.type == 'EXIT':
                             self.set_teams()
                         elif event.type == 'SHOUT':
+                            if event.group == "world:position":
+                                new_position = bson.loads(event.msg[0])
+                                network_player = self.players.get(event.peer_uuid)
+                                network_player.set_position(new_position)
                             if event.group == 'ctf:gotflags':
                                 flag_info = bson.loads(event.msg[0])
                                 self.set_flags(flag_info)
@@ -118,6 +115,19 @@ class Authority():
                     import traceback
                     print(traceback.format_exc())
                     pass
+
+            for team, flag in self.flags.items():
+                if flag["owner"] != '': continue
+                for uuid, player in self.players.players.items():
+                    if flag['x'] == player.x and flag['y'] == player.y:
+                        flag["owner"] = uuid
+                        self.node.shout('ctf:gotflag', bson.dumps({
+                            'uuid': uuid,
+                            'team': team
+                        }))
+                        break
+
+            
 
     def poll(self):
         return dict(self.poller.poll(0))

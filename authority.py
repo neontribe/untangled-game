@@ -55,7 +55,7 @@ class Authority():
             "red": []
         }
   
-        self.level = SaveLevel('./assets/maps/CAPFLAG MAP')
+        self.level = SaveLevel('./assets/maps/CAPFLAG MAP NAT')
         red_spawn_pos = self.level.get_place(Place.RED_SPAWN)
         blue_spawn_pos = self.level.get_place(Place.BLUE_SPAWN)
 
@@ -200,6 +200,17 @@ class Authority():
                             if event.group == 'ctf:gotflags':
                                 flag_info = bson.loads(event.msg[0])
                                 self.set_flags(flag_info)
+                        elif event.type == 'WHISPER':
+                            msg = bson.loads(event.msg[0])
+                            network_player = self.players.get(event.peer_uuid)
+                            if msg['type'] == 'death_report':
+                                place = self.get_team_from_uuid(event.peer_uuid)
+                                pos = self.level.get_place(place)
+                                self.node.whisper(event.peer_uuid, bson.dumps({
+                                    'type': 'teleport',
+                                    'x': pos[0],
+                                    'y': pos[1]
+                                }))
 
                 except Exception as e:
                     print(e)

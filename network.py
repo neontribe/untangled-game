@@ -16,8 +16,6 @@ class Network():
         self.node.join("players:whois")
         self.node.join("player:name")
 
-        self.node.shout('players:whois', bson.dumps({}))
-
         self.poller = zmq.Poller()
         self.poller.register(self.node.socket(), zmq.POLLIN)
 

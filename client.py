@@ -68,6 +68,8 @@ class GameClient():
         me = Player(self.screen, self.map, self.network)
         self.players = PlayerManager(me, self.network)
 
+        self.network.node.shout('players:whois', bson.dumps({}))
+
         red = Sprite(self.screen, self.map, red_flag)
         blue = Sprite(self.screen, self.map, blue_flag)
         self.flags = {
@@ -305,6 +307,7 @@ class GameClient():
                                     auth_status = event.headers.get('AUTHORITY')
                                     if auth_status == 'TRUE':
                                         self.players.authority_uuid = str(event.peer_uuid)
+                                        self.network.authority_uuid = str(event.peer_uuid)
                                         self.players.remove(event.peer_uuid)
                                 elif event.type == "SHOUT":
                                     if event.group == "player:name":
@@ -319,7 +322,10 @@ class GameClient():
                                     elif event.group == "world:combat":
                                         new_spell_properties = bson.loads(event.msg[0])
                                         network_spell_caster = self.players.get(event.peer_uuid)
-                                        network_spell_caster.cast_spells.append(Spell(network_spell_caster, (0, 0), arrow_image_path))
+                                        x_vel = new_spell_properties['x_velocity']
+                                        y_vel = new_spell_properties['y_velocity']
+                                        # TODO: Use the actual spell image.
+                                        network_spell_caster.cast_spells.append(Spell(network_spell_caster, (0, 0), projectile_paths[0]))
                                         network_spell_caster.cast_spells[-1].set_properties(SpellProperties(**new_spell_properties))
                                     elif event.group == "ctf:teams":
                                         team_defs = bson.loads(event.msg[0])
@@ -350,6 +356,7 @@ class GameClient():
                                     if self.players.authority_uuid == str(event.peer_uuid):
                                         if msg['type'] == 'teleport':
                                             me.set_position((msg['x'], msg['y']))
+
                         except Exception as e:
                             import traceback
                             pass
@@ -367,7 +374,9 @@ class GameClient():
                             player.render()
                             for spell in player.cast_spells:
                                 spell.render()
-                                # spell.hit_target(me)
+                                hit_me = spell.hit_target_player(me)
+                                if hit_me:
+                                    me.deplete_health(spell.damage)
 
                         except PlayerException as e:
                             # PlayerException due to no initial position being set for that player

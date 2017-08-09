@@ -232,20 +232,21 @@ class MainMenu(Screen):
                         #QUIT
                         return GameState.QUIT
         elif(self.state == MenuState.CHAR_SETUP):
+            # Limit name to 15 characters.
             if(event.type == pygame.locals.KEYDOWN):
                 if(event.key == pygame.locals.K_BACKSPACE):
                     self.char_name = self.char_name[:-1]
                 elif event.key == pygame.locals.K_ESCAPE:
                     if self.state == MenuState.CHAR_SETUP:
                         self.set_state(MenuState.CHOICE)
-                elif(event.key < 123 and event.key != 13):
+                elif(event.key < 123 and event.key != 13 and len(self.char_name)<10):
                     self.char_name += chr(event.key)
-                elif event.key == pygame.locals.K_RETURN:
-                    if self.state == MenuState.CHAR_SETUP:
-                        self.setup_player()
-                        self.set_state(MenuState.RESUME)
-                        self.selected = 0
-                        return GameState.PLAY
+            if event.key == pygame.locals.K_RETURN:
+                if self.state == MenuState.CHAR_SETUP:
+                    self.setup_player()
+                    self.set_state(MenuState.RESUME)
+                    self.selected = 0
+                    return GameState.PLAY
             if(event.type == pygame.locals.JOYAXISMOTION):
                 if event.axis == 1:
                     self.setup_player()

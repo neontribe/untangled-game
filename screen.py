@@ -253,16 +253,16 @@ class MainMenu(Screen):
                         self.set_state(MenuState.CHOICE)
                 elif(event.key < 123 and event.key != 13 and len(self.char_name)<10):
                     self.char_name += chr(event.key)
-#            if event.key == pygame.locals.K_RETURN:
-#                if self.state == MenuState.CHAR_SETUP:
-#                    self.setup_player()
-#                    self.set_state(MenuState.RESUME)
-#                    self.selected = 0
-#                    return GameState.PLAY
-#            if(event.type == pygame.locals.JOYAXISMOTION):
-#                if event.axis == 1:
-#                    self.setup_player()
-#                    self.set_state(MenuState.RESUME)
-#                    self.selected = 0
-#                    return GameState.PLAY
+                elif event.key == pygame.locals.K_RETURN:
+                    if self.state == MenuState.CHAR_SETUP:
+                        self.setup_player()
+                        self.set_state(MenuState.RESUME)
+                        self.selected = 0
+                        return GameState.PLAY
+            if(event.type == pygame.locals.JOYAXISMOTION):
+                if event.axis == 1:
+                    self.setup_player()
+                    self.set_state(MenuState.RESUME)
+                    self.selected = 0
+                    return GameState.PLAY
         return

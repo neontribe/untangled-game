@@ -5,6 +5,7 @@ import zmq
 
 from pyre import Pyre
 from level import SaveLevel, Place
+from tile import TileType
 
 RESETTIME = 5
 class AuthorityPlayerManager():
@@ -173,13 +174,15 @@ class Authority():
                                 for team, flag in self.flags.items():
                                     if flag['owner'] != str(event.peer_uuid):
                                         continue
-                                    tile = self.level.get_tile(new_position[0], new_position[1])
+                                    tile = self.level.get_tile(new_position['x'], new_position['y'])
                                     if tile == TileType.RED_BLOCK and team == 'blue':
                                         # TODO: blue's flag has been captured
                                         spawn = Place.BLUE_SPAWN
                                     elif tile == TileType.BLUE_BLOCK and team == 'red':
                                         # TODO: red's flag has been captured
                                         spawn = Place.RED_SPAWN
+                                    else:
+                                        continue
                                     position = self.level.get_place(spawn)
                                     flag['x'] = position[0]
                                     flag['y'] = position[1]

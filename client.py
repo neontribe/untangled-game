@@ -46,8 +46,8 @@ projectile_paths = [
                     'assets/images/poisonball.png'
                     ]
 
-#buttons = {"A":1, "B":2, "X":0, "Y":3, "L":4, "R":5, "Start":9, "Select":8} #Use these for the PiHut SNES controller
-buttons = {"A":0, "B":1, "X":2, "Y":3, "L":4, "R":5, "Start":7, "Select":6} #Use these for the iBuffalo SNES controller
+buttons = {"A":1, "B":2, "X":0, "Y":3, "L":4, "R":5, "Start":9, "Select":8} #Use these for the PiHut SNES controller
+#buttons = {"A":0, "B":1, "X":2, "Y":3, "L":4, "R":5, "Start":7, "Select":6} #Use these for the iBuffalo SNES controller
 
 error_message = "Everything is lava"
 
@@ -197,18 +197,27 @@ class GameClient():
                                 me.step = 2
                                 me.steptime = time.time()
                                 me.can_step_ability = False
+                            
+                            if event.key == pygame.locals.K_q:
+                                if me.can_switch_spell:
+                                    me.change_spell()
+                                    me.switch_time = time.time()
+                                    me.can_switch_spell = False
 
                             pygame.event.clear(pygame.locals.KEYDOWN)
-
-                        if time.time() - me.steptime >30:
-                            me.can_step_ability = True
-                        elif time.time() - me.steptime >3:
-                            me.step = 1
-                    if pygame.mouse.get_pressed()[0]:
-                        if me.can_fire_ability:
-                            cast = me.attack(Action(me.current_spell), last_direction, projectile_paths[me.current_spell])
-                        pygame.event.clear(pygame.locals.MOUSEBUTTONDOWN)
-
+                    
+                    if event.type == pygame.locals.MOUSEBUTTONDOWN:
+                        if event.button == 0:
+                            if me.can_fire_ability:
+                                cast = me.attack(Action(me.current_spell), last_direction, projectile_paths[me.current_spell])
+                            pygame.event.clear(pygame.locals.MOUSEBUTTONDOWN)
+                        if event.button == 4 or event.button == 5:
+                            if me.can_switch_spell:
+                                me.change_spell()
+                                me.switch_time = time.time()
+                                me.can_switch_spell = False
+                                pygame.event.clear(pygame.locals.MOUSEBUTTONDOWN)
+                    
                     # https://stackoverflow.com/a/15596758/3954432
                     # Handle controller input by setting flags (move, neutral)
                     # and using timers (delay, pressed).
@@ -268,8 +277,11 @@ class GameClient():
                             me.steptime = time.time()
                             me.can_step_ability = False
                         #Change spell
-                        if joystick.get_button(buttons["L"]) and me.can_step_ability:
-                            me.change_spell()
+                        if joystick.get_button(buttons["L"]):
+                            if me.can_switch_spell:
+                                me.change_spell()
+                                me.switch_time = time.time()
+                                me.can_switch_spell = False
 
                         last_update = pygame.time.get_ticks()
 
@@ -283,7 +295,10 @@ class GameClient():
                         me.can_step_ability = True
                     elif time.time() - me.steptime >3:
                         me.step = 1
-
+                    
+                    if time.time() - me.switch_time > 0.1:
+                        me.can_switch_spell = True
+                    
                     self.map.render()
                     for flag in self.flags.values():
                         flag.render()
@@ -322,10 +337,8 @@ class GameClient():
                                     elif event.group == "world:combat":
                                         new_spell_properties = bson.loads(event.msg[0])
                                         network_spell_caster = self.players.get(event.peer_uuid)
-                                        x_vel = new_spell_properties['x_velocity']
-                                        y_vel = new_spell_properties['y_velocity']
-                                        # TODO: Use the actual spell image.
-                                        network_spell_caster.cast_spells.append(Spell(network_spell_caster, (0, 0), projectile_paths[0]))
+                                        network_spell_caster.current_spell = new_spell_properties.get('current_spell')
+                                        network_spell_caster.cast_spells.append(Spell(network_spell_caster, (0, 0), projectile_paths[network_spell_caster.current_spell]))
                                         network_spell_caster.cast_spells[-1].set_properties(SpellProperties(**new_spell_properties))
                                     elif event.group == "ctf:teams":
                                         team_defs = bson.loads(event.msg[0])
@@ -360,6 +373,7 @@ class GameClient():
 
                         except Exception as e:
                             import traceback
+                            # traceback.print_exc()
                             pass
 
                     # if there are other peers we can start sending to groups.

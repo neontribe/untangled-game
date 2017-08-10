@@ -76,7 +76,7 @@ class Authority():
         }
 
         self.scores = {
-            "red": 9,
+            "red": 0,
             "blue": 0
         }
 

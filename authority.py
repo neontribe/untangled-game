@@ -215,8 +215,8 @@ class Authority():
                                     flag = self.flags[previously_owned_flag]
                                     flag['owner'] = ''
                                     self.node.shout('ctf:dropflag', bson.dumps({
-                                        'x': flag['x'],
-                                        'y': flag['y'],
+                                        'x': player.x,
+                                        'y': player.y,
                                         'team': previously_owned_flag
                                     }))
 
@@ -227,6 +227,8 @@ class Authority():
                                     'x': pos[0],
                                     'y': pos[1]
                                 }))
+                                player.x = pos[0]
+                                player.y = pos[1]
 
                 except Exception as e:
                     print(e)

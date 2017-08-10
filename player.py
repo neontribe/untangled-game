@@ -59,6 +59,9 @@ class Player():
 
         self.firetime = 0
         self.can_fire_ability = True
+        
+        self.switch_time = 0
+        self.can_switch_spell = True
 
         self.projSpeed = 1.5
         self.cast_spells = []

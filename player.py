@@ -29,9 +29,9 @@ SpellProperties = namedtuple('SpellProperties', ['x', 'y', 'x_velocity', 'y_velo
 class Action(Enum):
     ARROW = (0, 0, 30)
     FIRE = (1, 5, 50)
-    FROST = (2, 5, 50)
-    ICE = (3, 5, 50)
-    LIGHTNING = (4, 5, 50)
+    FROST = (2, 10, 55)
+    ICE = (3, 15, 60)
+    LIGHTNING = (4, 20, 65)
     POISON = (5, 100, 100)
 
     def __init__(self, id, mana_cost, damage):
@@ -308,7 +308,9 @@ class Player():
         return Position(self.x, self.y)
 
     def attack(self, direction, image, position=None):
-        if self.mana > 5:
+        spell = Action.get_action(self.current_spell)
+
+        if self.mana >= spell.mana_cost:
             if direction == Movement.UP:
                 spell = Spell(self, (0, -self.projSpeed), image, position)
             elif direction == Movement.RIGHT:

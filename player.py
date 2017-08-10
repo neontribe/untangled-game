@@ -307,15 +307,10 @@ class Player():
 
         return Position(self.x, self.y)
 
-<<<<<<< HEAD
     def attack(self, direction, image, position=None):
         spell = Action.get_action(self.current_spell)
 
         if self.mana >= spell.mana_cost:
-=======
-    def attack(self, action, direction, image, position=None, mana_cost=5):
-        if self.mana >= mana_cost:
->>>>>>> 7aa1f5a12b0c870f420064b0b2c4311ba7f3db2a
             if direction == Movement.UP:
                 spell = Spell(self, (0, -self.projSpeed), image, position)
             elif direction == Movement.RIGHT:

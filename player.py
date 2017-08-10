@@ -375,6 +375,10 @@ class Spell():
         self.image = pygame.image.load(self.image_path)
 
     def render(self):
+        if self.player.map.level.get_tile(int(self.x),int(self.y)).has_attribute(TileAttribute.COLLIDE):
+            self.destroy()
+            return
+
         self.colour = (random.randrange(255),random.randrange(255),random.randrange(255))
         progress = self.life/self.maxLife #random.randrange(100)/100
         newSize = (progress*self.size[0],progress*self.size[1])

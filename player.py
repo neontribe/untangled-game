@@ -224,7 +224,7 @@ class Player():
 
         if isMe:
             if self.map.level.get_tile(self.x,self.y).has_attribute(TileAttribute.SPIKES):
-                self.deplete_health(1)
+                self.deplete_health(5)
             
             spawnAttribute = None
             if self.team:
@@ -235,6 +235,7 @@ class Player():
                     
             if spawnAttribute and self.map.level.get_tile(self.x,self.y).has_attribute(spawnAttribute):
                 self.addMana(1)
+                self.increase_health(1)
             self.hudRender()
 
     def render_particles(self):
@@ -362,7 +363,10 @@ class Player():
     def remove_particle(self,particle):
         self.particle_list.remove(particle)
         return
-
+    
+    def increase_health(self, amount):
+        self.health = min(100, self.health + amount)
+    
     def deplete_health(self, amount):
         self.health -= amount
         if self.health <= 0:

@@ -292,9 +292,9 @@ class GameClient():
                     if time.time() - me.switch_time > 0.1:
                         me.can_switch_spell = True
                     
-                    if time.time() - me.swim_timer > 0.4:
+                    if time.time() - me.swim_timer > 0.3:
                         me.can_swim = True
-                    if time.time() - me.sand_timer > 0.2:
+                    if time.time() - me.sand_timer > 0.1:
                         me.can_sand = True
                     
                     self.map.render()

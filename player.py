@@ -239,15 +239,20 @@ class Player():
 
         if self.map.level.get_tile(self.x,self.y).has_attribute(TileAttribute.SWIM) and self.can_swim:
             self.swim_timer = time.time()
+            self.sand_timer = time.time()
             self.can_swim = False
         elif self.map.level.get_tile(self.x,self.y).has_attribute(TileAttribute.SWIM) and not self.can_swim:
             return
-        if self.map.level.get_tile(self.x,self.y).has_attribute(TileAttribute.SLOW) and self.can_sand:
+        elif self.map.level.get_tile(self.x,self.y).has_attribute(TileAttribute.SLOW) and self.can_sand:
+            self.swim_timer = time.time()
             self.sand_timer = time.time()
             self.can_sand = False
         elif self.map.level.get_tile(self.x,self.y).has_attribute(TileAttribute.SLOW) and not self.can_sand:
             return
-
+        else:
+            self.swim_timer = time.time()
+            self.sand_timer = time.time()
+        
         id = self.map.level.get_tile(self.x,self.y).tileset_id[0]
         c = self.map.tileset.get_average_colour(id)
 

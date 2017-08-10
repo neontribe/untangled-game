@@ -352,7 +352,7 @@ class Player():
         self.mana -= amount
 
 class Spell():
-    def __init__(self, player, velocity, image_path, position=None, size=(0.1, 0.1), colour=(0,0,0), life=100, mana_cost = 5):
+    def __init__(self, player, velocity, image_path, position=None, size=(0.1, 0.1), colour=(0,0,0), life=50, mana_cost = 5):
         self.player = player
         self.image_path = image_path
         self.size = size

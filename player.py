@@ -150,7 +150,8 @@ class Player():
         mana = font.render("Mana: "+str(self.mana)+"/100", False, (255,255,255))
         health = font.render("Health: "+str(self.health)+"/100", False, (255,255,255))
         spell = font.render("Current Spell: "+str(Action(self.current_spell))[7:], False, (255,255,255)) # Removes first 7 characters off enum as we dont need them.
-        rect = pygame.Surface((spell.get_width() + 15, 75), pygame.SRCALPHA, 32)
+        hudObjects = [mana.get_width(), health.get_width(), spell.get_width()]
+        rect = pygame.Surface((max(hudObjects) + 20, 75), pygame.SRCALPHA, 32)
         rect.fill((0,0,0, 255))
         self.screen.blit(rect, (0,0))
         self.screen.blit(mana, (10,0))

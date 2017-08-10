@@ -322,7 +322,6 @@ class Player():
             else:
                 spell = Spell(self, direction, image, position)
 
-            spell.mana_cost = mana_cost
             # Remove first element of list if limit reached.
             if len(self.cast_spells) > self.spell_limit:
                 self.cast_spells[1:]

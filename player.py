@@ -29,7 +29,7 @@ class Action(Enum):
     FIRE = 1
     FROST = 2
     ICE = 3
-    LIGHTENING = 4
+    LIGHTNING = 4
     POISON = 5
 
 class PlayerException(Exception):

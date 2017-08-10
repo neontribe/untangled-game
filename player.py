@@ -237,8 +237,8 @@ class Player():
             if abs(dif) < 0.20:
                 return
 
-        if self.map.level.get_tile(self.x,self.y).colour != None:
-            c = self.map.level.get_tile(self.x,self.y).colour
+        id = self.map.level.get_tile(self.x,self.y).tileset_id[0]
+        c = self.map.tileset.get_average_colour(id)
 
         # while (can keep moving) and (x difference is not more than step) and (y difference is not more than step)
         while self.map.level.can_move_to(self.x + tmp_x, self.y + tmp_y) and abs(tmp_x) <= self.step and abs(tmp_y) <= self.step:

@@ -377,6 +377,7 @@ class GameClient():
                                 spell.render()
                                 hit_me = spell.hit_target_player(me)
                                 if hit_me:
+                                    player.cast_spells.remove(spell)
                                     me.deplete_health(spell.damage)
 
                         except PlayerException as e:

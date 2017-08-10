@@ -68,13 +68,13 @@ class SaveLevel(Level):
             [None for x in range(self.width)] for y in range(self.height)
         ]
         self.places = {}
-        TILES = [TileType.GRASS, TileType.DIRT, TileType.BIGTREE1, TileType.BIGTREE2, TileType.BIGTREE3, TileType.BIGTREE4, TileType.BUSH, TileType.TREE, TileType.BLUE_BLOCK, TileType.RED_BLOCK, TileType.BRICK, TileType.BRIDGE, TileType.WATER, TileType.SHELTER, TileType.SAND, TileType.LAVA]
+        TILES = [TileType.GRASS, TileType.DIRT, TileType.BIGTREE1, TileType.BIGTREE2, TileType.BIGTREE3, TileType.BIGTREE4, TileType.BUSH, TileType.TREE, TileType.SANDTREE, TileType.BLUE_BLOCK, TileType.RED_BLOCK, TileType.BLUE_SPAWN, TileType.RED_SPAWN, TileType.BRICK, TileType.BRIDGE, TileType.WATER, TileType.SHELTER, TileType.SAND, TileType.LAVA]
         for layer in tile_map.layers:
             if isinstance(layer,  tmx.Layer):
                 for index, tile in enumerate(layer.tiles):
                     x = index % self.width
                     y = index // self.width
-                    self.grid[y][x] = TileType.LAVA #default to lava
+                    self.grid[y][x] = TileType.DIRT #don't default to lava, that's a stupid idea
                     for i in TILES:
                         if i.value[0][0] == tile.gid - 1:
                             self.grid[y][x] = i

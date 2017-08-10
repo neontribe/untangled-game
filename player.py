@@ -60,7 +60,7 @@ class Player():
         self.firetime = 0
         self.can_fire_ability = True
 
-        self.projSpeed = 1.5
+        self.projSpeed = 1
         self.cast_spells = []
         self.current_spell = 0
         self.spell_limit = 50

@@ -74,7 +74,7 @@ class SaveLevel(Level):
                 for index, tile in enumerate(layer.tiles):
                     x = index % self.width
                     y = index // self.width
-                    self.grid[y][x] = TileType.LAVA #default to lava
+                    self.grid[y][x] = TileType.DIRT #default to lava
                     for i in TILES:
                         if i.value[0][0] == tile.gid - 1:
                             self.grid[y][x] = i

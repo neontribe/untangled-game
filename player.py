@@ -206,7 +206,7 @@ class Player():
 
         if isMe:
             if self.map.level.get_tile(self.x,self.y).has_attribute(TileAttribute.SPIKES):
-                self.health -= 1
+                self.deplete_health(1)
             self.hudRender()
 
     def render_particles(self):
@@ -352,7 +352,7 @@ class Player():
         self.mana -= amount
 
 class Spell():
-    def __init__(self, player, velocity, image_path, position=None, size=(0.1, 0.1), colour=(0,0,0), life=100, mana_cost = 5):
+    def __init__(self, player, velocity, image_path, position=None, size=(0.1, 0.1), colour=(0,0,0), life=50, mana_cost = 5):
         self.player = player
         self.image_path = image_path
         self.size = size
@@ -361,6 +361,7 @@ class Spell():
         self.maxLife = life
         self.mana_cost = mana_cost
         self.damage = 50
+        self.rect = None
         if position == None:
             # spawn at player - additional maths centres the spell
             self.x = self.player.x + 0.5 - (size[0] / 2)
@@ -402,6 +403,8 @@ class Spell():
         if newImageSize[0] != 0 and newImageSize[1] != 0:
             surf = pygame.transform.rotate(surf, newRotation)
         self.player.screen.blit(surf, offset_pos)
+        self.rect = surf.get_rect()
+        self.rect.topleft = pixel_pos
         # move the projectile by its velocity
         self.x += self.velo_x
         self.y += self.velo_y
@@ -427,9 +430,7 @@ class Spell():
         self.velo_x, self.velo_y = velocity
 
     def hit_target_player(self, player):
-        if player.x == self.x // 1 and player.y == self.y // 1:
-            return True
-        return False
+        return player.rect.colliderect(self.rect)
 
 class PlayerManager():
     def __init__(self, me, network):

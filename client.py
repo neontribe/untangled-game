@@ -397,13 +397,13 @@ class GameClient():
                             pass
 
                     # if there are other peers we can start sending to groups.
-                    if self.players.others:
-                        if self.toMove == True or self.cast == True:
-                            self.network.node.shout("world:position", bson.dumps(me.get_position()._asdict()))
-                        if self.cast == True:
-                            self.network.node.shout("world:combat", bson.dumps(me.cast_spells[-1].get_properties()._asdict()))
-                    self.toMove = False
-                    self.cast = False
+                    if self.toMove == True:
+                        self.network.node.shout("world:position", bson.dumps(me.get_position()._asdict()))
+                        self.toMove = False
+                    if self.cast == True:
+                        self.network.node.shout("world:combat", bson.dumps(me.cast_spells[-1].get_properties()._asdict()))
+                        self.cast = False
+
                     
                     for playerUUID, player in self.players.others.items():
                         try:

@@ -194,7 +194,7 @@ class MainMenu(Screen):
                         #QUIT
                         return GameState.QUIT
             if event.type == pygame.locals.JOYBUTTONDOWN:
-                if event.button == 1:
+                if event.button == client.buttons["A"]:
                     self.info_message = ''
 
                     if(self.selected == 0):
@@ -240,7 +240,7 @@ class MainMenu(Screen):
                         #QUIT
                         return GameState.QUIT
             if event.type == pygame.locals.JOYBUTTONDOWN:
-                if event.button == 1:
+                if event.button == client.buttons["A"]:
                     self.info_message = ''
 
                     if(self.selected == 0):
@@ -274,7 +274,7 @@ class MainMenu(Screen):
                         self.selected = 0
                         return GameState.PLAY
             if event.type == pygame.locals.JOYBUTTONDOWN:
-                if event.button == 9:
+                if event.button == client.buttons["Start"]:
                     self.setup_player()
                     self.set_state(MenuState.RESUME)
                     self.selected = 0

@@ -458,8 +458,6 @@ class Spell():
     def hit_target_player(self, player):
         if self.rect == None or player.rect == None:
             return False
-        if self.x == -1337 and self.y == -1337:
-            return True
         return player.rect.colliderect(self.rect)
 
 class PlayerManager():

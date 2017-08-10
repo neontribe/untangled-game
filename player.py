@@ -289,8 +289,8 @@ class Player():
 
         return Position(self.x, self.y)
 
-    def attack(self, action, direction, image, position=None):
-        if self.mana > 5:
+    def attack(self, action, direction, image, position=None, mana_cost=5):
+        if self.mana >= mana_cost:
             if direction == Movement.UP:
                 spell = Spell(self, (0, -self.projSpeed), image, position)
             elif direction == Movement.RIGHT:
@@ -302,6 +302,7 @@ class Player():
             else:
                 spell = Spell(self, direction, image, position)
 
+            spell.mana_cost = mana_cost
             # Remove first element of list if limit reached.
             if len(self.cast_spells) > self.spell_limit:
                 self.cast_spells[1:]
@@ -434,6 +435,8 @@ class Spell():
         self.velo_x, self.velo_y = velocity
 
     def hit_target_player(self, player):
+        print(player.rect)
+        print(self.rect)
         return player.rect.colliderect(self.rect)
 
 class PlayerManager():

@@ -225,6 +225,16 @@ class Player():
         if isMe:
             if self.map.level.get_tile(self.x,self.y).has_attribute(TileAttribute.SPIKES):
                 self.deplete_health(1)
+            
+            spawnAttribute = None
+            if self.team:
+                if self.team == "blue":
+                    spawnAttribute = TileAttribute.BSPAWN
+                elif self.team == "red":
+                    spawnAttribute = TileAttribute.RSPAWN
+                    
+            if spawnAttribute and self.map.level.get_tile(self.x,self.y).has_attribute(spawnAttribute):
+                self.addMana(1)
             self.hudRender()
 
     def render_particles(self):

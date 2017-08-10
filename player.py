@@ -46,6 +46,10 @@ class Player():
         self.step = 1
         self.mute = 'True'
         self.tileset = Tileset(client.player_animation_tileset_path, (3, 4), (32, 32))
+        
+        self.blue_tileset = Tileset('assets/tilesets/blue.png', (3, 4), (32, 32))
+        self.red_tileset = Tileset('assets/tilesets/red.png', (3, 4), (32, 32))
+        
         self.name = ''
         self.x, self.y = (0, 0)
         self.animation_ticker = 0
@@ -169,8 +173,10 @@ class Player():
         if self.team:
             if self.team == "blue":
                 name_tag_colour = (0, 191, 255)
+                self.tileset = self.blue_tileset
             elif self.team == "red":
                 name_tag_colour = (255, 0, 0)
+                self.tileset = self.red_tileset
 
         name_tag = font.render(self.name, False, name_tag_colour)
 
@@ -341,6 +347,7 @@ class Player():
 
     def die(self): # Don't get confused with `def` and `death`!!! XD
         self.health = 100
+        self.mana = 100
         self.network.node.whisper(UUID(self.network.authority_uuid), bson.dumps({'type': 'death_report'}))
 
     def addMana(self, amount):

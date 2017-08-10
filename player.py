@@ -1,6 +1,7 @@
 from collections import namedtuple
 from enum import Enum
 import math
+from uuid import UUID
 import random
 import pygame
 import configparser
@@ -50,10 +51,9 @@ class Player():
         self.animation_ticker = 0
         self.network = network
 
-
         self.particle_list = []
+        self.attached = []
         self.particle_limit = 500
-
         self.steptime = 0
         self.can_step_ability = True
 
@@ -63,14 +63,13 @@ class Player():
         self.switch_time = 0
         self.can_switch_spell = True
 
-        self.projSpeed = 1.5
+        self.projSpeed = 1
         self.cast_spells = []
         self.current_spell = 0
         self.spell_limit = 50
 
-        self.initial_position = map.level.get_place(Place.RED_SPAWN)
-
-        self.set_position(self.initial_position)
+        initial_position = (0, 0)
+        self.set_position(initial_position)
 
         self.team = None
 
@@ -150,7 +149,8 @@ class Player():
         mana = font.render("Mana: "+str(self.mana)+"/100", False, (255,255,255))
         health = font.render("Health: "+str(self.health)+"/100", False, (255,255,255))
         spell = font.render("Current Spell: "+str(Action(self.current_spell))[7:], False, (255,255,255)) # Removes first 7 characters off enum as we dont need them.
-        rect = pygame.Surface((spell.get_width() + 15, 75), pygame.SRCALPHA, 32)
+        hudObjects = [mana.get_width(), health.get_width(), spell.get_width()]
+        rect = pygame.Surface((max(hudObjects) + 20, 75), pygame.SRCALPHA, 32)
         rect.fill((0,0,0, 255))
         self.screen.blit(rect, (0,0))
         self.screen.blit(mana, (10,0))
@@ -194,9 +194,14 @@ class Player():
         self.rect = sprite.get_rect()
         self.rect.topleft = centre
 
+        for attached_sprite in self.attached:
+            attached_sprite.set_position((self.x, self.y))
+
         self.render_particles()
 
         if isMe:
+            if self.map.level.get_tile(self.x,self.y).has_attribute(TileAttribute.SPIKES):
+                self.health -= 1
             self.hudRender()
 
     def render_particles(self):
@@ -240,8 +245,8 @@ class Player():
             if abs(dif) < 0.20:
                 return
 
-        if self.map.level.get_tile(self.x,self.y).colour != None:
-            c = self.map.level.get_tile(self.x,self.y).colour
+        id = self.map.level.get_tile(self.x,self.y).tileset_id[0]
+        c = self.map.tileset.get_average_colour(id)
 
         # while (can keep moving) and (x difference is not more than step) and (y difference is not more than step)
         while self.map.level.can_move_to(self.x + tmp_x, self.y + tmp_y) and abs(tmp_x) <= self.step and abs(tmp_y) <= self.step:
@@ -315,15 +320,19 @@ class Player():
         self.particle_list.remove(particle)
         return
 
-    def depleatHealth(self, amount):
+    def deplete_health(self, amount):
         self.health -= amount
-        if self.health < 0:
+        if self.health <= 0:
             self.die()
 
     def die(self): # Don't get confused with `def` and `death`!!! XD
-        pass
+        self.health = 100
+        self.network.node.whisper(UUID(self.network.authority_uuid), bson.dumps({'type': 'death_report'}))
 
     def addMana(self, amount):
+        if self.mana + amount > 100:
+            return
+
         self.mana += amount
 
     def depleatMana(self, amount):
@@ -338,6 +347,7 @@ class Spell():
         self.life = life
         self.maxLife = life
         self.mana_cost = mana_cost
+        self.damage = 50
         if position == None:
             # spawn at player - additional maths centres the spell
             self.x = self.player.x + 0.5 - (size[0] / 2)
@@ -379,7 +389,6 @@ class Spell():
         if newImageSize[0] != 0 and newImageSize[1] != 0:
             surf = pygame.transform.rotate(surf, newRotation)
         self.player.screen.blit(surf, offset_pos)
-
         # move the projectile by its velocity
         self.x += self.velo_x
         self.y += self.velo_y
@@ -404,10 +413,10 @@ class Spell():
     def set_velocity(self, velocity):
         self.velo_x, self.velo_y = velocity
 
-    # def hit_target(self, target):
-    #     if self.rect.colliderect(target.rect):
-    #         # TODO - decide on what to do with collision
-    #         pass
+    def hit_target_player(self, player):
+        if player.x == self.x // 1 and player.y == self.y // 1:
+            return True
+        return False
 
 class PlayerManager():
     def __init__(self, me, network):

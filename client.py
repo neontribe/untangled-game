@@ -319,7 +319,7 @@ class GameClient():
                                 if event.group == "world:combat":
                                     new_spell_properties = bson.loads(event.msg[0])
                                     network_spell_caster = self.players.get(event.peer_uuid)
-                                    network_spell_caster.current_spell = new_spell_properties.current_spell
+                                    network_spell_caster.current_spell = new_spell_properties.get('current_spell')
                                     network_spell_caster.cast_spells.append(Spell(network_spell_caster, (0, 0), projectile_paths[network_spell_caster.current_spell]))
                                     network_spell_caster.cast_spells[-1].set_properties(SpellProperties(**new_spell_properties))
                                 if event.group == "ctf:teams":
@@ -337,6 +337,7 @@ class GameClient():
 
                         except Exception as e:
                             import traceback
+                            # traceback.print_exc()
                             pass
 
                     # if there are other peers we can start sending to groups.

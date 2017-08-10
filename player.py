@@ -22,14 +22,14 @@ class Movement(Enum):
     DOWN = 3
     LEFT = 4
 Position = namedtuple('Position', ['x', 'y'])
-SpellProperties = namedtuple('SpellProperties', ['x', 'y', 'x_velocity', 'y_velocity',])
+SpellProperties = namedtuple('SpellProperties', ['x', 'y', 'x_velocity', 'y_velocity', 'current_spell'])
 
 class Action(Enum):
     ARROW = 0
     FIRE = 1
     FROST = 2
     ICE = 3
-    LIGHTENING = 4
+    LIGHTNING = 4
     POISON = 5
 
 class PlayerException(Exception):
@@ -50,7 +50,6 @@ class Player():
         self.animation_ticker = 0
         self.network = network
 
-        self.healthcount = 0
 
         self.particle_list = []
         self.particle_limit = 500
@@ -60,6 +59,9 @@ class Player():
 
         self.firetime = 0
         self.can_fire_ability = True
+        
+        self.switch_time = 0
+        self.can_switch_spell = True
 
         self.projSpeed = 1.5
         self.cast_spells = []
@@ -147,11 +149,14 @@ class Player():
         font = pygame.font.Font(client.font, 30)
         mana = font.render("Mana: "+str(self.mana)+"/100", False, (255,255,255))
         health = font.render("Health: "+str(self.health)+"/100", False, (255,255,255))
-        rect = pygame.Surface((health.get_width() + 15, 50), pygame.SRCALPHA, 32)
+        spell = font.render("Current Spell: "+str(Action(self.current_spell))[7:], False, (255,255,255)) # Removes first 7 characters off enum as we dont need them.
+        hudObjects = [mana.get_width(), health.get_width(), spell.get_width()]
+        rect = pygame.Surface((max(hudObjects) + 20, 75), pygame.SRCALPHA, 32)
         rect.fill((0,0,0, 255))
         self.screen.blit(rect, (0,0))
         self.screen.blit(mana, (10,0))
         self.screen.blit(health, (10,25))
+        self.screen.blit(spell, (10,50))
 
     def render(self, isMe = False):
         font = pygame.font.Font(client.font, 30)
@@ -238,9 +243,9 @@ class Player():
             if abs(dif) < 0.20:
                 return
 
-        if self.map.level.get_tile(self.x,self.y).colour != None:
-            c = self.map.level.get_tile(self.x,self.y).colour
-            
+        id = self.map.level.get_tile(self.x,self.y).tileset_id[0]
+        c = self.map.tileset.get_average_colour(id)
+
         # while (can keep moving) and (x difference is not more than step) and (y difference is not more than step)
         while self.map.level.can_move_to(self.x + tmp_x, self.y + tmp_y) and abs(tmp_x) <= self.step and abs(tmp_y) <= self.step:
             #               amount,    position,              colour,size,velocity,gravity,life,metadata,grow
@@ -328,9 +333,9 @@ class Player():
         self.mana -= amount
 
 class Spell():
-    def __init__(self, player, velocity, image, position=None, size=(0.1, 0.1), colour=(0,0,0), life=100, mana_cost = 5):
+    def __init__(self, player, velocity, image_path, position=None, size=(0.1, 0.1), colour=(0,0,0), life=100, mana_cost = 5):
         self.player = player
-        self.image = image
+        self.image_path = image_path
         self.size = size
         self.colour = colour
         self.life = life
@@ -346,7 +351,7 @@ class Spell():
         self.set_velocity(velocity)
 
         self.player.depleatMana(self.mana_cost)
-        self.image = pygame.image.load(image)
+        self.image = pygame.image.load(self.image_path)
 
     def render(self):
         self.colour = (random.randrange(255),random.randrange(255),random.randrange(255))
@@ -390,10 +395,10 @@ class Spell():
         del(self)
 
     def get_properties(self):
-        return SpellProperties(self.x, self.y, self.velo_x, self.velo_y)
+        return SpellProperties(self.x, self.y, self.velo_x, self.velo_y, self.player.current_spell)
 
     def set_properties(self, properties):
-        self.x, self.y, self.velo_x, self.velo_y = properties
+        self.x, self.y, self.velo_x, self.velo_y, self.player.current_spell = properties
 
     def set_position(self, position):
         self.x = position[0] + 0.5 - (self.size[0] / 2)

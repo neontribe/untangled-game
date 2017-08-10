@@ -191,13 +191,13 @@ class GameClient():
                                 me.change_spell()
                             elif event.key == pygame.locals.K_RETURN or event.key == pygame.locals.K_SPACE :
                                 if me.can_fire_ability:
-                                    self.cast = me.attack(Action(me.current_spell), last_direction, projectile_paths[me.current_spell])
+                                    self.cast = me.attack(last_direction, projectile_paths[me.current_spell])
 
                             if event.key == pygame.locals.K_r and me.can_step_ability:
                                 me.step = 2
                                 me.steptime = time.time()
                                 me.can_step_ability = False
-                            
+
                             if event.key == pygame.locals.K_q:
                                 if me.can_switch_spell:
                                     me.change_spell()
@@ -205,11 +205,11 @@ class GameClient():
                                     me.can_switch_spell = False
 
                             pygame.event.clear(pygame.locals.KEYDOWN)
-                    
+
                     if event.type == pygame.locals.MOUSEBUTTONDOWN:
                         if event.button == 0:
                             if me.can_fire_ability:
-                                self.cast = me.attack(Action(me.current_spell), last_direction, projectile_paths[me.current_spell])
+                                self.cast = me.attack(last_direction, projectile_paths[me.current_spell])
                             pygame.event.clear(pygame.locals.MOUSEBUTTONDOWN)
                         if event.button == 4 or event.button == 5:
                             if me.can_switch_spell:
@@ -217,7 +217,7 @@ class GameClient():
                                 me.switch_time = time.time()
                                 me.can_switch_spell = False
                                 pygame.event.clear(pygame.locals.MOUSEBUTTONDOWN)
-                    
+
                     # https://stackoverflow.com/a/15596758/3954432
                     # Handle controller input by setting flags (move, neutral)
                     # and using timers (delay, pressed).
@@ -267,7 +267,7 @@ class GameClient():
                         #Shoot
                         if joystick.get_button(buttons["R"]) or joystick.get_button(buttons["A"]):
                             if me.can_fire_ability:
-                                self.cast = me.attack(Action(me.current_spell), last_direction, projectile_paths[me.current_spell])
+                                self.cast = me.attack(last_direction, projectile_paths[me.current_spell])
                         #Menu
                         if joystick.get_button(buttons["Start"]) or joystick.get_button(buttons["Select"]):
                             self.set_state(GameState.MENU)
@@ -295,15 +295,15 @@ class GameClient():
                         me.can_step_ability = True
                     elif time.time() - me.steptime >3:
                         me.step = 1
-                    
+
                     if time.time() - me.switch_time > 0.1:
                         me.can_switch_spell = True
-                    
+
                     if time.time() - me.swim_timer > 0.3:
                         me.can_swim = True
                     if time.time() - me.sand_timer > 0.1:
                         me.can_sand = True
-                    
+
                     self.map.render()
                     for flag in self.flags.values():
                         flag.render()

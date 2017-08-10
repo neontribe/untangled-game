@@ -44,8 +44,8 @@ projectile_paths = [
                     'assets/images/poisonball.png'
                     ]
 
-buttons = {"A":1, "B":2, "X":0, "Y":3, "L":4, "R":5, "Start":9, "Select":8} #Use these for the PiHut SNES controller
-#buttons = {"A":0, "B":1, "X":2, "Y":3, "L":4, "R":5, "Start":7, "Select":6} #Use these for the iBuffalo SNES controller
+#buttons = {"A":1, "B":2, "X":0, "Y":3, "L":4, "R":5, "Start":9, "Select":8} #Use these for the PiHut SNES controller
+buttons = {"A":0, "B":1, "X":2, "Y":3, "L":4, "R":5, "Start":7, "Select":6} #Use these for the iBuffalo SNES controller
 
 error_message = "Everything is lava"
 
@@ -291,6 +291,11 @@ class GameClient():
                     
                     if time.time() - me.switch_time > 0.1:
                         me.can_switch_spell = True
+                    
+                    if time.time() - me.swim_timer > 0.4:
+                        me.can_swim = True
+                    if time.time() - me.sand_timer > 0.2:
+                        me.can_sand = True
                     
                     self.map.render()
                     me.render(True)

@@ -1,6 +1,6 @@
 # Untangled 2017
 
-A top down game for Untangled 2017.
+A top-down capture the flag game for Untangled 2017.
 
 ## Installation
 
@@ -14,7 +14,6 @@ A top down game for Untangled 2017.
 
 ## Controls
 
-* Movement - Arrow keys/Controller keys
-* Cast Spell/Shoot - Return/Enter/Controller R
-* Change Spell - E/Controller L
-* Action Button - Spacebar
+* Movement - Arrow Keys/Controller D-Pad/WASD Keys
+* Cast Spell/Shoot - Return/Enter/Controller R/Spacebar
+* Action Button - Spacebar/Controller START

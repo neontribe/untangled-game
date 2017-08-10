@@ -14,6 +14,8 @@ class TileAttribute(Enum): #I don't actually know how this works, someone else n
     SWIM    =   0b0011
     SLOW    =   0b0100
     HIDE    =   0b0101
+    BSPAWN  =   0b0111
+    RSPAWN  =   0b1000
 
 class TileType(Enum):
     #Remember to update Line 71 in level.py if you add or remove definitions here.
@@ -26,10 +28,10 @@ class TileType(Enum):
     BUSH = ([137], [ TileAttribute.COLLIDE ])
     TREE = ([145],  [ TileAttribute.COLLIDE ])
     SANDTREE = ([160],  [ TileAttribute.COLLIDE ]) 
-    BLUE_BLOCK = ([177],  [])
-    RED_BLOCK = ([129],  [])
-    BLUE_SPAWN = ([121],  [])
-    RED_SPAWN = ([140], [])
+    BLUE_BLOCK = ([177],  [TileAttribute.BSPAWN])
+    RED_BLOCK = ([129],  [TileAttribute.RSPAWN])
+    BLUE_SPAWN = ([121],  [TileAttribute.BSPAWN])
+    RED_SPAWN = ([140], [TileAttribute.RSPAWN])
     BRICK = ([7],  [ TileAttribute.COLLIDE ])
     BRIDGE = ([21],  [])
     WATER = ([205,206,207],  [ TileAttribute.SWIM ])

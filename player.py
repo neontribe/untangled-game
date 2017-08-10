@@ -177,7 +177,7 @@ class Player():
         self.screen.blit(mana, (10,0))
         self.screen.blit(health, (10,25))
         self.screen.blit(spell, (10,50))
-
+        
     def render(self, isMe = False):
         font = pygame.font.Font(client.font, 30)
 
@@ -224,7 +224,18 @@ class Player():
 
         if isMe:
             if self.map.level.get_tile(self.x,self.y).has_attribute(TileAttribute.SPIKES):
-                self.deplete_health(1)
+                self.deplete_health(5)
+            
+            spawnAttribute = None
+            if self.team:
+                if self.team == "blue":
+                    spawnAttribute = TileAttribute.BSPAWN
+                elif self.team == "red":
+                    spawnAttribute = TileAttribute.RSPAWN
+                    
+            if spawnAttribute and self.map.level.get_tile(self.x,self.y).has_attribute(spawnAttribute):
+                self.addMana(1)
+                self.increase_health(1)
             self.hudRender()
 
     def render_particles(self):
@@ -307,9 +318,9 @@ class Player():
 
         return Position(self.x, self.y)
 
-    def attack(self, direction, image, position=None):
+    def attack(self, direction, position=None):
         spell = Action.get_action(self.current_spell)
-
+        image = client.projectile_paths[self.current_spell]
         if self.mana >= spell.mana_cost:
             if direction == Movement.UP:
                 spell = Spell(self, (0, -self.projSpeed), image, position)
@@ -340,7 +351,7 @@ class Player():
     def add_particle(self,amount, position, colour=(255,255,255), size=3, velocity=None, gravity=(0,0), life=40, metadata=0,grow=0):
         for i in range(amount):
             if(len(self.particle_list) >= self.particle_limit):
-                self.particle_list[0].destroy()
+                self.remove_particle(self.particle_list[0])
             newParticle = {"position":position, "velocity":velocity, "gravity":gravity, "colour":colour, "size":size, "life":life, "metadata":metadata, "grow":grow}
             i = 1000
             if velocity != None:
@@ -352,7 +363,10 @@ class Player():
     def remove_particle(self,particle):
         self.particle_list.remove(particle)
         return
-
+    
+    def increase_health(self, amount):
+        self.health = min(100, self.health + amount)
+    
     def deplete_health(self, amount):
         self.health -= amount
         if self.health <= 0:
@@ -373,11 +387,10 @@ class Player():
         self.mana -= amount
 
 class Spell():
-    def __init__(self, player, velocity, image_path, position=None, size=(0.1, 0.1), colour=(0,0,0), life=50):
+    def __init__(self, player, velocity, image_path, position=None, size=(0.1, 0.1), colour=None, life=50):
         self.player = player
         self.image_path = image_path
         self.size = size
-        self.colour = colour
         self.life = life
         self.maxLife = life
         self.rect = None
@@ -395,13 +408,16 @@ class Spell():
         self.damage = spell.damage
         self.player.depleatMana(self.mana_cost)
         self.image = pygame.image.load(self.image_path)
+        if colour != None:
+           self.colour = colour
+        else:
+           self.colour = self.get_average_colour()
 
     def render(self):
         if self.player.map.level.get_tile(int(self.x),int(self.y)).has_attribute(TileAttribute.COLLIDE):
             self.destroy()
             return
 
-        self.colour = (random.randrange(255),random.randrange(255),random.randrange(255))
         progress = self.life/self.maxLife #random.randrange(100)/100
         newSize = (progress*self.size[0],progress*self.size[1])
         if(self.life <= 0):
@@ -435,11 +451,13 @@ class Spell():
         self.x += self.velo_x
         self.y += self.velo_y
 
+        #               amount,    position,              colour,size,velocity,gravity,life,metadata,grow
+        self.player.add_particle(3,(self.x,self.y),self.colour,2,None,(-self.velo_x/200,-self.velo_y/200),5,0,0.1)
+
 
     #destroy the spell
     def destroy(self):
         self.player.remove_spell(self)
-        #self.player.add_particle(5,(self.x,self.y),self.colour,2,None,(self.velo_x*3,self.velo_y*3),40,0,0.1)
         del(self)
 
     def get_properties(self):
@@ -460,13 +478,54 @@ class Spell():
             return False
         return player.rect.colliderect(self.rect)
 
+    def get_average_colour(self):
+        size = self.image.get_size()
+        r, g, b = 0, 0, 0
+        count = 0
+        modi = 1.2
+        opti = 8
+        for s in range(0, math.floor(size[0]/opti)):
+            for t in range(0, math.floor(size[1]/opti)):
+                pixlData = self.image.get_at((s*opti, t*opti))
+                r += pixlData[0]
+                g += pixlData[1]
+                b += pixlData[2]
+                count += 1
+
+        r = max(0,min(255,(r/count)*modi))
+        g = max(0,min(255,(g/count)*modi))
+        b = max(0,min(255,(b/count)*modi))
+
+        return (r,g,b)
+
 class PlayerManager():
     def __init__(self, me, network):
         self.me = me
         self.network = network
         self.me.load_from_config()
         self.others = {}
+        self.minimap = pygame.transform.scale(pygame.image.load('assets/images/minimap.png'), (196, 392))
         self.authority_uuid = ''
+        
+
+    def minimap_render(self, screen):
+        rect = pygame.Surface((self.minimap.get_rect().size[0] + 20, self.minimap.get_rect().size[1] + 20), pygame.SRCALPHA, 32)
+        rect.fill((0,0,0, 255))
+        pos = 1024 - ((self.minimap.get_rect().size[0]) + 10)
+        mappos = 1024 - (self.minimap.get_rect().size[0] + 20)
+        screen.blit(rect, (mappos,0))
+        screen.blit(self.minimap,(pos, 10))
+        tempothers = self.others
+        tempothers["temp_uuid"] = self.me
+        for playerUUID, player in tempothers.items():
+            rect = pygame.Surface((4,4), pygame.SRCALPHA, 32)
+            if player.team == "red":
+                rect.fill((255,0,0, 255))
+            elif player.team == "blue":
+                rect.fill((0,0,255, 255))
+            else:
+                rect.fill((255,255,255, 255))
+            screen.blit(rect, (pos + (player.x * 4)+1, 10 + (player.y * 4)+1))
 
     def set_teams(self, teams):
         blue_team = teams.get('blue')

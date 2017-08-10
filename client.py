@@ -38,12 +38,12 @@ red_flag = "assets/tilesets/Red Flag.png"
 blue_flag = "assets/tilesets/Blue Flag.png"
 
 projectile_paths = [
-                    'assets/images/arrow.png',
-                    'assets/images/fireball.png',
-                    'assets/images/frostbolt.png',
-                    'assets/images/icicle.png',
-                    'assets/images/lightning_bolt.png',
-                    'assets/images/poisonball.png'
+                    'assets/images/spells/arrow.png',
+                    'assets/images/spells/fireball.png',
+                    'assets/images/spells/frostbolt.png',
+                    'assets/images/spells/icicle.png',
+                    'assets/images/spells/lightning_bolt.png',
+                    'assets/images/spells/poisonball.png'
                     ]
 
 buttons = {"A":1, "B":2, "X":0, "Y":3, "L":4, "R":5, "Start":9, "Select":8} #Use these for the PiHut SNES controller
@@ -112,7 +112,7 @@ class GameClient():
             self.screen,
             self.levels.get("main"),
             Tileset(level_tileset_path, (16, 16), (32, 32)),
-            LevelMusic('assets/music/song.mp3')
+            LevelMusic('assets/music/mario.mp3')
         )
         self.map.music.load_music()
 
@@ -196,7 +196,7 @@ class GameClient():
                                 me.change_spell()
                             elif event.key == pygame.locals.K_RETURN or event.key == pygame.locals.K_SPACE :
                                 if me.can_fire_ability:
-                                    self.cast = me.attack(last_direction, projectile_paths[me.current_spell])
+                                    self.cast = me.attack(last_direction)
 
                             if event.key == pygame.locals.K_r and me.can_step_ability:
                                 me.step = 2
@@ -214,7 +214,7 @@ class GameClient():
                     if event.type == pygame.locals.MOUSEBUTTONDOWN:
                         if event.button == 0:
                             if me.can_fire_ability:
-                                self.cast = me.attack(last_direction, projectile_paths[me.current_spell])
+                                self.cast = me.attack(last_direction)
                             pygame.event.clear(pygame.locals.MOUSEBUTTONDOWN)
                         if event.button == 4 or event.button == 5:
                             if me.can_switch_spell:
@@ -272,7 +272,7 @@ class GameClient():
                         #Shoot
                         if joystick.get_button(buttons["R"]) or joystick.get_button(buttons["A"]):
                             if me.can_fire_ability:
-                                self.cast = me.attack(last_direction, projectile_paths[me.current_spell])
+                                self.cast = me.attack(last_direction)
                         #Menu
                         if joystick.get_button(buttons["Start"]) or joystick.get_button(buttons["Select"]):
                             self.set_state(GameState.MENU)
@@ -397,16 +397,18 @@ class GameClient():
                             pass
 
                     # if there are other peers we can start sending to groups.
-                    if self.toMove == True:
-                        self.network.node.shout("world:position", bson.dumps(me.get_position()._asdict()))
-                        self.toMove = False
-                    if self.cast == True:
-                        self.network.node.shout("world:combat", bson.dumps(me.cast_spells[-1].get_properties()._asdict()))
-                        self.cast = False
-
+                    if self.players.others:
+                        if self.toMove == True or self.cast == True:
+                            self.network.node.shout("world:position", bson.dumps(me.get_position()._asdict()))
+                        if self.cast == True:
+                            self.network.node.shout("world:combat", bson.dumps(me.cast_spells[-1].get_properties()._asdict()))
+                    self.toMove = False
+                    self.cast = False
+                    
                     for playerUUID, player in self.players.others.items():
                         try:
                             player.render()
+                            
                             for spell in player.cast_spells:
                                 spell.render()
                                 hit_me = spell.hit_target_player(me)
@@ -417,7 +419,7 @@ class GameClient():
                         except PlayerException as e:
                             # PlayerException due to no initial position being set for that player
                             pass
-
+                    
                     score_shift = 220
                     for team, score in self.scores.items():
                         colour = (0, 0, 200) if team == 'blue' else (200, 0, 0)
@@ -442,6 +444,7 @@ class GameClient():
                         pygame.draw.rect(self.screen, (0, 0, 0), text_bounds)
                         self.screen.blit(status_text, text_bounds.topleft)
 
+                    self.players.minimap_render(self.screen)
 
                 pygame.display.update()
         finally:

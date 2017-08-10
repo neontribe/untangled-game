@@ -151,19 +151,19 @@ class MainMenu(Screen):
                 self.selected += 1
                 self.selected %= self.options_length
         elif event.type == pygame.locals.JOYBUTTONDOWN:
-            if event.button == 5:
+            if event.button == client.buttons["R"]:
                 self.currentLetter += 1
                 if self.currentLetter == 26:
                     self.currentLetter = 0
-            elif event.button == 4:
+            elif event.button == client.buttons["L"]:
                 self.currentLetter -= 1
                 if self.currentLetter == -1:
                     self.currentLetter = 25
-            elif event.button == 1:
+            elif event.button == client.buttons["B"]:
                 self.char_name = self.char_name + self.letters[self.currentLetter]
                 if len(self.char_name) > name_character_limit:
                     self.char_name = self.char_name[:10]
-            elif event.button == 2:
+            elif event.button == client.buttons["X"]:
                 self.char_name = self.char_name[:-1]
 
         if(self.state == MenuState.CHOICE):
@@ -194,7 +194,7 @@ class MainMenu(Screen):
                         #QUIT
                         return GameState.QUIT
             if event.type == pygame.locals.JOYBUTTONDOWN:
-                if event.button == 1:
+                if event.button == client.buttons["A"]:
                     self.info_message = ''
 
                     if(self.selected == 0):
@@ -240,7 +240,8 @@ class MainMenu(Screen):
                         #QUIT
                         return GameState.QUIT
             if event.type == pygame.locals.JOYBUTTONDOWN:
-                if event.button == 1:
+
+                if event.button == client.buttons["B"]:
                     self.info_message = ''
 
                     if(self.selected == 0):
@@ -274,7 +275,7 @@ class MainMenu(Screen):
                         self.selected = 0
                         return GameState.PLAY
             if event.type == pygame.locals.JOYBUTTONDOWN:
-                if event.button == 9:
+                if event.button == client.buttons["Start"]:
                     self.setup_player()
                     self.set_state(MenuState.RESUME)
                     self.selected = 0

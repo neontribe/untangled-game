@@ -29,7 +29,7 @@ class Action(Enum):
     FIRE = 1
     FROST = 2
     ICE = 3
-    LIGHTENING = 4
+    LIGHTNING = 4
     POISON = 5
 
 class PlayerException(Exception):
@@ -59,6 +59,9 @@ class Player():
 
         self.firetime = 0
         self.can_fire_ability = True
+        
+        self.switch_time = 0
+        self.can_switch_spell = True
 
         self.projSpeed = 1.5
         self.cast_spells = []

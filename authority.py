@@ -44,6 +44,7 @@ class Authority():
         self.node.join("ctf:teams")
         self.node.join("ctf:dropflag")
         self.node.join("ctf:gotflag")
+        self.node.join("player:death")
 
         self.poller = zmq.Poller()
         self.poller.register(self.node.socket(), zmq.POLLIN)

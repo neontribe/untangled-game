@@ -340,7 +340,7 @@ class Player():
     def add_particle(self,amount, position, colour=(255,255,255), size=3, velocity=None, gravity=(0,0), life=40, metadata=0,grow=0):
         for i in range(amount):
             if(len(self.particle_list) >= self.particle_limit):
-                self.particle_list[0].destroy()
+                self.remove_particle(self.particle_list[0])
             newParticle = {"position":position, "velocity":velocity, "gravity":gravity, "colour":colour, "size":size, "life":life, "metadata":metadata, "grow":grow}
             i = 1000
             if velocity != None:
@@ -398,7 +398,6 @@ class Spell():
            self.colour = colour
         else:
            self.colour = self.get_average_colour()
-        print(self.colour)
 
     def render(self):
         if self.player.map.level.get_tile(int(self.x),int(self.y)).has_attribute(TileAttribute.COLLIDE):
@@ -439,13 +438,12 @@ class Spell():
         self.y += self.velo_y
 
         #               amount,    position,              colour,size,velocity,gravity,life,metadata,grow
-        self.player.add_particle(3,(self.x,self.y),self.colour,1,None,(-self.velo_x/100,-self.velo_y/100),5,0,0.2)
+        self.player.add_particle(3,(self.x,self.y),self.colour,2,None,(-self.velo_x/200,-self.velo_y/200),5,0,0.1)
 
 
     #destroy the spell
     def destroy(self):
         self.player.remove_spell(self)
-        #self.player.add_particle(5,(self.x,self.y),self.colour,2,None,(self.velo_x*3,self.velo_y*3),40,0,0.1)
         del(self)
 
     def get_properties(self):
@@ -470,10 +468,11 @@ class Spell():
         size = self.image.get_size()
         r, g, b = 0, 0, 0
         count = 0
-        modi = 1
-        for s in range(0, size[0]):
-            for t in range(0, size[1]):
-                pixlData = self.image.get_at((s, t))
+        modi = 1.2
+        opti = 8
+        for s in range(0, math.floor(size[0]/opti)):
+            for t in range(0, math.floor(size[1]/opti)):
+                pixlData = self.image.get_at((s*opti, t*opti))
                 r += pixlData[0]
                 g += pixlData[1]
                 b += pixlData[2]

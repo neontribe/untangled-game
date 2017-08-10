@@ -149,7 +149,8 @@ class Player():
         mana = font.render("Mana: "+str(self.mana)+"/100", False, (255,255,255))
         health = font.render("Health: "+str(self.health)+"/100", False, (255,255,255))
         spell = font.render("Current Spell: "+str(Action(self.current_spell))[7:], False, (255,255,255)) # Removes first 7 characters off enum as we dont need them.
-        rect = pygame.Surface((spell.get_width() + 15, 75), pygame.SRCALPHA, 32)
+        hudObjects = [mana.get_width(), health.get_width(), spell.get_width()]
+        rect = pygame.Surface((max(hudObjects) + 20, 75), pygame.SRCALPHA, 32)
         rect.fill((0,0,0, 255))
         self.screen.blit(rect, (0,0))
         self.screen.blit(mana, (10,0))
@@ -199,6 +200,8 @@ class Player():
         self.render_particles()
 
         if isMe:
+            if self.map.level.get_tile(self.x,self.y).has_attribute(TileAttribute.SPIKES):
+                self.health -= 1
             self.hudRender()
 
     def render_particles(self):
@@ -242,8 +245,8 @@ class Player():
             if abs(dif) < 0.20:
                 return
 
-        if self.map.level.get_tile(self.x,self.y).colour != None:
-            c = self.map.level.get_tile(self.x,self.y).colour
+        id = self.map.level.get_tile(self.x,self.y).tileset_id[0]
+        c = self.map.tileset.get_average_colour(id)
 
         # while (can keep moving) and (x difference is not more than step) and (y difference is not more than step)
         while self.map.level.can_move_to(self.x + tmp_x, self.y + tmp_y) and abs(tmp_x) <= self.step and abs(tmp_y) <= self.step:

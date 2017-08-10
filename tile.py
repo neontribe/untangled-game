@@ -16,7 +16,7 @@ class TileAttribute(Enum): #I don't actually know how this works, someone else n
     HIDE    =   0b0101
 
 class TileType(Enum):
-    GRASS = ([53],  [],(0,255,0))
+    GRASS = ([53],  [])
     DIRT = ([2], [])
     BIGTREE1 = ([156], [])
     BIGTREE2 = ([157], [])
@@ -25,23 +25,22 @@ class TileType(Enum):
     BUSH = ([137], [ TileAttribute.COLLIDE ])
     TREE = ([145],  [ TileAttribute.COLLIDE ])
     SANDTREE = ([160],  [ TileAttribute.COLLIDE ]) 
-    BLUE_BLOCK = ([177],  [],(0,0,255))
-    RED_BLOCK = ([129],  [],(255,0,0))
-    BLUE_SPAWN = ([121],  [],(0,0,255))
-    RED_SPAWN = ([140], [],(255,0,0))
+    BLUE_BLOCK = ([177],  [])
+    RED_BLOCK = ([129],  [])
+    BLUE_SPAWN = ([121],  [])
+    RED_SPAWN = ([140], [])
     BRICK = ([7],  [ TileAttribute.COLLIDE ])
-    BRIDGE = ([21],  [],(255,215,164))
-    WATER = ([205,206,207],  [ TileAttribute.SWIM ],(0,128,255))
+    BRIDGE = ([21],  [])
+    WATER = ([205,206,207],  [ TileAttribute.SWIM ])
     SHELTER = ([37],  [ TileAttribute.COLLIDE ])
-    SAND = ([18],  [ TileAttribute.SLOW ],(255,255,0))
-    LAVA = ([166, 167, 168, 182, 183, 184, 198, 199, 200, 214, 215, 216, 229, 230, 229, 216, 215, 214, 299, 199, 198, 184, 183, 182, 168, 167],  [ TileAttribute.SPIKES ],(255,128,0))
+    SAND = ([18],  [ TileAttribute.SLOW ])
+    LAVA = ([166, 167, 168, 182, 183, 184, 198, 199, 200, 214, 215, 216, 229, 230, 229, 216, 215, 214, 299, 199, 198, 184, 183, 182, 168, 167],  [ TileAttribute.SPIKES ])
     MELON = ([137], [ TileAttribute.COLLIDE ])
 
-    def __init__(self, tileset_id, attributes, colour=None):
+    def __init__(self, tileset_id, attributes):
         self.tileset_id = tileset_id
         self.attributes = attributes
         self.animationFrame = 0
-        self.colour = colour
 
     def has_attribute(self, attribute):
         return attribute in self.attributes
@@ -87,3 +86,22 @@ class Tileset():
 
     def find_id(self, x, y):
         return y * self.grid_dimensions[1] + x
+
+    def get_average_colour(self, id):
+        image = self.get_surface_by_id(id)
+        r, g, b = 0, 0, 0
+        count = 0
+        modi = 0.8
+        for s in range(0, self.grid_dimensions[0]):
+            for t in range(0, self.grid_dimensions[1]):
+                pixlData = image.get_at((s, t))
+                r += pixlData[0]
+                g += pixlData[1]
+                b += pixlData[2]
+                count += 1
+
+        r = max(0,min(255,(r/count)*modi))
+        g = max(0,min(255,(g/count)*modi))
+        b = max(0,min(255,(b/count)*modi))
+
+        return (r,g,b)

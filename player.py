@@ -295,8 +295,8 @@ class Player():
 
         return Position(self.x, self.y)
 
-    def attack(self, action, direction, image, position=None):
-        if self.mana > 5:
+    def attack(self, action, direction, image, position=None, mana_cost=5):
+        if self.mana >= mana_cost:
             if direction == Movement.UP:
                 spell = Spell(self, (0, -self.projSpeed), image, position)
             elif direction == Movement.RIGHT:
@@ -308,6 +308,7 @@ class Player():
             else:
                 spell = Spell(self, direction, image, position)
 
+            spell.mana_cost = mana_cost
             # Remove first element of list if limit reached.
             if len(self.cast_spells) > self.spell_limit:
                 self.cast_spells[1:]
@@ -346,6 +347,7 @@ class Player():
 
     def die(self): # Don't get confused with `def` and `death`!!! XD
         self.health = 100
+        self.mana = 100
         self.network.node.whisper(UUID(self.network.authority_uuid), bson.dumps({'type': 'death_report'}))
 
     def addMana(self, amount):
@@ -440,6 +442,8 @@ class Spell():
         self.velo_x, self.velo_y = velocity
 
     def hit_target_player(self, player):
+        if self.rect == None or player.rect == None:
+            return False
         return player.rect.colliderect(self.rect)
 
 class PlayerManager():

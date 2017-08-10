@@ -5,7 +5,8 @@ from enum import Enum
 
 import client
 
-name_character_limit = 10
+name_character_min_limit = 1
+name_character_max_limit = 10
 
 class Screen():
     def __init__(self, pygame_screen):
@@ -112,7 +113,7 @@ class MainMenu(Screen):
             self.render_text(font, "A = Select letter", (offset[0] - 100, offset[1] + 375))
             self.render_text(font, "B = Delete letter", (offset[0] - 100, offset[1] + 425))
             self.render_text(font, "Start = Play", (offset[0] - 100, offset[1] + 475))
-            
+
         elif(self.state == MenuState.RESUME):
             self.options_length = len(self.resume_options)
             self.render_options(self.resume_options, font, offset)
@@ -161,7 +162,7 @@ class MainMenu(Screen):
                     self.currentLetter = 25
             elif event.button == client.buttons["B"]:
                 self.char_name = self.char_name + self.letters[self.currentLetter]
-                if len(self.char_name) > name_character_limit:
+                if len(self.char_name) > name_character_max_limit:
                     self.char_name = self.char_name[:10]
             elif event.button == client.buttons["X"]:
                 self.char_name = self.char_name[:-1]
@@ -266,15 +267,15 @@ class MainMenu(Screen):
                 elif event.key == pygame.locals.K_ESCAPE:
                     if self.state == MenuState.CHAR_SETUP:
                         self.set_state(MenuState.CHOICE)
-                elif(event.key < 123 and event.key != 13 and len(self.char_name) < name_character_limit):
+                elif(event.key < 123 and event.key != 13 and len(self.char_name) < name_character_max_limit):
                     self.char_name += chr(event.key)
-                elif event.key == pygame.locals.K_RETURN:
+                elif event.key == pygame.locals.K_RETURN and len(self.char_name) > name_character_min_limit:
                     if self.state == MenuState.CHAR_SETUP:
                         self.setup_player()
                         self.set_state(MenuState.RESUME)
                         self.selected = 0
                         return GameState.PLAY
-            if event.type == pygame.locals.JOYBUTTONDOWN:
+            if event.type == pygame.locals.JOYBUTTONDOWN and len(self.char_name) > name_character_min_limit:
                 if event.button == client.buttons["Start"]:
                     self.setup_player()
                     self.set_state(MenuState.RESUME)

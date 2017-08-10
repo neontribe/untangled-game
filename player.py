@@ -198,6 +198,8 @@ class Player():
         self.render_particles()
 
         if isMe:
+            if self.map.level.get_tile(self.x,self.y).has_attribute(TileAttribute.SPIKES):
+                self.health -= 1
             self.hudRender()
 
     def render_particles(self):

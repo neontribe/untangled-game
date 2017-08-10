@@ -288,7 +288,7 @@ class GameClient():
                     if self.cast == True:
                         me.can_fire_ability = False
                         me.firetime = time.time()
-                    elif time.time() - me.firetime > 2:
+                    elif time.time() - me.firetime > 0.5:
                         me.can_fire_ability = True
 
                     if time.time() - me.steptime >30:

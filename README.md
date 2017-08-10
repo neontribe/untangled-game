@@ -1,6 +1,6 @@
 # Untangled 2017
 
-A top-down captre the flag game for Untangled 2017.
+A top-down capture the flag game for Untangled 2017.
 
 ## Installation
 

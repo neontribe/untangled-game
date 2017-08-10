@@ -442,8 +442,8 @@ class Spell():
         self.velo_x, self.velo_y = velocity
 
     def hit_target_player(self, player):
-        print(player.rect)
-        print(self.rect)
+        if self.rect == None or player.rect == None:
+            return False
         return player.rect.colliderect(self.rect)
 
 class PlayerManager():

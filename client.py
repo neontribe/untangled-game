@@ -191,7 +191,7 @@ class GameClient():
                                 me.change_spell()
                             elif event.key == pygame.locals.K_RETURN or event.key == pygame.locals.K_SPACE :
                                 if me.can_fire_ability:
-                                    self.cast = me.attack(last_direction, projectile_paths[me.current_spell])
+                                    self.cast = me.attack(last_direction)
 
                             if event.key == pygame.locals.K_r and me.can_step_ability:
                                 me.step = 2
@@ -209,7 +209,7 @@ class GameClient():
                     if event.type == pygame.locals.MOUSEBUTTONDOWN:
                         if event.button == 0:
                             if me.can_fire_ability:
-                                self.cast = me.attack(last_direction, projectile_paths[me.current_spell])
+                                self.cast = me.attack(last_direction)
                             pygame.event.clear(pygame.locals.MOUSEBUTTONDOWN)
                         if event.button == 4 or event.button == 5:
                             if me.can_switch_spell:
@@ -267,7 +267,7 @@ class GameClient():
                         #Shoot
                         if joystick.get_button(buttons["R"]) or joystick.get_button(buttons["A"]):
                             if me.can_fire_ability:
-                                self.cast = me.attack(last_direction, projectile_paths[me.current_spell])
+                                self.cast = me.attack(last_direction)
                         #Menu
                         if joystick.get_button(buttons["Start"]) or joystick.get_button(buttons["Select"]):
                             self.set_state(GameState.MENU)

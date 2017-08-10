@@ -307,9 +307,9 @@ class Player():
 
         return Position(self.x, self.y)
 
-    def attack(self, direction, image, position=None):
+    def attack(self, direction, position=None):
         spell = Action.get_action(self.current_spell)
-
+        image = client.projectile_paths[self.current_spell]
         if self.mana >= spell.mana_cost:
             if direction == Movement.UP:
                 spell = Spell(self, (0, -self.projSpeed), image, position)
@@ -373,11 +373,10 @@ class Player():
         self.mana -= amount
 
 class Spell():
-    def __init__(self, player, velocity, image_path, position=None, size=(0.1, 0.1), colour=(0,0,0), life=50):
+    def __init__(self, player, velocity, image_path, position=None, size=(0.1, 0.1), colour=None, life=50):
         self.player = player
         self.image_path = image_path
         self.size = size
-        self.colour = colour
         self.life = life
         self.maxLife = life
         self.rect = None
@@ -395,13 +394,17 @@ class Spell():
         self.damage = spell.damage
         self.player.depleatMana(self.mana_cost)
         self.image = pygame.image.load(self.image_path)
+        if colour != None:
+           self.colour = colour
+        else:
+           self.colour = self.get_average_colour()
+        print(self.colour)
 
     def render(self):
         if self.player.map.level.get_tile(int(self.x),int(self.y)).has_attribute(TileAttribute.COLLIDE):
             self.destroy()
             return
 
-        self.colour = (random.randrange(255),random.randrange(255),random.randrange(255))
         progress = self.life/self.maxLife #random.randrange(100)/100
         newSize = (progress*self.size[0],progress*self.size[1])
         if(self.life <= 0):
@@ -435,6 +438,9 @@ class Spell():
         self.x += self.velo_x
         self.y += self.velo_y
 
+        #               amount,    position,              colour,size,velocity,gravity,life,metadata,grow
+        self.player.add_particle(3,(self.x,self.y),self.colour,1,None,(-self.velo_x/100,-self.velo_y/100),5,0,0.2)
+
 
     #destroy the spell
     def destroy(self):
@@ -459,6 +465,25 @@ class Spell():
         if self.rect == None or player.rect == None:
             return False
         return player.rect.colliderect(self.rect)
+
+    def get_average_colour(self):
+        size = self.image.get_size()
+        r, g, b = 0, 0, 0
+        count = 0
+        modi = 1
+        for s in range(0, size[0]):
+            for t in range(0, size[1]):
+                pixlData = self.image.get_at((s, t))
+                r += pixlData[0]
+                g += pixlData[1]
+                b += pixlData[2]
+                count += 1
+
+        r = max(0,min(255,(r/count)*modi))
+        g = max(0,min(255,(g/count)*modi))
+        b = max(0,min(255,(b/count)*modi))
+
+        return (r,g,b)
 
 class PlayerManager():
     def __init__(self, me, network):

@@ -76,6 +76,11 @@ class Player():
         self.health = health
         self.mana = mana
         self.maxMana = mana
+        
+        self.swim_timer = 0
+        self.sand_timer = 0
+        self.can_swim = True
+        self.can_sand = True
 
     def __raiseNoPosition(self):
         raise PlayerException({"message": "Everything is lava: Player does not have a position set", "player": self})
@@ -236,15 +241,23 @@ class Player():
 
         tmp_x = 0
         tmp_y = 0
-        if self.map.level.get_tile(self.x,self.y).has_attribute(TileAttribute.SWIM):
-            dif = round(time.time()) - time.time()
-            if abs(dif) < 0.40:
-                return
-        if self.map.level.get_tile(self.x,self.y).has_attribute(TileAttribute.SLOW):
-            dif = round(time.time()) - time.time()
-            if abs(dif) < 0.20:
-                return
 
+        if self.map.level.get_tile(self.x,self.y).has_attribute(TileAttribute.SWIM) and self.can_swim:
+            self.swim_timer = time.time()
+            self.sand_timer = time.time()
+            self.can_swim = False
+        elif self.map.level.get_tile(self.x,self.y).has_attribute(TileAttribute.SWIM) and not self.can_swim:
+            return
+        elif self.map.level.get_tile(self.x,self.y).has_attribute(TileAttribute.SLOW) and self.can_sand:
+            self.swim_timer = time.time()
+            self.sand_timer = time.time()
+            self.can_sand = False
+        elif self.map.level.get_tile(self.x,self.y).has_attribute(TileAttribute.SLOW) and not self.can_sand:
+            return
+        else:
+            self.swim_timer = time.time()
+            self.sand_timer = time.time()
+        
         id = self.map.level.get_tile(self.x,self.y).tileset_id[0]
         c = self.map.tileset.get_average_colour(id)
 

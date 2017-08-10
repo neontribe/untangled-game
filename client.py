@@ -126,8 +126,8 @@ class GameClient():
         clock = pygame.time.Clock()
         tickspeed = 60
         last_direction = None
-        toMove = False # Flag for when player moves - reduces network stress
-        cast = False # Flag for when player casts spell.
+        self.toMove = False # Flag for when player moves - reduces network stress
+        self.cast = False # Flag for when player casts spell.
         me = self.players.me
 
         if me.mute == "False":
@@ -174,24 +174,24 @@ class GameClient():
                             if event.key == pygame.locals.K_UP or event.key == pygame.locals.K_w:
                                 me.move(Movement.UP)
                                 last_direction = Movement.UP
-                                toMove = True
+                                self.toMove = True
                             elif event.key == pygame.locals.K_DOWN or event.key == pygame.locals.K_s:
                                 me.move(Movement.DOWN)
                                 last_direction = Movement.DOWN
-                                toMove = True
+                                self.toMove = True
                             elif event.key == pygame.locals.K_LEFT or event.key == pygame.locals.K_a:
                                 me.move(Movement.LEFT)
                                 last_direction = Movement.LEFT
-                                toMove = True
+                                self.toMove = True
                             elif event.key == pygame.locals.K_RIGHT or event.key == pygame.locals.K_d:
                                 me.move(Movement.RIGHT)
                                 last_direction = Movement.RIGHT
-                                toMove = True
+                                self.toMove = True
                             elif event.key == pygame.locals.K_e:
                                 me.change_spell()
                             elif event.key == pygame.locals.K_RETURN or event.key == pygame.locals.K_SPACE :
                                 if me.can_fire_ability:
-                                    cast = me.attack(Action(me.current_spell), last_direction, projectile_paths[me.current_spell])
+                                    self.cast = me.attack(Action(me.current_spell), last_direction, projectile_paths[me.current_spell])
 
                             if event.key == pygame.locals.K_r and me.can_step_ability:
                                 me.step = 2
@@ -209,7 +209,7 @@ class GameClient():
                     if event.type == pygame.locals.MOUSEBUTTONDOWN:
                         if event.button == 0:
                             if me.can_fire_ability:
-                                cast = me.attack(Action(me.current_spell), last_direction, projectile_paths[me.current_spell])
+                                self.cast = me.attack(Action(me.current_spell), last_direction, projectile_paths[me.current_spell])
                             pygame.event.clear(pygame.locals.MOUSEBUTTONDOWN)
                         if event.button == 4 or event.button == 5:
                             if me.can_switch_spell:
@@ -222,7 +222,7 @@ class GameClient():
                     # Handle controller input by setting flags (move, neutral)
                     # and using timers (delay, pressed).
                     # Move if pressed timer is greater than delay.
-                    if(pygame.joystick.get_count() > 0 and not me.name.startswith("windows") and not toMove):
+                    if(pygame.joystick.get_count() > 0 and not me.name.startswith("windows") and not self.toMove):
                         joystick = pygame.joystick.Joystick(0)
                         move = False
                         delay = 100
@@ -249,25 +249,25 @@ class GameClient():
                             if y_axis > 0.5:
                                 me.move(Movement.DOWN)
                                 last_direction = Movement.DOWN
-                                toMove = True
+                                self.toMove = True
                             if y_axis < -0.5:
                                 me.move(Movement.UP)
                                 last_direction = Movement.UP
-                                toMove = True
+                                self.toMove = True
                             # left/right
                             if x_axis > 0.5:
                                 me.move(Movement.RIGHT)
                                 last_direction = Movement.RIGHT
-                                toMove = True
+                                self.toMove = True
                             if x_axis < -0.5:
                                 me.move(Movement.LEFT)
                                 last_direction = Movement.LEFT
-                                toMove = True
+                                self.toMove = True
 
                         #Shoot
                         if joystick.get_button(buttons["R"]) or joystick.get_button(buttons["A"]):
                             if me.can_fire_ability:
-                                cast = me.attack(Action(me.current_spell), last_direction, projectile_paths[me.current_spell])
+                                self.cast = me.attack(Action(me.current_spell), last_direction, projectile_paths[me.current_spell])
                         #Menu
                         if joystick.get_button(buttons["Start"]) or joystick.get_button(buttons["Select"]):
                             self.set_state(GameState.MENU)
@@ -285,7 +285,7 @@ class GameClient():
 
                         last_update = pygame.time.get_ticks()
 
-                    if cast == True:
+                    if self.cast == True:
                         me.can_fire_ability = False
                         me.firetime = time.time()
                     elif time.time() - me.firetime > 2:
@@ -298,6 +298,11 @@ class GameClient():
                     
                     if time.time() - me.switch_time > 0.1:
                         me.can_switch_spell = True
+                    
+                    if time.time() - me.swim_timer > 0.3:
+                        me.can_swim = True
+                    if time.time() - me.sand_timer > 0.1:
+                        me.can_sand = True
                     
                     self.map.render()
                     for flag in self.flags.values():
@@ -317,7 +322,7 @@ class GameClient():
                             for event in self.network.get_events():
                                 if event.type == 'ENTER':
                                     # Force update on first join.
-                                    toMove = True
+                                    self.toMove = True
 
                                     auth_status = event.headers.get('AUTHORITY')
                                     if auth_status == 'TRUE':
@@ -369,7 +374,7 @@ class GameClient():
                                     if self.players.authority_uuid == str(event.peer_uuid):
                                         if msg['type'] == 'teleport':
                                             me.set_position((msg['x'], msg['y']))
-                                            toMove = True
+                                            self.toMove = True
 
                         except Exception as e:
                             import traceback
@@ -377,12 +382,12 @@ class GameClient():
                             pass
 
                     # if there are other peers we can start sending to groups.
-                    if toMove == True:
+                    if self.toMove == True:
                         self.network.node.shout("world:position", bson.dumps(me.get_position()._asdict()))
-                        toMove = False
-                    if cast == True:
+                        self.toMove = False
+                    if self.cast == True:
                         self.network.node.shout("world:combat", bson.dumps(me.cast_spells[-1].get_properties()._asdict()))
-                        cast = False
+                        self.cast = False
 
                     for playerUUID, player in self.players.others.items():
                         try:

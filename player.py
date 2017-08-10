@@ -49,7 +49,7 @@ class Player():
         self.x, self.y = (0, 0)
         self.animation_ticker = 0
         self.network = network
-
+        
 
         self.particle_list = []
         self.particle_limit = 500
@@ -156,16 +156,7 @@ class Player():
         self.screen.blit(mana, (10,0))
         self.screen.blit(health, (10,25))
         self.screen.blit(spell, (10,50))
-
-        # Minimap
-        image = pygame.image.load('assets/images/minimap.png')
-        rect = pygame.Surface((image.get_rect().size[0] + 20, image.get_rect().size[1] + 20), pygame.SRCALPHA, 32)
-        rect.fill((0,0,0, 255))
-        pos = 1024 - ((image.get_rect().size[0]) + 10)
-        mappos = 1024 - (image.get_rect().size[0] + 20)
-        self.screen.blit(rect, (mappos,0))
-        self.screen.blit(image,(pos, 10))
-
+        
     def render(self, isMe = False):
         font = pygame.font.Font(client.font, 30)
 
@@ -424,7 +415,28 @@ class PlayerManager():
         self.network = network
         self.me.load_from_config()
         self.others = {}
+        self.minimap = pygame.transform.scale(pygame.image.load('assets/images/minimap.png'), (196, 392))
         self.authority_uuid = ''
+        
+
+    def minimap_render(self, screen):
+        rect = pygame.Surface((self.minimap.get_rect().size[0] + 20, self.minimap.get_rect().size[1] + 20), pygame.SRCALPHA, 32)
+        rect.fill((0,0,0, 255))
+        pos = 1024 - ((self.minimap.get_rect().size[0]) + 10)
+        mappos = 1024 - (self.minimap.get_rect().size[0] + 20)
+        screen.blit(rect, (mappos,0))
+        screen.blit(self.minimap,(pos, 10))
+        tempothers = self.others
+        tempothers["temp_uuid"] = self.me
+        for playerUUID, player in tempothers.items():
+            rect = pygame.Surface((4,4), pygame.SRCALPHA, 32)
+            if player.team == "red":
+                rect.fill((255,0,0, 255))
+            elif player.team == "blue":
+                rect.fill((0,0,255, 255))
+            else:
+                rect.fill((255,255,255, 255))
+            screen.blit(rect, (pos + (player.x * 4)+1, 10 + (player.y * 4)+1))
 
     def set_teams(self, teams):
         blue_team = teams.get('blue')

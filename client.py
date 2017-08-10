@@ -361,10 +361,11 @@ class GameClient():
                             self.network.node.shout("world:combat", bson.dumps(me.cast_spells[-1].get_properties()._asdict()))
                     toMove = False
                     cast = False
-
+                    
                     for playerUUID, player in self.players.others.items():
                         try:
                             player.render()
+                            
                             for spell in player.cast_spells:
                                 spell.render()
                                 # spell.hit_target(me)
@@ -372,7 +373,7 @@ class GameClient():
                         except PlayerException as e:
                             # PlayerException due to no initial position being set for that player
                             pass
-
+                    self.players.minimap_render(self.screen)
                 pygame.display.update()
         finally:
             self.network.stop()

@@ -25,13 +25,25 @@ class Movement(Enum):
 Position = namedtuple('Position', ['x', 'y'])
 SpellProperties = namedtuple('SpellProperties', ['x', 'y', 'x_velocity', 'y_velocity', 'current_spell'])
 
+# Action = (id, mana_cost, damage)
 class Action(Enum):
-    ARROW = 0
-    FIRE = 1
-    FROST = 2
-    ICE = 3
-    LIGHTNING = 4
-    POISON = 5
+    ARROW = (0, 0, 30)
+    FIRE = (1, 5, 50)
+    FROST = (2, 5, 50)
+    ICE = (3, 5, 50)
+    LIGHTNING = (4, 5, 50)
+    POISON = (5, 100, 100)
+
+    def __init__(self, id, mana_cost, damage):
+        self.id = id
+        self.mana_cost = mana_cost
+        self.damage = damage
+
+    def get_action(id):
+        for a in Action:
+            if(id == a.id):
+                return a
+        return False
 
 class PlayerException(Exception):
     pass
@@ -46,10 +58,10 @@ class Player():
         self.step = 1
         self.mute = 'True'
         self.tileset = Tileset(client.player_animation_tileset_path, (3, 4), (32, 32))
-        
+
         self.blue_tileset = Tileset('assets/tilesets/blue.png', (3, 4), (32, 32))
         self.red_tileset = Tileset('assets/tilesets/red.png', (3, 4), (32, 32))
-        
+
         self.name = ''
         self.x, self.y = (0, 0)
         self.animation_ticker = 0
@@ -63,7 +75,7 @@ class Player():
 
         self.firetime = 0
         self.can_fire_ability = True
-        
+
         self.switch_time = 0
         self.can_switch_spell = True
 
@@ -80,7 +92,7 @@ class Player():
         self.health = health
         self.mana = mana
         self.maxMana = mana
-        
+
         self.swim_timer = 0
         self.sand_timer = 0
         self.can_swim = True
@@ -157,7 +169,7 @@ class Player():
         font = pygame.font.Font(client.font, 30)
         mana = font.render("Mana: "+str(self.mana)+"/100", False, (255,255,255))
         health = font.render("Health: "+str(self.health)+"/100", False, (255,255,255))
-        spell = font.render("Current Spell: "+str(Action(self.current_spell))[7:], False, (255,255,255)) # Removes first 7 characters off enum as we dont need them.
+        spell = font.render("Current Spell: "+str(Action.get_action(self.current_spell))[7:], False, (255,255,255)) # Removes first 7 characters off enum as we dont need them.
         hudObjects = [mana.get_width(), health.get_width(), spell.get_width()]
         rect = pygame.Surface((max(hudObjects) + 20, 75), pygame.SRCALPHA, 32)
         rect.fill((0,0,0, 255))
@@ -263,7 +275,7 @@ class Player():
         else:
             self.swim_timer = time.time()
             self.sand_timer = time.time()
-        
+
         id = self.map.level.get_tile(self.x,self.y).tileset_id[0]
         c = self.map.tileset.get_average_colour(id)
 
@@ -295,7 +307,7 @@ class Player():
 
         return Position(self.x, self.y)
 
-    def attack(self, action, direction, image, position=None):
+    def attack(self, direction, image, position=None):
         if self.mana > 5:
             if direction == Movement.UP:
                 spell = Spell(self, (0, -self.projSpeed), image, position)
@@ -359,15 +371,13 @@ class Player():
         self.mana -= amount
 
 class Spell():
-    def __init__(self, player, velocity, image_path, position=None, size=(0.1, 0.1), colour=(0,0,0), life=50, mana_cost = 5):
+    def __init__(self, player, velocity, image_path, position=None, size=(0.1, 0.1), colour=(0,0,0), life=50):
         self.player = player
         self.image_path = image_path
         self.size = size
         self.colour = colour
         self.life = life
         self.maxLife = life
-        self.mana_cost = mana_cost
-        self.damage = 50
         self.rect = None
         if position == None:
             # spawn at player - additional maths centres the spell
@@ -378,6 +388,9 @@ class Spell():
 
         self.set_velocity(velocity)
 
+        spell = Action.get_action(self.player.current_spell)
+        self.mana_cost = spell.mana_cost
+        self.damage = spell.damage
         self.player.depleatMana(self.mana_cost)
         self.image = pygame.image.load(self.image_path)
 

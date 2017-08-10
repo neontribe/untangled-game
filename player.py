@@ -346,6 +346,7 @@ class Player():
 
     def die(self): # Don't get confused with `def` and `death`!!! XD
         self.health = 100
+        self.mana = 100
         self.network.node.whisper(UUID(self.network.authority_uuid), bson.dumps({'type': 'death_report'}))
 
     def addMana(self, amount):

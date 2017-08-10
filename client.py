@@ -18,7 +18,7 @@ from enum import Enum
 from map import *
 from network import Network
 from player import *
-from flag import *
+from sprite import *
 from screen import MainMenu
 from level import SaveLevel
 from tile import Tileset
@@ -34,6 +34,8 @@ height = 1024
 font = 'assets/fonts/alterebro-pixel-font.ttf'
 level_tileset_path = 'assets/tilesets/main.png'
 player_animation_tileset_path = 'assets/tilesets/player.png'
+red_flag = "assets/tilesets/Red Flag.png"
+blue_flag = "assets/tilesets/Blue Flag.png"
 
 projectile_paths = [
                     'assets/images/arrow.png',
@@ -64,9 +66,16 @@ class GameClient():
         self.network = Network()
         self.setup_pygame()
         me = Player(self.screen, self.map, self.network)
-
         self.players = PlayerManager(me, self.network)
-        self.flags = [Flag(self.screen, self.map, "red"), Flag(self.screen, self.map, "blue")]
+
+        self.network.node.shout('players:whois', bson.dumps({}))
+
+        red = Sprite(self.screen, self.map, red_flag)
+        blue = Sprite(self.screen, self.map, blue_flag)
+        self.flags = {
+            'red': red,
+            'blue': blue
+        }
         self.map.set_centre_player(self.players.me)
         self.menu = MainMenu(self.screen, self.players)
 
@@ -120,7 +129,6 @@ class GameClient():
         toMove = False # Flag for when player moves - reduces network stress
         cast = False # Flag for when player casts spell.
         me = self.players.me
-        flags = self.flags
 
         if me.mute == "False":
             LevelMusic.play_music_repeat()
@@ -162,7 +170,6 @@ class GameClient():
                             break
                         elif event.type == pygame.locals.KEYDOWN and event.key == pygame.locals.K_ESCAPE:
                             self.set_state(GameState.MENU)
-
                         elif event.type == pygame.locals.KEYDOWN:
                             if event.key == pygame.locals.K_UP or event.key == pygame.locals.K_w:
                                 me.move(Movement.UP)
@@ -298,9 +305,11 @@ class GameClient():
                         me.can_sand = True
                     
                     self.map.render()
-                    me.render(True)
-                    for flag in flags:
+                    for flag in self.flags.values():
                         flag.render()
+
+                    me.render(True)
+
                     for spell in me.cast_spells:
                         spell.render()
 
@@ -318,42 +327,54 @@ class GameClient():
                                     auth_status = event.headers.get('AUTHORITY')
                                     if auth_status == 'TRUE':
                                         self.players.authority_uuid = str(event.peer_uuid)
+                                        self.network.authority_uuid = str(event.peer_uuid)
                                         self.players.remove(event.peer_uuid)
-
-                                if event.group == "players:whois":
-                                    self.network.node.shout("player:name", bson.dumps(
-                                        {
-                                            "name": self.players.me.name
-                                        }
-                                    ))
-
-                                if event.group == "player:name":
-                                    new_name = bson.loads(event.msg[0])
-                                    player = self.players.get(event.peer_uuid)
-                                    if new_name['name']:
-                                        player.set_name(new_name['name'])
-
-                                if event.group == "world:position":
-                                    new_position = bson.loads(event.msg[0])
-                                    network_player = self.players.get(event.peer_uuid)
-                                if event.group == "world:combat":
-                                    new_spell_properties = bson.loads(event.msg[0])
-                                    network_spell_caster = self.players.get(event.peer_uuid)
-                                    network_spell_caster.current_spell = new_spell_properties.get('current_spell')
-                                    network_spell_caster.cast_spells.append(Spell(network_spell_caster, (0, 0), projectile_paths[network_spell_caster.current_spell]))
-                                    network_spell_caster.cast_spells[-1].set_properties(SpellProperties(**new_spell_properties))
-                                if event.group == "ctf:teams":
-                                    if event.type == "SHOUT":
+                                elif event.type == "SHOUT":
+                                    if event.group == "player:name":
+                                        new_name = bson.loads(event.msg[0])
+                                        player = self.players.get(event.peer_uuid)
+                                        if new_name['name']:
+                                            player.set_name(new_name['name'])
+                                    elif event.group == "world:position":
+                                        new_position = bson.loads(event.msg[0])
+                                        network_player = self.players.get(event.peer_uuid)
+                                        network_player.set_position(Position(**new_position))
+                                    elif event.group == "world:combat":
+                                        new_spell_properties = bson.loads(event.msg[0])
+                                        network_spell_caster = self.players.get(event.peer_uuid)
+                                        network_spell_caster.current_spell = new_spell_properties.get('current_spell')
+                                        network_spell_caster.cast_spells.append(Spell(network_spell_caster, (0, 0), projectile_paths[network_spell_caster.current_spell]))
+                                        network_spell_caster.cast_spells[-1].set_properties(SpellProperties(**new_spell_properties))
+                                    elif event.group == "ctf:teams":
                                         team_defs = bson.loads(event.msg[0])
                                         self.players.set_teams(team_defs)
-                                if event.group == "ctf:flags":
-                                    if event.type == "SHOUT":
-                                        flag_defs = bson.loads(event.msg[0])
-                                        self.flags[0].set_position_from_authority(flag_defs.get("red"))
-                                        self.flags[1].set_position_from_authority(flag_defs.get("blue"))
-
-                                if network_player:
-                                    network_player.set_position(Position(**new_position))
+                                    elif event.group == "ctf:gotflag":
+                                        flag_info = bson.loads(event.msg[0])
+                                        team = flag_info["team"]
+                                        uuid = flag_info["uuid"]
+                                        flag = self.flags[team]
+                                        if uuid == str(self.network.node.uuid()):
+                                            flag.set_player(self.players.me)
+                                        else:
+                                            network_player = self.players.get(uuid)
+                                            flag.set_player(network_player)
+                                    elif event.group == 'ctf:dropflag':
+                                        flag_info = bson.loads(event.msg[0])
+                                        flag = self.flags[flag_info['team']]
+                                        flag.set_player(None)
+                                        flag.set_position((flag_info['x'], flag_info['y']))
+                                    elif event.group == "players:whois":
+                                        self.network.node.shout("player:name", bson.dumps(
+                                            {
+                                                "name": self.players.me.name
+                                            }
+                                        ))
+                                elif event.type == 'WHISPER':
+                                    msg = bson.loads(event.msg[0])
+                                    if self.players.authority_uuid == str(event.peer_uuid):
+                                        if msg['type'] == 'teleport':
+                                            me.set_position((msg['x'], msg['y']))
+                                            toMove = True
 
                         except Exception as e:
                             import traceback
@@ -361,20 +382,22 @@ class GameClient():
                             pass
 
                     # if there are other peers we can start sending to groups.
-                    if self.players.others:
-                        if toMove == True or cast == True:
-                            self.network.node.shout("world:position", bson.dumps(me.get_position()._asdict()))
-                        if cast == True:
-                            self.network.node.shout("world:combat", bson.dumps(me.cast_spells[-1].get_properties()._asdict()))
-                    toMove = False
-                    cast = False
+                    if toMove == True:
+                        self.network.node.shout("world:position", bson.dumps(me.get_position()._asdict()))
+                        toMove = False
+                    if cast == True:
+                        self.network.node.shout("world:combat", bson.dumps(me.cast_spells[-1].get_properties()._asdict()))
+                        cast = False
 
                     for playerUUID, player in self.players.others.items():
                         try:
                             player.render()
                             for spell in player.cast_spells:
                                 spell.render()
-                                # spell.hit_target(me)
+                                hit_me = spell.hit_target_player(me)
+                                if hit_me:
+                                    player.cast_spells.remove(spell)
+                                    me.deplete_health(spell.damage)
 
                         except PlayerException as e:
                             # PlayerException due to no initial position being set for that player

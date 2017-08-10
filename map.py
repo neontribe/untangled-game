@@ -7,8 +7,6 @@ import os.path
 
 from enum import Enum
 
-from player import *
-
 class Map():
     def __init__(self, screen, level, tileset, music):
         self.screen = screen

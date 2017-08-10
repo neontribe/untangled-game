@@ -22,7 +22,7 @@ class Movement(Enum):
     DOWN = 3
     LEFT = 4
 Position = namedtuple('Position', ['x', 'y'])
-SpellProperties = namedtuple('SpellProperties', ['x', 'y', 'x_velocity', 'y_velocity',])
+SpellProperties = namedtuple('SpellProperties', ['x', 'y', 'x_velocity', 'y_velocity', 'current_spell'])
 
 class Action(Enum):
     ARROW = 0
@@ -236,6 +236,7 @@ class Player():
 
         tmp_x = 0
         tmp_y = 0
+
         if self.map.level.get_tile(self.x,self.y).has_attribute(TileAttribute.SWIM) and self.can_swim:
             self.swim_timer = time.time()
             self.can_swim = False
@@ -246,9 +247,9 @@ class Player():
             self.can_sand = False
         elif self.map.level.get_tile(self.x,self.y).has_attribute(TileAttribute.SLOW) and not self.can_sand:
             return
-        
-        if self.map.level.get_tile(self.x,self.y).colour != None:
-            c = self.map.level.get_tile(self.x,self.y).colour
+
+        id = self.map.level.get_tile(self.x,self.y).tileset_id[0]
+        c = self.map.tileset.get_average_colour(id)
 
         # while (can keep moving) and (x difference is not more than step) and (y difference is not more than step)
         while self.map.level.can_move_to(self.x + tmp_x, self.y + tmp_y) and abs(tmp_x) <= self.step and abs(tmp_y) <= self.step:
@@ -337,9 +338,9 @@ class Player():
         self.mana -= amount
 
 class Spell():
-    def __init__(self, player, velocity, image, position=None, size=(0.1, 0.1), colour=(0,0,0), life=100, mana_cost = 5):
+    def __init__(self, player, velocity, image_path, position=None, size=(0.1, 0.1), colour=(0,0,0), life=100, mana_cost = 5):
         self.player = player
-        self.image = image
+        self.image_path = image_path
         self.size = size
         self.colour = colour
         self.life = life
@@ -355,7 +356,7 @@ class Spell():
         self.set_velocity(velocity)
 
         self.player.depleatMana(self.mana_cost)
-        self.image = pygame.image.load(image)
+        self.image = pygame.image.load(self.image_path)
 
     def render(self):
         self.colour = (random.randrange(255),random.randrange(255),random.randrange(255))
@@ -399,10 +400,10 @@ class Spell():
         del(self)
 
     def get_properties(self):
-        return SpellProperties(self.x, self.y, self.velo_x, self.velo_y)
+        return SpellProperties(self.x, self.y, self.velo_x, self.velo_y, self.player.current_spell)
 
     def set_properties(self, properties):
-        self.x, self.y, self.velo_x, self.velo_y = properties
+        self.x, self.y, self.velo_x, self.velo_y, self.player.current_spell = properties
 
     def set_position(self, position):
         self.x = position[0] + 0.5 - (self.size[0] / 2)

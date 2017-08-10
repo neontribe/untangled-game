@@ -38,12 +38,12 @@ red_flag = "assets/tilesets/Red Flag.png"
 blue_flag = "assets/tilesets/Blue Flag.png"
 
 projectile_paths = [
-                    'assets/images/arrow.png',
-                    'assets/images/fireball.png',
-                    'assets/images/frostbolt.png',
-                    'assets/images/icicle.png',
-                    'assets/images/lightning_bolt.png',
-                    'assets/images/poisonball.png'
+                    'assets/images/spells/arrow.png',
+                    'assets/images/spells/fireball.png',
+                    'assets/images/spells/frostbolt.png',
+                    'assets/images/spells/icicle.png',
+                    'assets/images/spells/lightning_bolt.png',
+                    'assets/images/spells/poisonball.png'
                     ]
 
 buttons = {"A":1, "B":2, "X":0, "Y":3, "L":4, "R":5, "Start":9, "Select":8} #Use these for the PiHut SNES controller

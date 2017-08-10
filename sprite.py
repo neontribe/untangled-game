@@ -20,8 +20,7 @@ class Sprite():
         if self.player:
             self.x, self.y = self.player.x, self.player.y
 
-        centre = self.map.get_pixel_pos(self.x, self.y)
-        self.screen.blit(self.image, centre)
-        # create collision rectangle
+        centre = self.map.get_pixel_pos(self.x + 0.5, self.y - 0.2)
         self.rect = self.image.get_rect()
-        self.rect.topleft = centre
+        self.rect.center = centre
+        self.screen.blit(self.image, self.rect.topleft)

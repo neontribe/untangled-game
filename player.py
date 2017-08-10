@@ -147,14 +147,21 @@ class Player():
         mana = font.render("Mana: "+str(self.mana)+"/100", False, (255,255,255))
         health = font.render("Health: "+str(self.health)+"/100", False, (255,255,255))
         spell = font.render("Current Spell: "+str(Action(self.current_spell))[7:], False, (255,255,255)) # Removes first 7 characters off enum as we dont need them.
-        rect = pygame.Surface((spell.get_width() + 15, 859), pygame.SRCALPHA, 32)
+        rect = pygame.Surface((spell.get_width() + 15, 75), pygame.SRCALPHA, 32)
         rect.fill((0,0,0, 255))
-        image = pygame.image.load('assets/images/minimap.png')
         self.screen.blit(rect, (0,0))
-        self.screen.blit(image,(10, 75))
         self.screen.blit(mana, (10,0))
         self.screen.blit(health, (10,25))
         self.screen.blit(spell, (10,50))
+
+        # Minimap
+        image = pygame.image.load('assets/images/minimap.png')
+        rect = pygame.Surface((image.get_rect().size[0] + 20, image.get_rect().size[1] + 20), pygame.SRCALPHA, 32)
+        rect.fill((0,0,0, 255))
+        pos = 1024 - ((image.get_rect().size[0]) + 10)
+        mappos = 1024 - (image.get_rect().size[0] + 20)
+        self.screen.blit(rect, (mappos,0))
+        self.screen.blit(image,(pos, 10))
 
     def render(self, isMe = False):
         font = pygame.font.Font(client.font, 30)

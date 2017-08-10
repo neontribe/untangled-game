@@ -209,7 +209,7 @@ class GameClient():
                     if event.type == pygame.locals.MOUSEBUTTONDOWN:
                         if event.button == 0:
                             if me.can_fire_ability:
-                                self.cast = me.attack(Action(me.current_spell), last_direction, projectile_paths[me.current_spell])
+                                self.cast = me.attack(last_direction, projectile_paths[me.current_spell])
                             pygame.event.clear(pygame.locals.MOUSEBUTTONDOWN)
                         if event.button == 4 or event.button == 5:
                             if me.can_switch_spell:
@@ -267,7 +267,7 @@ class GameClient():
                         #Shoot
                         if joystick.get_button(buttons["R"]) or joystick.get_button(buttons["A"]):
                             if me.can_fire_ability:
-                                self.cast = me.attack(Action(me.current_spell), last_direction, projectile_paths[me.current_spell])
+                                self.cast = me.attack(last_direction, projectile_paths[me.current_spell])
                         #Menu
                         if joystick.get_button(buttons["Start"]) or joystick.get_button(buttons["Select"]):
                             self.set_state(GameState.MENU)

@@ -509,23 +509,19 @@ class PlayerManager():
         
 
     def minimap_render(self, screen):
-        rect = pygame.Surface((self.minimap.get_rect().size[0] + 20, self.minimap.get_rect().size[1] + 20), pygame.SRCALPHA, 32)
-        rect.fill((0,0,0, 255))
         pos = 1024 - ((self.minimap.get_rect().size[0]) + 10)
         mappos = 1024 - (self.minimap.get_rect().size[0] + 20)
-        screen.blit(rect, (mappos,0))
+        pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(mappos, 0, self.minimap.get_rect().size[0] + 20, self.minimap.get_rect().size[1] + 20))
         screen.blit(self.minimap,(pos, 10))
         tempothers = self.others
         tempothers["temp_uuid"] = self.me
         for playerUUID, player in tempothers.items():
-            rect = pygame.Surface((4,4), pygame.SRCALPHA, 32)
+            color = (255, 255, 255)
             if player.team == "red":
-                rect.fill((255,0,0, 255))
+                color = (255,0,0)
             elif player.team == "blue":
-                rect.fill((0,0,255, 255))
-            else:
-                rect.fill((255,255,255, 255))
-            screen.blit(rect, (pos + (player.x * 4)+1, 10 + (player.y * 4)+1))
+                color = (0,0,255)
+            pygame.draw.rect(screen, color, pygame.Rect(pos + (player.x * 4)+1, 10 + (player.y * 4)+1, 4, 4))
 
     def set_teams(self, teams):
         blue_team = teams.get('blue')

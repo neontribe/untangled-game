@@ -308,7 +308,7 @@ class GameClient():
                         me.can_swim = True
                     if time.time() - me.sand_timer > 0.1:
                         me.can_sand = True
-                    if time.time() - me.move_timer > 0.06:
+                    if time.time() - me.move_timer > 0.075:
                         me.can_move = True
 
                     self.map.render()

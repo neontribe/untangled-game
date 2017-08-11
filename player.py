@@ -98,6 +98,8 @@ class Player():
         self.can_swim = True
         self.can_sand = True
 
+        self.font = pygame.font.Font(client.font, 30)
+
     def __raiseNoPosition(self):
         raise PlayerException({"message": "Everything is lava: Player does not have a position set", "player": self})
 
@@ -179,7 +181,7 @@ class Player():
         self.screen.blit(spell, (10,50))
         
     def render(self, isMe = False):
-        font = pygame.font.Font(client.font, 30)
+        font = self.font
 
         name_tag_colour = (255, 255, 255)
         if self.team:

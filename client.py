@@ -105,7 +105,7 @@ class GameClient():
             pygame.locals.KEYDOWN, pygame.locals.MOUSEBUTTONDOWN,  pygame.locals.JOYBUTTONDOWN])
 
         self.levels = {
-            "main": SaveLevel('./assets/maps/CAPFLAG MAP NAT')
+            "main": SaveLevel('./assets/maps/patchy')
         }
 
         self.map = Map(
@@ -308,7 +308,7 @@ class GameClient():
                         me.can_swim = True
                     if time.time() - me.sand_timer > 0.1:
                         me.can_sand = True
-                    if time.time() - me.move_timer > 0.075:
+                    if time.time() - me.move_timer > 0.06:
                         me.can_move = True
 
                     self.map.render()

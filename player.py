@@ -25,6 +25,8 @@ class Movement(Enum):
 Position = namedtuple('Position', ['x', 'y'])
 SpellProperties = namedtuple('SpellProperties', ['x', 'y', 'x_velocity', 'y_velocity', 'current_spell'])
 
+RENDERSCALE = 2
+
 # Action = (id, mana_cost, damage)
 class Action(Enum):
     ARROW = (0, 0, 30)
@@ -513,7 +515,8 @@ class PlayerManager():
         self.network = network
         self.me.load_from_config()
         self.others = {}
-        self.minimap = pygame.transform.scale(pygame.image.load('assets/images/minimap.png'), (196, 392))
+        minimap_image = pygame.image.load('assets/images/minimap-patchy.png')
+        self.minimap = pygame.transform.scale(minimap_image, (int(minimap_image.get_size()[0] / 8 * RENDERSCALE), int(minimap_image.get_size()[1] / 8 * RENDERSCALE)))
         self.authority_uuid = ''
         
 
@@ -534,7 +537,7 @@ class PlayerManager():
                 rect.fill((0,0,255, 255))
             else:
                 rect.fill((255,255,255, 255))
-            screen.blit(rect, (pos + (player.x * 4)+1, 10 + (player.y * 4)+1))
+            screen.blit(rect, (pos + (player.x * RENDERSCALE)+1, 10 + (player.y * RENDERSCALE)+1))
 
     def set_teams(self, teams):
         blue_team = teams.get('blue')

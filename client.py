@@ -28,7 +28,7 @@ white = (255,255,255)
 black = (0,0,0)
 red = (255, 0, 0)
 
-width = 1920
+width = 1024
 height = 1024
 
 font = 'assets/fonts/alterebro-pixel-font.ttf'
@@ -46,8 +46,8 @@ projectile_paths = [
                     'assets/images/spells/poisonball.png'
                     ]
 
-#buttons = {"A":1, "B":2, "X":0, "Y":3, "L":4, "R":5, "Start":9, "Select":8} #Use these for the PiHut SNES controller
-buttons = {"A":0, "B":1, "X":2, "Y":3, "L":4, "R":5, "Start":7, "Select":6} #Use these for the iBuffalo SNES controller
+buttons = {"A":1, "B":2, "X":0, "Y":3, "L":4, "R":5, "Start":9, "Select":8} #Use these for the PiHut SNES controller
+#buttons = {"A":0, "B":1, "X":2, "Y":3, "L":4, "R":5, "Start":7, "Select":6} #Use these for the iBuffalo SNES controller
 
 error_message = "Everything is lava"
 
@@ -105,7 +105,7 @@ class GameClient():
             pygame.locals.KEYDOWN, pygame.locals.MOUSEBUTTONDOWN,  pygame.locals.JOYBUTTONDOWN])
 
         self.levels = {
-            "main": SaveLevel('./assets/maps/Maze Map')
+            "main": SaveLevel('./assets/maps/patchy')
         }
 
         self.map = Map(
@@ -308,7 +308,7 @@ class GameClient():
                         me.can_swim = True
                     if time.time() - me.sand_timer > 0.1:
                         me.can_sand = True
-                    if time.time() - me.move_timer > 0.075:
+                    if time.time() - me.move_timer > 0.06:
                         me.can_move = True
 
                     self.map.render()

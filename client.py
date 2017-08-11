@@ -74,8 +74,8 @@ class GameClient():
 
         self.network.node.shout('players:whois', bson.dumps({}))
 
-        red = Sprite(self.screen, self.map, red_flag)
-        blue = Sprite(self.screen, self.map, blue_flag)
+        red = Sprite(self.screen, self.map, pygame.image.load(red_flag))
+        blue = Sprite(self.screen, self.map, pygame.image.load(blue_flag))
         self.flags = {
             'red': red,
             'blue': blue

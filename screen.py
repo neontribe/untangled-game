@@ -44,6 +44,9 @@ class MainMenu(Screen):
         self.letters = "abcdefghijklmnopqrstuvwxyz"
         self.currentLetter = 0
 
+        self.logo = pygame.image.load('assets/images/logo.jpg')
+        self.logo = pygame.transform.scale(self.logo, (700, 200))
+
         self.main_options = {
             'Play': {
                 'pos': 0,
@@ -86,13 +89,11 @@ class MainMenu(Screen):
         font = self.fonts['large']
         info_font = self.fonts['small']
         header_font = self.fonts['heading']
-        logo = pygame.image.load('assets/images/logo.jpg')
-        logo = pygame.transform.scale(logo, (700, 200))
 
         self.ticker += 2
         self.ticker %= 100
 
-        self.pygame_screen.blit(logo,(offset[0] - 320, 220))
+        self.pygame_screen.blit(self.logo,(offset[0] - 320, 220))
         self.render_text(info_font, self.info_message, (offset[0] - 50, 375), (255, 100,100))
 
         if(self.state == MenuState.CHOICE):

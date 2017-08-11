@@ -5,7 +5,7 @@ class Sprite():
     def __init__(self, screen, map, image):
         self.screen = screen
         self.map = map
-        self.image = pygame.image.load(image)
+        self.image = image
         self.player = None
         self.x, self.y = (0, 0)
         self.animation_ticker = 0

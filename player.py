@@ -25,7 +25,7 @@ class Movement(Enum):
 Position = namedtuple('Position', ['x', 'y'])
 SpellProperties = namedtuple('SpellProperties', ['x', 'y', 'x_velocity', 'y_velocity', 'current_spell'])
 
-RENDERSCALE = 2
+RENDERSCALE = 4
 
 # Action = (id, mana_cost, damage)
 class Action(Enum):
@@ -515,7 +515,7 @@ class PlayerManager():
         self.network = network
         self.me.load_from_config()
         self.others = {}
-        minimap_image = pygame.image.load('assets/images/minimap-patchy.png')
+        minimap_image = pygame.image.load('assets/images/minimap.png')
         self.minimap = pygame.transform.scale(minimap_image, (int(minimap_image.get_size()[0] / 8 * RENDERSCALE), int(minimap_image.get_size()[1] / 8 * RENDERSCALE)))
         self.authority_uuid = ''
         

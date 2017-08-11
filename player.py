@@ -181,7 +181,7 @@ class Player():
         self.screen.blit(mana, (10,0))
         self.screen.blit(health, (10,25))
         self.screen.blit(spell, (10,50))
-        
+
     def render(self, isMe = False):
         font = pygame.font.Font(client.font, 30)
 
@@ -229,14 +229,14 @@ class Player():
         if isMe:
             if self.map.level.get_tile(self.x,self.y).has_attribute(TileAttribute.SPIKES):
                 self.deplete_health(5)
-            
+
             spawnAttribute = None
             if self.team:
                 if self.team == "blue":
                     spawnAttribute = TileAttribute.BSPAWN
                 elif self.team == "red":
                     spawnAttribute = TileAttribute.RSPAWN
-                    
+
             if spawnAttribute and self.map.level.get_tile(self.x,self.y).has_attribute(spawnAttribute):
                 self.addMana(1)
                 self.increase_health(1)
@@ -373,10 +373,10 @@ class Player():
     def remove_particle(self,particle):
         self.particle_list.remove(particle)
         return
-    
+
     def increase_health(self, amount):
         self.health = min(100, self.health + amount)
-    
+
     def deplete_health(self, amount):
         self.health -= amount
         if self.health <= 0:
@@ -515,10 +515,9 @@ class PlayerManager():
         self.network = network
         self.me.load_from_config()
         self.others = {}
-        minimap_image = pygame.image.load('assets/images/minimap-patchy.png')
-        self.minimap = pygame.transform.scale(minimap_image, (int(minimap_image.get_size()[0] / 8 * RENDERSCALE), int(minimap_image.get_size()[1] / 8 * RENDERSCALE)))
+        self.minimap = pygame.transform.scale(pygame.image.load('assets/images/minimap.png'), (196, 392))
         self.authority_uuid = ''
-        
+
 
     def minimap_render(self, screen):
         rect = pygame.Surface((self.minimap.get_rect().size[0] + 20, self.minimap.get_rect().size[1] + 20), pygame.SRCALPHA, 32)

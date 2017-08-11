@@ -1,4 +1,5 @@
 import random
+from uuid import UUID
 
 import bson
 import zmq
@@ -44,7 +45,8 @@ class Authority():
         self.node.join("ctf:teams")
         self.node.join("ctf:dropflag")
         self.node.join("ctf:gotflag")
-        self.node.join("player:death")
+        self.node.join("ctf:scores")
+        self.node.join("ctf:status")
 
         self.poller = zmq.Poller()
         self.poller.register(self.node.socket(), zmq.POLLIN)
@@ -65,14 +67,17 @@ class Authority():
                 "x": blue_spawn_pos[0],
                 "y": blue_spawn_pos[1],
                 "owner": '',
-                "timer":0
             }, 
             "red": {
                 "x": red_spawn_pos[0],
                 "y": red_spawn_pos[1],
                 "owner":'',
-                "timer":0
             }
+        }
+
+        self.scores = {
+            "red": 0,
+            "blue": 0
         }
 
         self.serve()
@@ -155,6 +160,8 @@ class Authority():
                                     'x': pos[0],
                                     'y': pos[1]
                                 }));
+                            elif event.group == 'ctf:scores':
+                                self.node.shout('ctf:scores', bson.dumps(self.scores))
                         elif event.type == 'EXIT':
                             for team, flag in self.flags.items():
                                 if flag['owner'] == str(event.peer_uuid):
@@ -182,13 +189,15 @@ class Authority():
                                         continue
                                     tile = self.level.get_tile(new_position['x'], new_position['y'])
                                     if tile == TileType.RED_BLOCK and team == 'blue':
-                                        # TODO: blue's flag has been captured
+                                        self.scores['red'] += 1
                                         spawn = Place.BLUE_SPAWN
                                     elif tile == TileType.BLUE_BLOCK and team == 'red':
-                                        # TODO: red's flag has been captured
+                                        self.scores['blue'] += 1
                                         spawn = Place.RED_SPAWN
                                     else:
                                         continue
+
+                                    # reset the flag back to spawn
                                     position = self.level.get_place(spawn)
                                     flag['x'] = position[0]
                                     flag['y'] = position[1]
@@ -198,6 +207,41 @@ class Authority():
                                         'y': flag['y'],
                                         'team': team
                                     }))
+
+                                    # broadcast the update scores
+                                    self.node.shout('ctf:scores', bson.dumps(self.scores))
+
+                                    for winning_team, score in self.scores.items():
+                                        if score < 10:
+                                            continue
+                                        self.node.shout('ctf:status', bson.dumps({
+                                            'status': winning_team.title() + ' wins!'
+                                        }))
+
+                                        for team, uuids in self.teams.items():
+                                            # reset scores
+                                            self.scores[team] = 0
+                                            spawn = Place.RED_SPAWN if team == 'red' else Place.BLUE_SPAWN
+                                            pos = self.level.get_place(spawn)
+
+                                            # reset flag
+                                            self.flags[team]['x'], self.flags[team]['y'] = pos
+                                            self.flags[team]['owner'] = ''
+                                            self.node.shout('ctf:dropflag', bson.dumps({
+                                                'x': self.flags[team]['x'],
+                                                'y': self.flags[team]['y'],
+                                                'team': team
+                                            }))
+
+                                            # reset players to spawn
+                                            for uuid in uuids:
+                                                self.node.whisper(UUID(uuid), bson.dumps({
+                                                    'type': 'die'
+                                                }))
+
+                                        self.node.shout('ctf:scores', bson.dumps(self.scores))
+
+
                             if event.group == 'ctf:gotflags':
                                 flag_info = bson.loads(event.msg[0])
                                 self.set_flags(flag_info)

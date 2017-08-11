@@ -76,6 +76,10 @@ class GameClient():
             'red': red,
             'blue': blue
         }
+        self.scores = {
+            "red": 0,
+            "blue": 0
+        }
         self.map.set_centre_player(self.players.me)
         self.menu = MainMenu(self.screen, self.players)
 
@@ -128,6 +132,7 @@ class GameClient():
         last_direction = None
         self.toMove = False # Flag for when player moves - reduces network stress
         self.cast = False # Flag for when player casts spell.
+        self.status_time = 0
         me = self.players.me
 
         if me.mute == "False":
@@ -369,12 +374,22 @@ class GameClient():
                                                 "name": self.players.me.name
                                             }
                                         ))
+                                    elif event.group == "ctf:status":
+                                        msg = bson.loads(event.msg[0])
+                                        status = msg['status']
+                                        self.status_message = status
+                                        self.status_time = time.time()
+                                    elif event.group == "ctf:scores":
+                                        scores = bson.loads(event.msg[0])
+                                        self.scores = scores
                                 elif event.type == 'WHISPER':
                                     msg = bson.loads(event.msg[0])
                                     if self.players.authority_uuid == str(event.peer_uuid):
                                         if msg['type'] == 'teleport':
                                             me.set_position((msg['x'], msg['y']))
                                             self.toMove = True
+                                        elif msg['type'] == 'die':
+                                            me.die()
 
                         except Exception as e:
                             import traceback
@@ -382,13 +397,13 @@ class GameClient():
                             pass
 
                     # if there are other peers we can start sending to groups.
-                    if self.players.others:
-                        if self.toMove == True or self.cast == True:
-                            self.network.node.shout("world:position", bson.dumps(me.get_position()._asdict()))
-                        if self.cast == True:
-                            self.network.node.shout("world:combat", bson.dumps(me.cast_spells[-1].get_properties()._asdict()))
-                    self.toMove = False
-                    self.cast = False
+                    if self.toMove == True:
+                        self.network.node.shout("world:position", bson.dumps(me.get_position()._asdict()))
+                        self.toMove = False
+                    if self.cast == True:
+                        self.network.node.shout("world:combat", bson.dumps(me.cast_spells[-1].get_properties()._asdict()))
+                        self.cast = False
+
                     
                     for playerUUID, player in self.players.others.items():
                         try:
@@ -404,7 +419,33 @@ class GameClient():
                         except PlayerException as e:
                             # PlayerException due to no initial position being set for that player
                             pass
+                    
+                    score_shift = 220
+                    for team, score in self.scores.items():
+                        colour = (0, 0, 200) if team == 'blue' else (200, 0, 0)
+                        display_rect = Rect((score_shift, 0), (200, 75))
+
+                        typeface = self.menu.fonts['large']
+                        score_text = typeface.render(str(score), False, (255, 255, 255))
+
+                        text_bounds = score_text.get_rect()
+                        text_bounds.center = display_rect.center
+
+                        pygame.draw.rect(self.screen, colour, display_rect)
+                        self.screen.blit(score_text, text_bounds.topleft)
+
+                        score_shift += 200
+
+                    if time.time() - self.status_time < 5:
+                        typeface = self.menu.fonts['large']
+                        status_text = typeface.render(self.status_message, False, (255, 255, 255))
+                        text_bounds = status_text.get_rect()
+                        text_bounds.center = self.screen.get_rect().center
+                        pygame.draw.rect(self.screen, (0, 0, 0), text_bounds)
+                        self.screen.blit(status_text, text_bounds.topleft)
+
                     self.players.minimap_render(self.screen)
+
                 pygame.display.update()
         finally:
             self.network.stop()

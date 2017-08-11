@@ -259,6 +259,8 @@ class Authority():
                                 if previously_owned_flag:
                                     flag = self.flags[previously_owned_flag]
                                     flag['owner'] = ''
+                                    flag['x'] = player.x
+                                    flag['y'] = player.y
                                     self.node.shout('ctf:dropflag', bson.dumps({
                                         'x': player.x,
                                         'y': player.y,
@@ -290,7 +292,8 @@ class Authority():
                         if team == 'red' and team_place == Place.RED_SPAWN or team == 'blue' and team_place == Place.BLUE_SPAWN:
                             if player.x == pos[0] and player.y == pos[1]:
                                 continue
-
+                            self.flags[team]['x'] = pos[0]
+                            self.flags[team]['y'] = pos[1]
                             self.node.shout('ctf:dropflag', bson.dumps({
                                 'x': pos[0],
                                 'y': pos[1],

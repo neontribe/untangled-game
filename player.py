@@ -520,8 +520,8 @@ class PlayerManager():
     def minimap_render(self, screen):
         rect = pygame.Surface((self.minimap.get_rect().size[0] + 20, self.minimap.get_rect().size[1] + 20), pygame.SRCALPHA, 32)
         rect.fill((0,0,0, 255))
-        pos = 1024 - ((self.minimap.get_rect().size[0]) + 10)
-        mappos = 1024 - (self.minimap.get_rect().size[0] + 20)
+        pos = client.width - ((self.minimap.get_rect().size[0]) + 10)
+        mappos = client.width - (self.minimap.get_rect().size[0] + 20)
         screen.blit(rect, (mappos,0))
         screen.blit(self.minimap,(pos, 10))
         tempothers = self.others

@@ -312,6 +312,8 @@ class GameClient():
                         me.can_swim = True
                     if time.time() - me.sand_timer > 0.1:
                         me.can_sand = True
+                    if time.time() - me.move_timer > 0.075:
+                        me.can_move = True
 
                     self.map.render()
                     for flag in self.flags.values():
@@ -408,11 +410,11 @@ class GameClient():
                         self.network.node.shout("world:combat", bson.dumps(me.cast_spells[-1].get_properties()._asdict()))
                         self.cast = False
 
-                    
+
                     for playerUUID, player in self.players.others.items():
                         try:
                             player.render()
-                            
+
                             for spell in player.cast_spells:
                                 spell.render()
                                 hit_me = spell.hit_target_player(me)
@@ -423,7 +425,7 @@ class GameClient():
                         except PlayerException as e:
                             # PlayerException due to no initial position being set for that player
                             pass
-                    
+
                     score_shift = 220
                     for team, score in self.scores.items():
                         colour = (0, 0, 200) if team == 'blue' else (200, 0, 0)

@@ -25,6 +25,8 @@ class Movement(Enum):
 Position = namedtuple('Position', ['x', 'y'])
 SpellProperties = namedtuple('SpellProperties', ['x', 'y', 'x_velocity', 'y_velocity', 'current_spell'])
 
+RENDERSCALE = 4
+
 # Action = (id, mana_cost, damage)
 class Action(Enum):
     ARROW = (0, 0, 30)
@@ -95,8 +97,10 @@ class Player():
 
         self.swim_timer = 0
         self.sand_timer = 0
+        self.move_timer = 0
         self.can_swim = True
         self.can_sand = True
+        self.can_move = True
 
         self.font = pygame.font.Font(client.font, 30)
 
@@ -179,7 +183,7 @@ class Player():
         self.screen.blit(mana, (10,0))
         self.screen.blit(health, (10,25))
         self.screen.blit(spell, (10,50))
-        
+
     def render(self, isMe = False):
         font = self.font
 
@@ -227,14 +231,14 @@ class Player():
         if isMe:
             if self.map.level.get_tile(self.x,self.y).has_attribute(TileAttribute.SPIKES):
                 self.deplete_health(5)
-            
+
             spawnAttribute = None
             if self.team:
                 if self.team == "blue":
                     spawnAttribute = TileAttribute.BSPAWN
                 elif self.team == "red":
                     spawnAttribute = TileAttribute.RSPAWN
-                    
+
             if spawnAttribute and self.map.level.get_tile(self.x,self.y).has_attribute(spawnAttribute):
                 self.addMana(1)
                 self.increase_health(1)
@@ -276,18 +280,24 @@ class Player():
         if self.map.level.get_tile(self.x,self.y).has_attribute(TileAttribute.SWIM) and self.can_swim:
             self.swim_timer = time.time()
             self.sand_timer = time.time()
+            self.move_timer = time.time()
             self.can_swim = False
         elif self.map.level.get_tile(self.x,self.y).has_attribute(TileAttribute.SWIM) and not self.can_swim:
             return
         elif self.map.level.get_tile(self.x,self.y).has_attribute(TileAttribute.SLOW) and self.can_sand:
             self.swim_timer = time.time()
             self.sand_timer = time.time()
+            self.move_timer = time.time()
             self.can_sand = False
         elif self.map.level.get_tile(self.x,self.y).has_attribute(TileAttribute.SLOW) and not self.can_sand:
             return
-        else:
+        elif self.can_move:
             self.swim_timer = time.time()
             self.sand_timer = time.time()
+            self.move_timer = time.time()
+            self.can_move = False
+        else:
+            return
 
         id = self.map.level.get_tile(self.x,self.y).tileset_id[0]
         c = self.map.tileset.get_average_colour(id)
@@ -365,10 +375,10 @@ class Player():
     def remove_particle(self,particle):
         self.particle_list.remove(particle)
         return
-    
+
     def increase_health(self, amount):
         self.health = min(100, self.health + amount)
-    
+
     def deplete_health(self, amount):
         self.health -= amount
         if self.health <= 0:
@@ -377,6 +387,7 @@ class Player():
     def die(self): # Don't get confused with `def` and `death`!!! XD
         self.health = 100
         self.mana = 100
+        self.can_step_ability = True
         self.network.node.whisper(UUID(self.network.authority_uuid), bson.dumps({'type': 'death_report'}))
 
     def addMana(self, amount):
@@ -505,9 +516,10 @@ class PlayerManager():
         self.network = network
         self.me.load_from_config()
         self.others = {}
-        self.minimap = pygame.transform.scale(pygame.image.load('assets/images/minimap.png'), (196, 392))
+        minimap_image = pygame.image.load('assets/images/minimap.png')
+        self.minimap = pygame.transform.scale(minimap_image, (int(minimap_image.get_size()[0] / 8 * RENDERSCALE), int(minimap_image.get_size()[1] / 8 * RENDERSCALE)))
         self.authority_uuid = ''
-        
+
 
     def minimap_render(self, screen):
         pos = 1024 - ((self.minimap.get_rect().size[0]) + 10)

@@ -320,7 +320,7 @@ class Player():
 
     def attack(self, direction, position=None):
         spell = Action.get_action(self.current_spell)
-        image = client.projectile_paths[self.current_spell]
+        image = client.projectile_images[self.current_spell]
         if self.mana >= spell.mana_cost:
             if direction == Movement.UP:
                 spell = Spell(self, (0, -self.projSpeed), image, position)
@@ -387,9 +387,8 @@ class Player():
         self.mana -= amount
 
 class Spell():
-    def __init__(self, player, velocity, image_path, position=None, size=(0.1, 0.1), colour=None, life=50):
+    def __init__(self, player, velocity, image, position=None, size=(0.1, 0.1), colour=None, life=50):
         self.player = player
-        self.image_path = image_path
         self.size = size
         self.life = life
         self.maxLife = life
@@ -407,7 +406,7 @@ class Spell():
         self.mana_cost = spell.mana_cost
         self.damage = spell.damage
         self.player.depleatMana(self.mana_cost)
-        self.image = pygame.image.load(self.image_path)
+        self.image = image
         if colour != None:
            self.colour = colour
         else:

@@ -45,6 +45,10 @@ projectile_paths = [
                     'assets/images/spells/lightning_bolt.png',
                     'assets/images/spells/poisonball.png'
                     ]
+projectile_images = []
+
+for path in projectile_paths:
+    projectile_images.append(pygame.image.load(path))
 
 buttons = {"A":1, "B":2, "X":0, "Y":3, "L":4, "R":5, "Start":9, "Select":8} #Use these for the PiHut SNES controller
 #buttons = {"A":0, "B":1, "X":2, "Y":3, "L":4, "R":5, "Start":7, "Select":6} #Use these for the iBuffalo SNES controller
@@ -348,7 +352,7 @@ class GameClient():
                                         new_spell_properties = bson.loads(event.msg[0])
                                         network_spell_caster = self.players.get(event.peer_uuid)
                                         network_spell_caster.current_spell = new_spell_properties.get('current_spell')
-                                        network_spell_caster.cast_spells.append(Spell(network_spell_caster, (0, 0), projectile_paths[network_spell_caster.current_spell]))
+                                        network_spell_caster.cast_spells.append(Spell(network_spell_caster, (0, 0), projectile_images[network_spell_caster.current_spell]))
                                         network_spell_caster.cast_spells[-1].set_properties(SpellProperties(**new_spell_properties))
                                     elif event.group == "ctf:teams":
                                         team_defs = bson.loads(event.msg[0])

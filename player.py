@@ -95,8 +95,10 @@ class Player():
 
         self.swim_timer = 0
         self.sand_timer = 0
+        self.move_timer = 0
         self.can_swim = True
         self.can_sand = True
+        self.can_move = True
 
     def __raiseNoPosition(self):
         raise PlayerException({"message": "Everything is lava: Player does not have a position set", "player": self})
@@ -274,18 +276,24 @@ class Player():
         if self.map.level.get_tile(self.x,self.y).has_attribute(TileAttribute.SWIM) and self.can_swim:
             self.swim_timer = time.time()
             self.sand_timer = time.time()
+            self.move_timer = time.time()
             self.can_swim = False
         elif self.map.level.get_tile(self.x,self.y).has_attribute(TileAttribute.SWIM) and not self.can_swim:
             return
         elif self.map.level.get_tile(self.x,self.y).has_attribute(TileAttribute.SLOW) and self.can_sand:
             self.swim_timer = time.time()
             self.sand_timer = time.time()
+            self.move_timer = time.time()
             self.can_sand = False
         elif self.map.level.get_tile(self.x,self.y).has_attribute(TileAttribute.SLOW) and not self.can_sand:
             return
-        else:
+        elif self.can_move:
             self.swim_timer = time.time()
             self.sand_timer = time.time()
+            self.move_timer = time.time()
+            self.can_move = False
+        else:
+            return
 
         id = self.map.level.get_tile(self.x,self.y).tileset_id[0]
         c = self.map.tileset.get_average_colour(id)
@@ -375,6 +383,7 @@ class Player():
     def die(self): # Don't get confused with `def` and `death`!!! XD
         self.health = 100
         self.mana = 100
+        self.can_step_ability = True
         self.network.node.whisper(UUID(self.network.authority_uuid), bson.dumps({'type': 'death_report'}))
 
     def addMana(self, amount):
@@ -511,8 +520,8 @@ class PlayerManager():
     def minimap_render(self, screen):
         rect = pygame.Surface((self.minimap.get_rect().size[0] + 20, self.minimap.get_rect().size[1] + 20), pygame.SRCALPHA, 32)
         rect.fill((0,0,0, 255))
-        pos = 1024 - ((self.minimap.get_rect().size[0]) + 10)
-        mappos = 1024 - (self.minimap.get_rect().size[0] + 20)
+        pos = client.width - ((self.minimap.get_rect().size[0]) + 10)
+        mappos = client.width - (self.minimap.get_rect().size[0] + 20)
         screen.blit(rect, (mappos,0))
         screen.blit(self.minimap,(pos, 10))
         tempothers = self.others

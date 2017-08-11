@@ -112,7 +112,7 @@ class GameClient():
             self.screen,
             self.levels.get("main"),
             Tileset(level_tileset_path, (16, 16), (32, 32)),
-            LevelMusic('assets/music/mario.mp3')
+            LevelMusic('assets/music/whizzersgame.mp3')
         )
         self.map.music.load_music()
 

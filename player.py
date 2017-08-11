@@ -102,6 +102,8 @@ class Player():
         self.can_sand = True
         self.can_move = True
 
+        self.font = pygame.font.Font(client.font, 30)
+
     def __raiseNoPosition(self):
         raise PlayerException({"message": "Everything is lava: Player does not have a position set", "player": self})
 
@@ -183,7 +185,7 @@ class Player():
         self.screen.blit(spell, (10,50))
 
     def render(self, isMe = False):
-        font = pygame.font.Font(client.font, 30)
+        font = self.font
 
         name_tag_colour = (255, 255, 255)
         if self.team:
@@ -330,7 +332,7 @@ class Player():
 
     def attack(self, direction, position=None):
         spell = Action.get_action(self.current_spell)
-        image = client.projectile_paths[self.current_spell]
+        image = client.projectile_images[self.current_spell]
         if self.mana >= spell.mana_cost:
             if direction == Movement.UP:
                 spell = Spell(self, (0, -self.projSpeed), image, position)
@@ -398,9 +400,8 @@ class Player():
         self.mana -= amount
 
 class Spell():
-    def __init__(self, player, velocity, image_path, position=None, size=(0.1, 0.1), colour=None, life=50):
+    def __init__(self, player, velocity, image, position=None, size=(0.1, 0.1), colour=None, life=50):
         self.player = player
-        self.image_path = image_path
         self.size = size
         self.life = life
         self.maxLife = life
@@ -418,7 +419,7 @@ class Spell():
         self.mana_cost = spell.mana_cost
         self.damage = spell.damage
         self.player.depleatMana(self.mana_cost)
-        self.image = pygame.image.load(self.image_path)
+        self.image = image
         if colour != None:
            self.colour = colour
         else:
@@ -521,23 +522,19 @@ class PlayerManager():
 
 
     def minimap_render(self, screen):
-        rect = pygame.Surface((self.minimap.get_rect().size[0] + 20, self.minimap.get_rect().size[1] + 20), pygame.SRCALPHA, 32)
-        rect.fill((0,0,0, 255))
-        pos = client.width - ((self.minimap.get_rect().size[0]) + 10)
-        mappos = client.width - (self.minimap.get_rect().size[0] + 20)
-        screen.blit(rect, (mappos,0))
+        pos = 1024 - ((self.minimap.get_rect().size[0]) + 10)
+        mappos = 1024 - (self.minimap.get_rect().size[0] + 20)
+        pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(mappos, 0, self.minimap.get_rect().size[0] + 20, self.minimap.get_rect().size[1] + 20))
         screen.blit(self.minimap,(pos, 10))
         tempothers = self.others
         tempothers["temp_uuid"] = self.me
         for playerUUID, player in tempothers.items():
-            rect = pygame.Surface((4,4), pygame.SRCALPHA, 32)
+            color = (255, 255, 255)
             if player.team == "red":
-                rect.fill((255,0,0, 255))
+                color = (255,0,0)
             elif player.team == "blue":
-                rect.fill((0,0,255, 255))
-            else:
-                rect.fill((255,255,255, 255))
-            screen.blit(rect, (pos + (player.x * RENDERSCALE)+1, 10 + (player.y * RENDERSCALE)+1))
+                color = (0,0,255)
+            pygame.draw.rect(screen, color, pygame.Rect(pos + (player.x * 4)+1, 10 + (player.y * 4)+1, 4, 4))
 
     def set_teams(self, teams):
         blue_team = teams.get('blue')

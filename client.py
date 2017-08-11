@@ -89,7 +89,7 @@ class GameClient():
 
     def setup_pygame(self):
         # Initialise screen/display
-        self.screen = pygame.display.set_mode((width, height), pygame.HWSURFACE)
+        self.screen = pygame.display.set_mode((width, height), pygame.HWSURFACE | pygame.DOUBLEBUF)
 
         # Initialise fonts.
         pygame.font.init()

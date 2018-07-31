@@ -1,42 +1,51 @@
-import os
-import sys
-import pygame as pg
-from system import SystemManager, RenderSystem
-from player import Player
+import pygame
+import sys, uuid
 
-class Main:
+from next.ecs.systems.rendersystem import RenderSystem
+from next.ecs.components.component import RenderComponent
+
+game = None
+
+
+class Game:
+    fps = 60
+    running = True
+    clock = pygame.time.Clock()
+    entities = {}
+    systems = []
+
     def __init__(self):
-        self.player = Player()
-        self.clock = pg.time.Clock()
-        self.fps = 60
-        self.running = True
-        self.system_manager = SystemManager()
-        self.system_manager.addSystem(RenderSystem())
-        self.system_manager.addEntity(self.player)
-      
-    def event_loop(self):
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                self.running = False
-            elif event.type in (pg.KEYDOWN, pg.KEYUP):
-                self.keys = pg.key.get_pressed()
+        self.systems.append(RenderSystem())
+        self.add_entity([RenderComponent()])
 
-    def update(self, dt):
-        self.system_manager.executeSystems(dt)
+    def add_entity(self, components: list):
+        uuid_def = uuid.uuid4()
+        self.entities[uuid_def] = {type(value): value for (value) in components}
+        return uuid_def
+
+    def event_loop(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.running = False
+            elif event.type in (pygame.KEYDOWN, pygame.KEYUP):
+                self.keys = pygame.key.get_pressed()
 
     def main_loop(self):
         dt = 0
         self.clock.tick(self.fps)
         while self.running:
             self.event_loop()
-            self.update(dt)
+            for s in self.systems:
+                s.update(self.entities, dt)
             dt = self.clock.tick(self.fps)/1000.0
 
+
 def main():
-    os.environ['SDL_VIDEO_CENTERED'] = '1'
-    Main().main_loop()
-    pg.quit()
+    game = Game()
+    game.main_loop()
+    pygame.quit()
     sys.exit()
+
 
 if __name__ == "__main__":
     main()

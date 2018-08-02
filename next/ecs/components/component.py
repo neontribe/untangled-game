@@ -1,15 +1,18 @@
 import pygame
+from dataclasses import dataclass
 
+
+@dataclass
 class KeyboardComponent:
-    def __init__(self):
-        self.keys = []
+        keys: tuple = ()
 
 
+@dataclass
 class RenderComponent:
-    def __init__(self, surface, coordinates=pygame.Vector2()):
-        self.coordinates = coordinates
-        self.surface = surface
+        surface: pygame.Surface
+        coordinates: pygame.Vector2
 
+
+@dataclass
 class PlayerControlComponent:
-    def __init__(self, player_controlled=True):
-        self.player_controlled = player_controlled
+    player_controlled: bool = True

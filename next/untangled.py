@@ -1,6 +1,8 @@
 import sys
 import uuid
 
+import pygame as pygame
+
 from next.ecs.systems.eventsystem import EventSystem
 from next.ecs.systems.rendersystem import RenderSystem
 from next.ecs.systems.userinputsystem import UserInputSystem
@@ -25,7 +27,7 @@ class Game:
         test_surface.fill((255,255,255))
 
         self.add_entity([
-            RenderComponent(test_surface),
+            RenderComponent(test_surface, pygame.Vector2()),
             KeyboardComponent(),
             PlayerControlComponent(),
         ])

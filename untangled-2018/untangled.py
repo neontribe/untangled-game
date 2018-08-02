@@ -3,6 +3,8 @@ import uuid
 import pygame
 
 from typing import List
+
+from ecs.menu import MenuState, MenuStates
 from ecs.network import Network
 from ecs.systems.eventsystem import EventSystem
 from ecs.systems.rendersystem import RenderSystem
@@ -19,6 +21,7 @@ class Framework:
 
     def __init__(self):
         pygame.init()
+        pygame.font.init()
         pygame.display.set_caption(self.caption)
         self.screen = pygame.display.set_mode(self.dimensions, pygame.HWSURFACE | pygame.DOUBLEBUF)
         self.net = Network()
@@ -29,12 +32,24 @@ class Framework:
             self.net.join_group(self.net.get_groups()[0])
 
         self.state = GameState(self)
+        self.menu = MenuState(self)
 
     def main_loop(self):
         self.clock.tick()
         while self.running:
+            self.screen.fill((0, 0, 0))
             dt = self.clock.tick(self.fps) / 1000.0
-            self.state.update(dt)
+
+            if self.menu.current_state == MenuStates.QUIT:
+                self.running = False
+
+            if self.menu.current_state != MenuStates.PLAY:
+                self.menu.update(dt)
+                self.menu.render()
+            else:
+                self.state.update(dt)
+
+            pygame.display.update()
 
         pygame.quit()
         self.net.close()

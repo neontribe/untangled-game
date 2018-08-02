@@ -4,15 +4,20 @@ from dataclasses import dataclass
 
 @dataclass
 class KeyboardComponent:
-        keys: tuple = ()
+    keys: tuple = ()
 
 
 @dataclass
 class RenderComponent:
-        surface: pygame.Surface
-        coordinates: pygame.Vector2
+    surface: pygame.Surface
+    coordinates: pygame.Vector2
 
 
 @dataclass
 class PlayerControlComponent:
     player_controlled: bool = True
+
+
+@dataclass
+class NetworkedComponent:
+    is_authority: bool = False

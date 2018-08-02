@@ -1,7 +1,7 @@
 import pygame.locals
 
-from next.ecs.systems.system import System
-from next.ecs.components.component import *
+from ecs.systems.system import System
+from ecs.components.component import *
 
 
 class UserInputSystem(System):

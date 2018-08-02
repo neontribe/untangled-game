@@ -105,3 +105,6 @@ player_save
 
 # MY IDE
 .idea
+
+# VSCODE
+.vscode

@@ -1,12 +1,12 @@
-from next.ecs.systems.system import System
-from next.ecs.components.component import *
+from ecs.systems.system import System
+from ecs.components.component import *
 
 
 class EventSystem(System):
     def update(self, game, dt: float = 0.0):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                game.running = False
+                game.framework.running = False
 
         for key, entity in game.entities.items():
             if KeyboardComponent in entity:

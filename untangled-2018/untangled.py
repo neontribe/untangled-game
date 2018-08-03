@@ -6,7 +6,6 @@ from typing import List
 
 from ecs.menu import MenuState, MenuStates
 from ecs.network import Network
-from ecs.systems.eventsystem import EventSystem
 from ecs.systems.rendersystem import RenderSystem
 from ecs.systems.userinputsystem import UserInputSystem
 from ecs.components.component import *
@@ -34,8 +33,12 @@ class Framework:
         while self.running:
             self.screen.fill((0, 0, 0))
             dt = self.clock.tick(self.fps) / 1000.0
-
-            self.state.update(dt)
+            events = [ event for event in pygame.event.get() ]
+            for event in events:
+                if event.type == pygame.QUIT:
+                    self.running = False
+                    break
+            self.state.update(dt, events)
 
             pygame.display.update()
 
@@ -57,35 +60,33 @@ class GameState:
         self.net = framework.net
 
         self.systems.extend([
-            EventSystem(),
             UserInputSystem(),
             RenderSystem(self.screen)
         ])
 
         if self.net.is_hosting():
-            self.add_entity([
-                RenderComponent(x=0, y=0, width=10, height=10, color='white'),
-                KeyboardComponent(),
-                PlayerControlComponent(),
-            ])
+            self.on_player_join(self.net.get_id())
 
     def add_entity(self, components: List[dataclass]) -> uuid.UUID:
         key = uuid.uuid4()
         self.entities[key] = {type(value): value for (value) in components}
         return key
 
-    def on_player_join(self, uuid):
+    def on_player_join(self, player_id):
+        self.add_entity([
+            RenderComponent(x=0, y=0, width=10, height=10, color='white'),
+            PlayerControlComponent(player_id=player_id),
+        ])
+
+    def on_player_quit(self, player_id):
         pass
 
-    def on_player_quit(self, uuid):
-        pass
-
-    def update(self, dt: float) -> None:
+    def update(self, dt: float, events) -> None:
         self.net.pull_game(self)
 
-        # local update
+        # update our systems
         for system in self.systems:
-            system.update(self, dt)
+            system.update(self, dt, events)
 
         self.net.push_game(self)
 

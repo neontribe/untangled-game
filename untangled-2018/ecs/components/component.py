@@ -32,10 +32,6 @@ def component(networked: bool = False):
         return Component
     return componentWrapper
 
-@component()
-class KeyboardComponent:
-    keys: tuple = ()
-
 
 @component(networked=True)
 class RenderComponent:
@@ -46,6 +42,6 @@ class RenderComponent:
     color: str
 
 
-@component()
+@component(networked=True)
 class PlayerControlComponent:
-    player_controlled: bool = True
+    player_id: str

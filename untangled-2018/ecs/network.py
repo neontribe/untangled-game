@@ -9,17 +9,10 @@ import ecs.components.component as components
 
 
 class Network:
+    hosting: bool = False
+
     def __init__(self):
-        # peer-to-peer node
-        self.node = Pyre()
-        self.node.start()
-        self.node.join('untangled2018')
-
-        # used to get our messages
-        self.poller = zmq.Poller()
-        self.poller.register(self.node.socket(), zmq.POLLIN)
-
-        self.hosting = False
+        self.open()
 
     def get_all_groups(self) -> List[str]:
         """Get the names of groups that can be joined."""
@@ -73,12 +66,13 @@ class Network:
 
         if self.is_in_group():
             raise ValueError('Cannot host whilst in a group')
-        
+
         self.node.set_header('hosting', name)
         self.hosting = True
         self.node.join(name)
 
     def open(self) -> None:
+        """Create a new pyre instance and join untangled."""
         self.node = Pyre()
         self.node.start()
         self.node.join('untangled2018')
@@ -86,24 +80,33 @@ class Network:
         self.poller = zmq.Poller()
         self.poller.register(self.node.socket(), zmq.POLLIN)
 
+    def get_id(self) -> str:
+        """Get our id, as a unique node on the network."""
+        return self.node.uuid()
+
+    def is_me(self, player_id) -> bool:
+        """See if a given id is ours."""
+        return self.get_id() == player_id
+
     def close(self) -> None:
         """Disconnect from everything"""
         self.node.stop()
 
     def get_messages(self):
         """See what has been sent to us: who has joined, what have people said, etc"""
-        # see what has happened
+        # what has changed
         changes = dict(self.poller.poll(0))
 
         # are these the changes we subscribed for
         if self.node.socket() in changes and changes[self.node.socket()] == zmq.POLLIN:
             msgs = self.node.recent_events()
             return msgs
-        
+
         # nothing to return
         return []
-    
+
     def pull_game(self, game):
+        """Update our game state based on what other people tell us."""
         for msg in self.get_messages():
             # is it relevant to us?
             if msg.group != self.get_our_group():
@@ -116,24 +119,24 @@ class Network:
                         game.entities[key] = {}
                     entity = game.entities[key]
                     for compname, component in changed_comps.items():
-                        #try:
+                        try:
                             clas = components.__dict__[compname]
                             if clas in entity:
                                 entity[clas] = entity[clas].replace(**component)
                             else:
                                 entity[clas] = clas(**component)
                             entity[clas].observed_changes()
-                        #except Exception:
-                            #print('Error updating component, is everyone in the group on the same version?', file=sys.stdout)
+                        except Exception:
+                            print('Error updating component, is everyone in the group on the same version?', file=sys.stdout)
             elif self.is_hosting():
                 if msg.type == 'JOIN':
                     game.on_player_join(msg.peer_uuid)
-                    print('joined')
                     self.push_game(game, initial=True)
                 elif msg.type == 'LEAVE':
                     game.on_player_quit(msg.peer_uuid)
 
     def push_game(self, game, initial=False):
+        """Tell others how we've changed the game state."""
         entities = {}
         for key, entity in game.entities.items():
             changed_comps = {}

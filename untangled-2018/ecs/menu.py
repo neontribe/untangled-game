@@ -30,7 +30,7 @@ class MenuState:
         }
 
         self.structure = {
-            MenuStates.MAIN_MENU: HomepageMenuItem(self, {
+            MenuStates.MAIN_MENU: MenuItem(self, {
                 "Play": MenuStates.CHAR_SETUP,
                 "Help": MenuStates.HELP,
                 "Quit": MenuStates.QUIT
@@ -55,9 +55,9 @@ class MenuState:
     def get_current(self):
         return self.structure[self.current_state]
 
-    def update(self, dt: float):
+    def update(self, dt: float, events: list):
         if self.get_current():
-            self.get_current().update()
+            self.get_current().update(dt, events)
             if self.current_state == MenuStates.PLAY:
                 self.framework.enter_game()
                 return
@@ -79,8 +79,8 @@ class MenuItem:
         self.info_font = self.menu_state.fonts['small']
         self.header_font = self.menu_state.fonts['heading']
 
-    def update(self) -> None:
-        for event in pygame.event.get():
+    def update(self, dt, events) -> None:
+        for event in events:
             if event.type == pygame.QUIT:
                 self.menu_state.framework.running = False
             elif event.type == pygame.KEYDOWN:
@@ -120,17 +120,6 @@ class MenuItem:
             self.render_text(font, text, (index + offset[0], index * 55 + offset[1]))
 
 
-class HomepageMenuItem(MenuItem):
-    def __init__(self, menu_state, options):
-        super().__init__(menu_state, options)
-
-    def update(self) -> None:
-        super().update()
-
-    def render(self) -> None:
-        super().render()
-
-
 class CharSetupMenuItem(MenuItem):
     def __init__(self, menu_state, options={}):
         super().__init__(menu_state, options)
@@ -141,8 +130,8 @@ class CharSetupMenuItem(MenuItem):
         self.gender_options = ("Boy", "Girl")
         self.gender_choice = 0
 
-    def update(self) -> None:
-        for event in pygame.event.get():
+    def update(self, dt, events) -> None:
+        for event in events:
             if event.type == pygame.QUIT:
                 self.menu_state.framework.running = False
             elif event.type == pygame.KEYDOWN:
@@ -203,7 +192,7 @@ class LobbyMenuItem(MenuItem):
         self.last_checked = 0
         self.hosts = []
 
-    def update(self) -> None:
+    def update(self, dt, events) -> None:
         if time.time() - self.last_checked > 1:
             # import time
             # time.sleep(1)
@@ -212,7 +201,7 @@ class LobbyMenuItem(MenuItem):
             self.menu_state.net.open()
             self.last_checked = time.time()
 
-        for event in pygame.event.get():
+        for event in events:
             if event.type == pygame.QUIT:
                 self.menu_state.framework.running = False
             elif event.type == pygame.KEYDOWN:
@@ -259,8 +248,8 @@ class HelpMenuItem(MenuItem):
     def __init__(self, menu_state, options={}):
         super().__init__(menu_state, options)
 
-    def update(self) -> None:
-        super().update()
+    def update(self, dt, events) -> None:
+        super().update(dt, events)
 
 
     def render(self) -> None:

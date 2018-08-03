@@ -13,14 +13,11 @@ class UserInputSystem(System):
                 playercontrol_component = entity[PlayerControlComponent]
 
                 if keyboard_component.keys[pygame.locals.K_DOWN]:
-                    render_component.coordinates += (0, 1)
+                    render_component.y += 1
                 elif keyboard_component.keys[pygame.locals.K_UP]:
-                    render_component.coordinates += (0, -1)
+                    render_component.y -= 1
 
                 if keyboard_component.keys[pygame.locals.K_LEFT]:
-                    render_component.coordinates += (-1, 0)
+                    render_component.x -= 1
                 elif keyboard_component.keys[pygame.locals.K_RIGHT]:
-                    render_component.coordinates += (1, 0)
-
-
-
+                    render_component.x += 1

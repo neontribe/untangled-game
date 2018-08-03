@@ -17,7 +17,7 @@ class Network:
 
         # used to get our messages
         self.poller = zmq.Poller()
-        self.poller.register(self.node.socket(), zmq.POLLIN);
+        self.poller.register(self.node.socket(), zmq.POLLIN)
 
         self.hosting = False
 
@@ -26,7 +26,7 @@ class Network:
         groups = []
         for peer in self.node.peers():
             group = self.node.peer_header_value(peer, 'hosting')
-            if group != None and len(group) > 1:
+            if group != None and len(group) > 0:
                 groups.append(group)
         return groups
 

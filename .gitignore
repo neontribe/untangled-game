@@ -108,3 +108,5 @@ player_save
 
 # VSCODE
 .vscode
+
+config.py

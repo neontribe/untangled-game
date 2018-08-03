@@ -27,16 +27,7 @@ class Framework:
 
         self.net = Network()
 
-        import time
-        time.sleep(1)
-
-        if len(self.net.get_all_groups()) == 0:
-            self.net.host_group('test')
-        else:
-            self.net.join_group(self.net.get_all_groups()[0])
-
-        self.state = GameState(self)
-        self.menu = MenuState(self)
+        self.state = MenuState(self)
 
     def main_loop(self):
         self.clock.tick()
@@ -44,20 +35,16 @@ class Framework:
             self.screen.fill((0, 0, 0))
             dt = self.clock.tick(self.fps) / 1000.0
 
-            if self.menu.current_state == MenuStates.QUIT:
-                self.running = False
-
-            if self.menu.current_state != MenuStates.PLAY:
-                self.menu.update(dt)
-                self.menu.render()
-            else:
-                self.state.update(dt)
+            self.state.update(dt)
 
             pygame.display.update()
 
         pygame.quit()
         self.net.close()
         sys.exit()
+
+    def enter_game(self):
+        self.state = GameState(self)
 
 
 class GameState:

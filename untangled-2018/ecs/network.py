@@ -78,6 +78,14 @@ class Network:
         self.hosting = True
         self.node.join(name)
 
+    def open(self) -> None:
+        self.node = Pyre()
+        self.node.start()
+        self.node.join('untangled2018')
+        # used to get our messages
+        self.poller = zmq.Poller()
+        self.poller.register(self.node.socket(), zmq.POLLIN)
+
     def close(self) -> None:
         """Disconnect from everything"""
         self.node.stop()

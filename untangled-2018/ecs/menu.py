@@ -36,6 +36,8 @@ class MenuState:
                 "Quit": MenuStates.QUIT
             }),
             MenuStates.CHAR_SETUP: CharSetupMenuItem(self, {
+                "Name": None,
+                "Gender": None,
                 "Find Game": MenuStates.GAME_LOBBY,
                 "Back": MenuStates.MAIN_MENU,
             }),
@@ -166,26 +168,26 @@ class CharSetupMenuItem(MenuItem):
                         self.gender_choice += 1
                     elif event.key == pygame.locals.K_LEFT:
                         self.gender_choice -= 1
-            self.gender_choice %= 2
+            self.gender_choice %= len(self.gender_options)
 
         self.ticker += 2
         self.ticker %= 100
 
     def render(self) -> None:
         font = self.font
-        offset = self.get_screen_centre() - (150, 0)
+        offset = self.get_screen_centre() + (-150, 100)
 
         name_string = '>Name: ' if self.selected_option == 0 else 'Name: '
-        self.render_text(self.font, name_string, self.get_screen_centre() - (150, 0))
-        if self.ticker > 50:
-            self.render_text(self.font, self.char_name + "_", self.get_screen_centre() - (10, 0))
+        self.render_text(self.font, name_string, self.get_screen_centre() - (150, 50))
+        if self.ticker > 50 and self.selected_option==0:
+            self.render_text(self.font, self.char_name + "_", self.get_screen_centre() - (10, 50))
         else:
-            self.render_text(self.font, self.char_name, self.get_screen_centre() - (10, 0))
+            self.render_text(self.font, self.char_name, self.get_screen_centre() - (10, 50))
 
         gender_string = '>' if self.selected_option == 1 else ''
-        self.render_text(self.font, 'Are you a:', self.get_screen_centre() - (150, -50))
-        self.render_text(self.font, gender_string, self.get_screen_centre() - (150, -90))
-        self.render_text(self.font, self.gender_options[self.gender_choice], self.get_screen_centre() - (130, -100))
+        self.render_text(self.font, 'Are you a:', self.get_screen_centre() - (150, 10))
+        self.render_text(self.font, gender_string, self.get_screen_centre() - (150, -40))
+        self.render_text(self.font, self.gender_options[self.gender_choice], self.get_screen_centre() - (130, -40))
 
         for index, value in enumerate(self.options.keys()):
             text = value
@@ -203,7 +205,11 @@ class LobbyMenuItem(MenuItem):
 
     def update(self) -> None:
         if time.time() - self.last_checked > 1:
-            self.hosts = self.menu_state.framework.net.get_all_groups()
+            # import time
+            # time.sleep(1)
+            self.hosts = self.menu_state.net.get_all_groups()
+            self.menu_state.net.close()
+            self.menu_state.net.open()
             self.last_checked = time.time()
 
         for event in pygame.event.get():
@@ -233,7 +239,7 @@ class LobbyMenuItem(MenuItem):
 
     def render(self) -> None:
         font = self.font
-        offset = self.get_screen_centre()
+        offset = self.get_screen_centre() - self.options_shift
 
         for index, host in enumerate(self.hosts):
             text = host

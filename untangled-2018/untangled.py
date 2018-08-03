@@ -67,7 +67,7 @@ class GameState:
     def __init__(self, framework: Framework):
         self.framework = framework
         self.screen = framework.screen
-        # self.net = framework.net
+        self.net = framework.net
 
         self.systems.extend([
             EventSystem(),

@@ -148,7 +148,7 @@ class CharSetupMenuItem(MenuItem):
                     self.selected_option %= len(self.options) + 2
                 elif event.key == pygame.locals.K_RETURN:
                     option_values = list(self.options.values())
-                    self.menu_state.current_state = option_values[self.selected_option] or MenuStates.MAIN_MENU
+                    self.menu_state.current_state = option_values[self.selected_option - 2] or MenuStates.MAIN_MENU
                 elif self.selected_option == 0: # name
                     if event.key == pygame.locals.K_BACKSPACE:
                         self.char_name = self.char_name[:-1]

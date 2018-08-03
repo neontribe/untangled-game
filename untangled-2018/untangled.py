@@ -24,12 +24,16 @@ class Framework:
         pygame.font.init()
         pygame.display.set_caption(self.caption)
         self.screen = pygame.display.set_mode(self.dimensions, pygame.HWSURFACE | pygame.DOUBLEBUF)
-        # self.net = Network()
-        #
-        # if len(self.net.get_groups()) == 0:
-        #     self.net.host_group('test')
-        # else:
-        #     self.net.join_group(self.net.get_groups()[0])
+
+        self.net = Network()
+
+        import time
+        time.sleep(1)
+
+        if len(self.net.get_all_groups()) == 0:
+            self.net.host_group('test')
+        else:
+            self.net.join_group(self.net.get_all_groups()[0])
 
         self.state = GameState(self)
         self.menu = MenuState(self)
@@ -71,26 +75,33 @@ class GameState:
             RenderSystem(self.screen)
         ])
 
-        test_surface = pygame.Surface((100, 100))
-        test_surface.fill((255, 255, 255))
-
-        self.add_entity([
-            RenderComponent(test_surface, pygame.Vector2()),
-            KeyboardComponent(),
-            PlayerControlComponent(),
-        ])
+        if self.net.is_hosting():
+            self.add_entity([
+                RenderComponent(x=0, y=0, width=10, height=10, color='white'),
+                KeyboardComponent(),
+                PlayerControlComponent(),
+            ])
 
     def add_entity(self, components: List[dataclass]) -> uuid.UUID:
-        uuid_def = uuid.uuid4()
-        self.entities[uuid_def] = {type(value): value for (value) in components}
-        return uuid_def
+        key = uuid.uuid4()
+        self.entities[key] = {type(value): value for (value) in components}
+        return key
+
+    def on_player_join(self, uuid):
+        pass
+
+    def on_player_quit(self, uuid):
+        pass
 
     def update(self, dt: float) -> None:
+        self.net.pull_game(self)
+
+        # local update
         for system in self.systems:
             system.update(self, dt)
 
+        self.net.push_game(self)
 
 if __name__ == "__main__":
     app = Framework()
     app.main_loop()
-

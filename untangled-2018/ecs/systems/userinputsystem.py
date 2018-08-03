@@ -5,19 +5,18 @@ from ecs.components.component import *
 
 
 class UserInputSystem(System):
-    def update(self, game, dt: float = 0.0):
+    def update(self, game, dt: float, events):
+        keysdown = pygame.key.get_pressed()
         for key, entity in game.entities.items():
-            if self.check_components(entity, (KeyboardComponent, PlayerControlComponent, RenderComponent)):
-                keyboard_component: KeyboardComponent = entity[KeyboardComponent]
-                render_component: RenderComponent = entity[RenderComponent]
-                playercontrol_component = entity[PlayerControlComponent]
-
-                if keyboard_component.keys[pygame.locals.K_DOWN]:
-                    render_component.y += 1
-                elif keyboard_component.keys[pygame.locals.K_UP]:
-                    render_component.y -= 1
-
-                if keyboard_component.keys[pygame.locals.K_LEFT]:
-                    render_component.x -= 1
-                elif keyboard_component.keys[pygame.locals.K_RIGHT]:
-                    render_component.x += 1
+            if self.check_components(entity, (PlayerControlComponent, RenderComponent)):
+                playercontrol = entity[PlayerControlComponent]
+                if game.net.is_me(playercontrol.player_id):
+                    render: RenderComponent = entity[RenderComponent]
+                    if keysdown[pygame.locals.K_DOWN]:
+                        render.y += 1
+                    if keysdown[pygame.locals.K_UP]:
+                        render.y -= 1
+                    if keysdown[pygame.locals.K_LEFT]:
+                        render.x -= 1
+                    if keysdown[pygame.locals.K_RIGHT]:
+                        render.x += 1

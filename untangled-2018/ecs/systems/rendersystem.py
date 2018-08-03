@@ -7,7 +7,9 @@ class RenderSystem(System):
     def __init__(self, screen: pygame.Surface):
         self.screen = screen
 
-    def update(self, game, dt: float=0.0):
+    def update(self, game, dt: float, events: list):
+        self.screen.fill((0,0,0))
+
         for key, entity in game.entities.items():
             if RenderComponent in entity:
                 render_component: RenderComponent = entity[RenderComponent]

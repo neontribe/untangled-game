@@ -24,12 +24,12 @@ class Framework:
         pygame.font.init()
         pygame.display.set_caption(self.caption)
         self.screen = pygame.display.set_mode(self.dimensions, pygame.HWSURFACE | pygame.DOUBLEBUF)
-        self.net = Network()
-
-        if len(self.net.get_groups()) == 0:
-            self.net.host_group('test')
-        else:
-            self.net.join_group(self.net.get_groups()[0])
+        # self.net = Network()
+        #
+        # if len(self.net.get_groups()) == 0:
+        #     self.net.host_group('test')
+        # else:
+        #     self.net.join_group(self.net.get_groups()[0])
 
         self.state = GameState(self)
         self.menu = MenuState(self)
@@ -63,7 +63,7 @@ class GameState:
     def __init__(self, framework: Framework):
         self.framework = framework
         self.screen = framework.screen
-        self.net = framework.net
+        # self.net = framework.net
 
         self.systems.extend([
             EventSystem(),

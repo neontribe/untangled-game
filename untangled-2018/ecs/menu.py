@@ -5,6 +5,7 @@ from enum import Enum
 
 from ecs.config import HOSTNAME
 
+
 class MenuStates(Enum):
     PLAY = 0,
     MAIN_MENU = 1,
@@ -81,9 +82,7 @@ class MenuItem:
 
     def update(self, dt, events) -> None:
         for event in events:
-            if event.type == pygame.QUIT:
-                self.menu_state.framework.running = False
-            elif event.type == pygame.KEYDOWN:
+            if event.type == pygame.KEYDOWN:
                 if event.key == pygame.locals.K_UP:
                     self.selected_option -= 1
                     self.selected_option %= len(self.options)
@@ -102,16 +101,15 @@ class MenuItem:
 
     def render(self) -> None:
         self.render_options(self.font, (
-                self.get_screen_centre()[0] - self.options_shift[0],
-                self.get_screen_centre()[1] - self.options_shift[1]
-            )
-        )
+            self.get_screen_centre()[0] - self.options_shift[0],
+            self.get_screen_centre()[1] - self.options_shift[1]
+        ))
 
     def render_text(self, font, text, pos=(0, 0), colour=(255, 255, 255)):
         rendered_text_surface = font.render(text, False, colour)
         self.screen.blit(rendered_text_surface, pos)
 
-    def render_options(self, font, offset=(0,0)):
+    def render_options(self, font, offset=(0, 0)):
         for index, value in enumerate(self.options.keys()):
             text = value
             if index == self.selected_option:
@@ -131,20 +129,21 @@ class CharSetupMenuItem(MenuItem):
         self.gender_choice = 0
 
     def update(self, dt, events) -> None:
+        """Update values for the character setup menu page"""
+        option_values = list(self.options.values())
+        option_keys = list(self.options.keys())
         for event in events:
-            if event.type == pygame.QUIT:
-                self.menu_state.framework.running = False
-            elif event.type == pygame.KEYDOWN:
+            if event.type == pygame.KEYDOWN:
                 if event.key == pygame.locals.K_UP:
                     self.selected_option -= 1
-                    self.selected_option %= len(self.options) + 2
+                    self.selected_option %= len(self.options)
                 elif event.key == pygame.locals.K_DOWN:
                     self.selected_option += 1
-                    self.selected_option %= len(self.options) + 2
+                    self.selected_option %= len(self.options)
                 elif event.key == pygame.locals.K_RETURN:
-                    option_values = list(self.options.values())
-                    self.menu_state.current_state = option_values[self.selected_option - 2] or MenuStates.MAIN_MENU
-                elif self.selected_option == 0: # name
+                    if option_values[self.selected_option] is not None:
+                        self.menu_state.current_state = option_values[self.selected_option] or MenuStates.MAIN_MENU
+                elif option_keys[self.selected_option] == "Name":
                     if event.key == pygame.locals.K_BACKSPACE:
                         self.char_name = self.char_name[:-1]
                     elif event.key < 123 and event.key != 13 and len(self.char_name) < self.char_name_max:
@@ -152,7 +151,7 @@ class CharSetupMenuItem(MenuItem):
                             self.char_name += chr(event.key).upper()
                         else:
                             self.char_name += chr(event.key)
-                elif self.selected_option == 1: # gender
+                elif option_keys[self.selected_option] == "Gender":
                     if event.key == pygame.locals.K_RIGHT:
                         self.gender_choice += 1
                     elif event.key == pygame.locals.K_LEFT:
@@ -168,7 +167,7 @@ class CharSetupMenuItem(MenuItem):
 
         name_string = '>Name: ' if self.selected_option == 0 else 'Name: '
         self.render_text(self.font, name_string, self.get_screen_centre() - (150, 50))
-        if self.ticker > 50 and self.selected_option==0:
+        if self.ticker > 50 and self.selected_option == 0:
             self.render_text(self.font, self.char_name + "_", self.get_screen_centre() - (10, 50))
         else:
             self.render_text(self.font, self.char_name, self.get_screen_centre() - (10, 50))
@@ -179,8 +178,11 @@ class CharSetupMenuItem(MenuItem):
         self.render_text(self.font, self.gender_options[self.gender_choice], self.get_screen_centre() - (130, -40))
 
         for index, value in enumerate(self.options.keys()):
+            if self.options[value] is None:
+                continue
+
             text = value
-            if index + 2 == self.selected_option:
+            if index == self.selected_option:
                 text = ">{0}".format(text)
 
             self.render_text(font, text, (index + offset[0], index * 55 + offset[1]))
@@ -194,17 +196,13 @@ class LobbyMenuItem(MenuItem):
 
     def update(self, dt, events) -> None:
         if time.time() - self.last_checked > 1:
-            # import time
-            # time.sleep(1)
             self.hosts = self.menu_state.net.get_all_groups()
             self.menu_state.net.close()
             self.menu_state.net.open()
             self.last_checked = time.time()
 
         for event in events:
-            if event.type == pygame.QUIT:
-                self.menu_state.framework.running = False
-            elif event.type == pygame.KEYDOWN:
+            if event.type == pygame.KEYDOWN:
                 if event.key == pygame.locals.K_UP:
                     self.selected_option -= 1
                 elif event.key == pygame.locals.K_DOWN:
@@ -220,11 +218,10 @@ class LobbyMenuItem(MenuItem):
                         self.menu_state.current_state = MenuStates.PLAY
                     else:
                         option_values = list(self.options.values())
-                        self.menu_state.current_state = option_values[self.selected_option - len(self.hosts)] or MenuStates.MAIN_MENU
-
+                        self.menu_state.current_state = option_values[self.selected_option - len(
+                            self.hosts)] or MenuStates.MAIN_MENU
 
         self.selected_option %= len(self.options) + len(self.hosts)
-
 
     def render(self) -> None:
         font = self.font
@@ -244,13 +241,13 @@ class LobbyMenuItem(MenuItem):
 
             self.render_text(font, text, (index + offset[0], (index + len(self.hosts)) * 55 + offset[1]))
 
+
 class HelpMenuItem(MenuItem):
     def __init__(self, menu_state, options={}):
         super().__init__(menu_state, options)
 
     def update(self, dt, events) -> None:
         super().update(dt, events)
-
 
     def render(self) -> None:
         super().render()

@@ -74,8 +74,19 @@ class GameState:
 
     def on_player_join(self, player_id):
         self.add_entity([
-            RenderComponent(x=0, y=0, width=10, height=10, color='white'),
-            PlayerControlComponent(player_id=player_id),
+            IngameObject(position=(0, 0), size=(64, 64)),
+            Directioned(direction='default'),
+            SpriteSheet(
+                path='./assets/sprites/player.png',
+                tile_size=48,
+                default=[58],
+                left=[70, 71, 69],
+                right=[82, 83, 81],
+                up=[94, 95, 93],
+                down=[58, 59, 57],
+                moving=False
+            ),
+            PlayerControl(player_id=player_id),
         ])
 
     def on_player_quit(self, player_id):

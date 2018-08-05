@@ -42,8 +42,9 @@ class Framework:
 
             pygame.display.update()
 
-        pygame.quit()
+        self.net.node.leave(self.net.get_our_group() or '')
         self.net.close()
+        pygame.quit()
         sys.exit()
 
     def enter_game(self, char_name, char_gender):
@@ -72,6 +73,14 @@ class GameState:
         self.entities[key] = {type(value): value for (value) in components}
         return key
 
+    def get_player_entities(self, player_id):
+        """Get all entities tied to a specific player"""
+        return [
+            key
+            if PlayerControlComponent in entity and entity[PlayerControlComponent].player_id == player_id else None
+            for key, entity in self.entities.items()
+        ]
+
     def on_player_join(self, player_id):
         self.add_entity([
             RenderComponent(x=0, y=0, width=10, height=10, color='white'),
@@ -79,7 +88,11 @@ class GameState:
         ])
 
     def on_player_quit(self, player_id):
-        pass
+        gc_entities = self.get_player_entities(player_id)
+        for key in gc_entities:
+            if key:
+                print("DELETING {0}".format(key))
+                del self.entities[key]
 
     def update(self, dt: float, events) -> None:
         self.net.pull_game(self)

@@ -113,6 +113,17 @@ class Network:
                 continue
             if msg.type == 'SHOUT':
                 entities = bson.loads(msg.msg[0])
+
+                if 'ids' in entities:
+                    keys = entities['ids']
+                    cur_keys = list(game.entities.keys())
+                    if not self.is_hosting():
+                        diff = list(set(cur_keys) - set(keys))
+                        if len(diff)>0:
+                            for key in diff:
+                                del game.entities[key]
+
+                entities = entities['components']
                 for key, changed_comps in entities.items():
                     key = uuid.UUID(key)
                     if key not in game.entities:
@@ -132,17 +143,27 @@ class Network:
                 if msg.type == 'JOIN':
                     game.on_player_join(msg.peer_uuid)
                     self.push_game(game, initial=True)
-                elif msg.type == 'LEAVE':
+                elif msg.type == 'EXIT' or msg.type == "LEAVE":
                     game.on_player_quit(msg.peer_uuid)
 
     def push_game(self, game, initial=False):
         """Tell others how we've changed the game state."""
-        entities = {}
+        entities = {
+            'components': {}
+        }
+        if self.is_hosting():
+            entities = {
+                'ids': [],
+                'components': {}
+            }
+
         for key, entity in game.entities.items():
             changed_comps = {}
             for component in entity.values():
                 if component.is_networked() and (initial or component.has_changed()):
                     changed_comps[component.get_name()] = component.as_dict()
                     component.observed_changes()
-            entities[str(key)] = changed_comps
+            if 'ids' in entities:
+                entities['ids'].append(key)
+            entities['components'][str(key)] = changed_comps
         self.node.shout(self.get_our_group(), bson.dumps(entities))

@@ -46,7 +46,7 @@ class Framework:
         self.net.close()
         sys.exit()
 
-    def enter_game(self):
+    def enter_game(self, char_name, char_gender):
         self.state = GameState(self)
 
 

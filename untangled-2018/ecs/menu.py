@@ -56,16 +56,21 @@ class MenuState:
     def get_current(self):
         return self.structure[self.current_state]
 
+    def get_screen_data(self, state: MenuStates):
+        return self.structure[state]
+
     def update(self, dt: float, events: list):
-        if self.get_current():
-            self.get_current().update(dt, events)
-            if self.current_state == MenuStates.PLAY:
-                self.framework.enter_game()
-                return
+
+        if self.current_state == MenuStates.PLAY:
+            char_data = self.get_screen_data(MenuStates.CHAR_SETUP)
+            self.framework.enter_game(char_data.char_name, char_data.gender_options[char_data.gender_choice])
+            return
+        elif self.current_state == MenuStates.QUIT:
+            pygame.event.post(pygame.event.Event(pygame.QUIT, {}))
 
         if self.get_current():
             self.get_current().render()
-
+            self.get_current().update(dt, events)
 
 class MenuItem:
     def __init__(self, menu_state: MenuState, options={}):

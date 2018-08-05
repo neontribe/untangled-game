@@ -117,11 +117,9 @@ class Network:
                 if 'ids' in entities:
                     keys = entities['ids']
                     cur_keys = list(game.entities.keys())
-                    if not self.is_hosting():
-                        diff = list(set(cur_keys) - set(keys))
-                        if len(diff)>0:
-                            for key in diff:
-                                del game.entities[key]
+                    diff = list(set(cur_keys) - set(keys))
+                    for key in diff:
+                        del game.entities[key]
 
                 entities = entities['components']
                 for key, changed_comps in entities.items():

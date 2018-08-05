@@ -77,7 +77,7 @@ class GameState:
         """Get all entities tied to a specific player"""
         return [
             key
-            if PlayerControlComponent in entity and entity[PlayerControlComponent].player_id == player_id else None
+            if PlayerControl in entity and entity[PlayerControl].player_id == player_id else None
             for key, entity in self.entities.items()
         ]
 

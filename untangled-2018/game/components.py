@@ -11,6 +11,11 @@ class IngameObject:
     size: Tuple[int, int]
 
 @component(networked=True)
+class Health:
+    """Gives the entity health"""
+    value: int
+
+@component(networked=True)
 class SpriteSheet:
     """Gives an entity an image and animations."""
     path: str

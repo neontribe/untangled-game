@@ -62,6 +62,9 @@ class GameState:
             # They should have a position and size in game
             IngameObject(position=(0, 0), size=(64, 64)),
 
+            # They should have a health
+            Health(value=100),
+
             # They should be facing a certain direction
             Directioned(direction='default'),
 

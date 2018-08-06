@@ -65,14 +65,16 @@ class RenderSystem(System):
                 # Center health bar and nametag
                 rect.x -= 30
 
-                # Health bar wrapper
-                healthBarThickness = 2
-                pygame.draw.rect(self.screen, (255, 255, 255), (rect.x, rect.y-30, 100+healthBarThickness*2, 10), healthBarThickness)
+                # Checks if enetity has a health component
+                if Health in entity:
+                    # Health bar wrapper
+                    healthBarThickness = 2
+                    pygame.draw.rect(self.screen, (255, 255, 255), (rect.x, rect.y-30, 100+healthBarThickness*2, 10), healthBarThickness)
 
-                # Red health bar
-                if entity[Health].value > 0:
-                    currentHealthPos = (rect.x+healthBarThickness, rect.y-30+healthBarThickness, entity[Health].value, 10-healthBarThickness*2)
-                    pygame.draw.rect(self.screen, (255, 0, 0), currentHealthPos)
+                    # Red health bar
+                    if entity[Health].value > 0:
+                        currentHealthPos = (rect.x+healthBarThickness, rect.y-30+healthBarThickness, entity[Health].value, 10-healthBarThickness*2)
+                        pygame.draw.rect(self.screen, (255, 0, 0), currentHealthPos)
 
                 # Does the entity have a name we can draw
                 if Profile in entity:

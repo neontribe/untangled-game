@@ -65,7 +65,7 @@ class RenderSystem(System):
                 # Center health bar and nametag
                 rect.x -= 30
 
-                # Checks if enetity has a health component
+                # Checks if the entity has a health
                 if Health in entity:
                     # Health bar wrapper
                     healthBarThickness = 2

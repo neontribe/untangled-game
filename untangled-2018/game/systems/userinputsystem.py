@@ -10,6 +10,7 @@ class UserInputSystem(System):
 
     def update(self, game, dt: float, events):
         keysdown = pygame.key.get_pressed()
+        mousedown = pygame.mouse.get_pressed()
 
         for key, entity in game.entities.items():
             # Is the object player controllable and does it have a position on-screen?
@@ -47,3 +48,7 @@ class UserInputSystem(System):
                         entity[SpriteSheet].moving = moved
                     if Directioned in entity:
                         entity[Directioned].direction = direction
+
+                    # Checks if mouse is pressed
+                    if mousedown:
+                        mouse_x, mouse_y = pygame.mouse.get_pos()

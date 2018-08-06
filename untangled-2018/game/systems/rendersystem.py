@@ -92,28 +92,19 @@ class RenderSystem(System):
 
                 # Draw the inventory bar for us only
                 if game.net.is_me(entity[PlayerControl].player_id):
-
-                    # Slot values
-                    slotOffset = 10
-                    slotSize = 55
+                    inv = entity[Inventory]
 
                     # Inventory bar colours
                     inventoryBackgroundColour = (183, 92, 5)
                     slotBackgroundColour = (255, 159, 67)
-                    
-                    # Inventory coordinates
-                    inventoryHeight = slotOffset*2 + slotSize
-                    inventoryWidth = slotSize * entity[Inventory].maxSlots + (slotOffset+1) * entity[Inventory].maxSlots * 2
-                    inventoryY = game.framework.dimensions[1] - inventoryHeight - slotOffset
-                    inventoryX = game.framework.dimensions[0] / 2 - inventoryWidth / 2
 
                     # Draw inventory bar
-                    inventoryPos = (inventoryX, inventoryY, inventoryWidth, inventoryHeight)
+                    inventoryPos = (inv.x, inv.y, inv.width, inv.height)
                     pygame.draw.rect(self.screen, inventoryBackgroundColour, inventoryPos)
 
                     # Draw slots
-                    for x in range(int(inventoryX+slotOffset), int(inventoryX+inventoryWidth), slotOffset+slotSize):
-                        pygame.draw.rect(self.screen, slotBackgroundColour, (x, inventoryY+slotOffset, slotSize, slotSize))
+                    for x in range(int(inv.x+inv.slotOffset), int(inv.x+inv.width), inv.slotOffset+inv.slotSize):
+                        pygame.draw.rect(self.screen, slotBackgroundColour, (x, inv.y+inv.slotOffset, inv.slotSize, inv.slotSize))
 
     def get_image(self, spritesheet, index):
         # Ideally, we cache so we only process a file once

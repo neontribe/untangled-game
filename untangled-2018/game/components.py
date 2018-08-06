@@ -3,6 +3,7 @@ from typing import Tuple
 from typing import Union
 
 from lib.component import component
+from lib.framework import Framework
 
 @component(networked=True)
 class IngameObject:
@@ -20,6 +21,16 @@ class Inventory:
     """Gives a player items"""
     items: List[Tuple[str, int]]
     maxSlots: int = 6
+    activeSlot: int = 0
+
+    slotOffset: int = 10
+    slotSize: int = 55
+
+    height: float = slotOffset*2 + slotSize
+    width: float = slotSize * maxSlots + (slotOffset+1) * maxSlots * 2
+
+    x: float = Framework.dimensions[0] / 2 - width / 2
+    y: float = Framework.dimensions[1] - height - slotOffset
 
 @component(networked=True)
 class SpriteSheet:

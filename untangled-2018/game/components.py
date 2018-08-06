@@ -23,8 +23,17 @@ class SpriteSheet:
     moving: bool = False
 
 @component(networked=True)
+class Tileset:
+    tile_size: int
+    path: str
+
+
+@component(networked=True)
 class Map:
     path: str
+    width: int
+    height: int
+    grid: list
 
 @component(networked=True)
 class Directioned:

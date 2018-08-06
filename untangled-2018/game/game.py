@@ -1,4 +1,4 @@
-import uuid
+import uuid, tmx
 
 from game.components import *
 from game.systems.rendersystem import RenderSystem
@@ -40,11 +40,35 @@ class GameState:
         # If we're hosting, we need to register that we joined our own game
         if self.net.is_hosting():
             self.on_player_join(self.net.get_id())
+            loaded_map_component = self.loadMap(Map(
+                path="assets/maps/map.tmx",
+                width=1,
+                height=1,
+                grid=[]
+            ))
             self.add_entity([
-                Map(
-                    path="assets/maps/map.json"
+                loaded_map_component,
+                Tileset(
+                    tile_size=32,
+                    path="assets/tilesets/map.png"
                 )
             ])
+
+    def loadMap(self,map):
+        tile_map = tmx.TileMap.load(map.path)
+        map.width = tile_map.width
+        map.height = tile_map.height
+        map.grid = [
+            [None for x in range(map.width)] for y in range(map.height)
+        ]
+        for layer in tile_map.layers:
+            if isinstance(layer,  tmx.Layer):
+                for index, tile in enumerate(layer.tiles):
+                    x = index % map.width
+                    y = index // map.width
+                    map.grid[y][x] = tile.gid or 0
+        return map
+
 
     def update(self, dt: float, events):
         """This code gets run 60fps. All of our game logic stems from updating

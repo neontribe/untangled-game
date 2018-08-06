@@ -27,8 +27,20 @@ class RenderSystem(System):
                     our_center = entity[IngameObject].position
                     break
 
+        for key, entity in game.entities.items():
+            if Map in entity:
+                map = entity[Map]
+
         # Render everything we can
         for key, entity in game.entities.items():
+            if Map in entity and Tileset in entity:
+                tileset = entity[Tileset]
+                map = entity[Map]
+                for y, row in enumerate(map.grid):
+                    for x, tile in enumerate(row):
+                        image = self.get_image(tileset,tile)
+                        self.screen.blit(image,(x*tileset.tile_size,y*tileset.tile_size))
+
             # Is this an entity we should draw?
             if IngameObject in entity and SpriteSheet in entity:
                 spritesheet = entity[SpriteSheet]

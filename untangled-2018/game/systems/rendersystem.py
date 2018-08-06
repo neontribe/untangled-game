@@ -73,7 +73,6 @@ class RenderSystem(System):
                 if entity[Health].value > 0:
                     currentHealthPos = (rect.x+healthBarThickness, rect.y-30+healthBarThickness, entity[Health].value, 10-healthBarThickness*2)
                     pygame.draw.rect(self.screen, (255, 0, 0), currentHealthPos)
-                    entity[Health].value -= 0.1
 
                 # Does the entity have a name we can draw
                 if Profile in entity:

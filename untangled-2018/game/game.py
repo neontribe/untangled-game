@@ -4,6 +4,7 @@ from game.components import *
 from game.systems.rendersystem import RenderSystem
 from game.systems.userinputsystem import UserInputSystem
 from game.systems.profilesystem import ProfileSystem
+from game.systems.soundsystem import SoundSystem
 
 class GameState:
     """Our core code.
@@ -34,12 +35,18 @@ class GameState:
         self.systems.extend([
             ProfileSystem(name, gender),
             UserInputSystem(),
-            RenderSystem(self.screen)
+            RenderSystem(self.screen),
+            SoundSystem()
         ])
 
         # If we're hosting, we need to register that we joined our own game
         if self.net.is_hosting():
             self.on_player_join(self.net.get_id())
+            self.add_entity([
+                BackgroundMusic (
+                    path="assets/sounds/overworld.wav"
+                )
+            ])
 
     def update(self, dt: float, events):
         """This code gets run 60fps. All of our game logic stems from updating

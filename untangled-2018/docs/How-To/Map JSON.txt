@@ -1,0 +1,29 @@
+Maps are split up into chunks of (TOBEDECIDED)x(TOBEDECIDED) size.
+The map JSON has to list all of the chunks and their position.
+For example:
+
+[
+	{
+		'path':'assets/maps/map_chunk_A',
+		'chunkpos':{
+			'x':'0',
+			'y':'0'
+		}
+	}
+	{
+		'path':'assets/maps/map_chunk_B',
+		'chunkpos':{
+			'x':'1',
+			'y':'0'
+		}
+	}
+	{
+		'path':'assets/maps/map_chunk_C',
+		'chunkpos':{
+			'x':'2',
+			'y':'0'
+		}
+	}
+]
+
+Would have three chunks, all on chunk Y 0 and in a line along X

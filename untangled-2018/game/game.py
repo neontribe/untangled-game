@@ -40,6 +40,11 @@ class GameState:
         # If we're hosting, we need to register that we joined our own game
         if self.net.is_hosting():
             self.on_player_join(self.net.get_id())
+            self.add_entity([
+                Map(
+                    path="assets/maps/map.json"
+                )
+            ])
 
     def update(self, dt: float, events):
         """This code gets run 60fps. All of our game logic stems from updating

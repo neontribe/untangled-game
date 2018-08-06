@@ -28,19 +28,26 @@ class RenderSystem(System):
                     break
 
         for key, entity in game.entities.items():
-            if Map in entity:
-                map = entity[Map]
-
-        # Render everything we can
-        for key, entity in game.entities.items():
             if Map in entity and Tileset in entity:
                 tileset = entity[Tileset]
                 map = entity[Map]
                 for y, row in enumerate(map.grid):
                     for x, tile in enumerate(row):
-                        image = self.get_image(tileset,tile)
-                        self.screen.blit(image,(x*tileset.tile_size,y*tileset.tile_size))
+                        image = self.get_image(tileset, tile-1)
+                        rel_pos = (
+                            x * tileset.tile_size - our_center[0],
+                            y * tileset.tile_size - our_center[1]
+                        )
 
+                        screen_pos = (
+                            rel_pos[0] + game.framework.dimensions[0]/2,
+                            rel_pos[1] + game.framework.dimensions[1]/2
+                        )
+
+                        self.screen.blit(image, screen_pos)
+
+        # Render everything we can
+        for key, entity in game.entities.items():
             # Is this an entity we should draw?
             if IngameObject in entity and SpriteSheet in entity:
                 spritesheet = entity[SpriteSheet]
@@ -48,7 +55,10 @@ class RenderSystem(System):
                 # Where are they relative to us?
                 pos = entity[IngameObject].position
                 rel_pos = (pos[0] - our_center[0], pos[1] - our_center[1])
-                screen_pos = (rel_pos[0] + 512, rel_pos[1] + 512)
+                screen_pos = (
+                    rel_pos[0] + game.framework.dimensions[0]/2,
+                    rel_pos[1] + game.framework.dimensions[1]/2
+                )
 
                 img_indexes = spritesheet.default
 

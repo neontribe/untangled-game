@@ -41,7 +41,7 @@ class GameState:
         if self.net.is_hosting():
             self.on_player_join(self.net.get_id())
             loaded_map_component = self.loadMap(Map(
-                path="assets/maps/map.tmx",
+                path="assets/maps/map2.tmx",
                 width=1,
                 height=1,
                 grid=[]

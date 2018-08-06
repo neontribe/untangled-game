@@ -5,7 +5,7 @@ import zmq
 from pyre import Pyre
 from typing import List, Union
 
-import ecs.components.component as components
+import game.components as components
 
 
 class Network:

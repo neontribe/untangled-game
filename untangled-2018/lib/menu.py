@@ -3,10 +3,11 @@ import time
 
 from enum import Enum
 
-from ecs.config import HOSTNAME
+from lib.config import HOSTNAME
 
 
 class MenuStates(Enum):
+    """Where we can be in the menu system."""
     PLAY = 0,
     MAIN_MENU = 1,
     CHAR_SETUP = 2,
@@ -214,13 +215,12 @@ class LobbyMenuItem(MenuItem):
                     self.selected_option += 1
                 elif event.key == pygame.locals.K_RETURN:
                     if self.selected_option < len(self.hosts):
-                        print('joining', self.hosts[self.selected_option])
                         self.menu_state.net.join_group(self.hosts[self.selected_option])
                         self.menu_state.current_state = MenuStates.PLAY
                     elif self.selected_option == (len(self.hosts)):
-                        print('hosting', HOSTNAME)
-                        self.menu_state.net.host_group(HOSTNAME)
-                        self.menu_state.current_state = MenuStates.PLAY
+                        if HOSTNAME not in self.menu_state.net.get_all_groups():
+                            self.menu_state.net.host_group(HOSTNAME)
+                            self.menu_state.current_state = MenuStates.PLAY
                     else:
                         option_values = list(self.options.values())
                         self.menu_state.current_state = option_values[self.selected_option - len(

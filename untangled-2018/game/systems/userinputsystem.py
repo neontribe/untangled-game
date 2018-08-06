@@ -1,22 +1,30 @@
 import pygame.locals
 
-from ecs.systems.system import System
-from ecs.components.component import *
+from lib.system import System
+from game.components import *
 
 SPEED = 4
 
 class UserInputSystem(System):
+    """This system updates certain entities based on the arrow keys."""
+
     def update(self, game, dt: float, events):
         keysdown = pygame.key.get_pressed()
+
         for key, entity in game.entities.items():
-            # Can a player control an object that has a position
+            # Is the object player controllable and does it have a position on-screen?
             if PlayerControl in entity and IngameObject in entity:
-                playercontrol = entity[PlayerControl]
-                # Is the player that can control it them?
-                if game.net.is_me(playercontrol.player_id):
+                # Is the player that can control it us?
+                if game.net.is_me(entity[PlayerControl].player_id):
+                    # Our ingane position and size
                     io = entity[IngameObject]
+
+                    # Store whether we've moved this frame
                     moved = False
+
+                    # Store which direction we moved in
                     direction = entity[Directioned].direction if Directioned in entity else 'default'
+
                     if keysdown[pygame.locals.K_DOWN]:
                         io.position = (io.position[0], io.position[1] + SPEED)
                         moved = True
@@ -33,7 +41,8 @@ class UserInputSystem(System):
                         io.position = (io.position[0] + SPEED, io.position[1])
                         moved = True
                         direction = 'right'
-                    # Animate their sprite, if we should
+
+                    # Trigger animation of this entity's sprite, if it has one
                     if SpriteSheet in entity:
                         entity[SpriteSheet].moving = moved
                     if Directioned in entity:

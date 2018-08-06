@@ -1,6 +1,7 @@
-from ecs.systems.system import System
-from ecs.components.component import *
+from lib.system import System
+from game.components import *
 
+# The default images for each gender
 PROFILE_SPRITES = {
     'Girl': {
         'path': './assets/sprites/player.png',
@@ -24,29 +25,38 @@ PROFILE_SPRITES = {
 }
 
 class ProfileSystem(System):
+    """Updates an entities profile and appearance based on ours and others'
+    name and gdner."""
+
     def __init__(self, name, gender):
         self.ourName = name
         self.ourGender = gender
 
     def update(self, game, dt, events):
         for key, entity in game.entities.items():
+            # Does this entity have a profile we can use to do things?
             if Profile in entity:
                 if PlayerControl in entity and game.net.is_me(entity[PlayerControl].player_id):
-                    # Update our Profile component
+                    # It's us, update our Profile component based on what we know
                     if entity[Profile].name != self.ourName:
                         entity[Profile].name = self.ourName
                     if entity[Profile].gender != self.ourGender:
                         entity[Profile].gender = self.ourGender
 
                 if SpriteSheet in entity:
-                    # Update the sprite based on gender
+                    # This entity should change appearance based on gender, let's do that
                     if entity[Profile].gender in PROFILE_SPRITES:
+                        # Get the appearance properties
                         gender_sheet = PROFILE_SPRITES[entity[Profile].gender]
                         changed = False
+                        
+                        # Do they need updating?
                         for sheet_key, value in gender_sheet.items():
                             if entity[SpriteSheet].__dict__[sheet_key] != value:
                                 changed = True
                                 break
+
+                        # Yes, update them
                         if changed:
                             entity[SpriteSheet].path = gender_sheet['path']
                             entity[SpriteSheet].tile_size = gender_sheet['tile_size']

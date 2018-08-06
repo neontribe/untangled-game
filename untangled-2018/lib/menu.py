@@ -1,5 +1,6 @@
 import pygame, pygame.locals
 import time
+from string import printable
 
 from enum import Enum
 
@@ -153,10 +154,12 @@ class CharSetupMenuItem(MenuItem):
                     if event.key == pygame.locals.K_BACKSPACE:
                         self.char_name = self.char_name[:-1]
                     elif event.key < 123 and event.key != 13 and len(self.char_name) < self.char_name_max:
-                        if pygame.key.get_mods() & pygame.KMOD_LSHIFT:
-                            self.char_name += chr(event.key).upper()
-                        else:
-                            self.char_name += chr(event.key)
+                        char_new = chr(event.key)
+                        if char_new in printable:
+                            if pygame.key.get_mods() & pygame.KMOD_LSHIFT:
+                                self.char_name += char_new.upper()
+                            else:
+                                self.char_name += char_new
                 elif option_keys[self.selected_option] == "Gender":
                     if event.key == pygame.locals.K_RIGHT:
                         self.gender_choice += 1
@@ -215,9 +218,11 @@ class LobbyMenuItem(MenuItem):
                     self.selected_option += 1
                 elif event.key == pygame.locals.K_RETURN:
                     if self.selected_option < len(self.hosts):
+                        print("joining")
                         self.menu_state.net.join_group(self.hosts[self.selected_option])
                         self.menu_state.current_state = MenuStates.PLAY
                     elif self.selected_option == (len(self.hosts)):
+                        print(self.menu_state.net.get_all_groups())
                         if HOSTNAME not in self.menu_state.net.get_all_groups():
                             self.menu_state.net.host_group(HOSTNAME)
                             self.menu_state.current_state = MenuStates.PLAY

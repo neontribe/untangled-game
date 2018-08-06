@@ -5,7 +5,6 @@ import pygame
 class SoundSystem(System):
     def __init__(self):
         self.playingMusic = ""
-        self.STOPPLAYINGEVENT = pygame.USEREVENT+1
     def update(self, game, dt, events):
         for key,entity in game.entities.items():
             if BackgroundMusic in entity:

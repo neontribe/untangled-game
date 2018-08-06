@@ -12,6 +12,9 @@ class RenderSystem(System):
         self.image_cache = {}
         self.steps = 0
 
+        font_path = 'assets/fonts/alterebro-pixel-font.ttf'
+        self.font = pygame.font.Font(font_path, 45)
+
     def update(self, game, dt: float, events: list):
         # Step through 15 sprite frames each second
         self.steps += dt
@@ -58,6 +61,33 @@ class RenderSystem(System):
                 
                 # Draw the image
                 self.screen.blit(img, rect)
+
+                # Center health bar and nametag
+                rect.x -= 30
+
+                # Health bar wrapper
+                healthBarThickness = 2
+                pygame.draw.rect(self.screen, (255, 255, 255), (rect.x, rect.y-30, 100+healthBarThickness*2, 10), healthBarThickness)
+
+                # Red health bar
+                if entity[Health].value > 0:
+                    currentHealthPos = (rect.x+healthBarThickness, rect.y-30+healthBarThickness, entity[Health].value, 10-healthBarThickness*2)
+                    pygame.draw.rect(self.screen, (255, 0, 0), currentHealthPos)
+                    entity[Health].value -= 0.1
+
+                # Does the entity have a name we can draw
+                if Profile in entity:
+                    name = entity[Profile].name
+
+                    # Draw our name with our font in white
+                    rendered_text_surface = self.font.render(name, False, (0, 255, 25))
+
+
+                    # Move the nametag above the player
+                    rect.y -= 70
+
+                    # Draw this rendered text we've made to the screen
+                    self.screen.blit(rendered_text_surface, rect)
 
     def get_image(self, spritesheet, index):
         # Ideally, we cache so we only process a file once

@@ -3,6 +3,7 @@ from pygame import Rect
 
 from lib.system import System
 from game.components import *
+from collisionsystem import *
 
 class RenderSystem(System):
     """This system draws any entity with a SpriteSheet component."""
@@ -30,8 +31,17 @@ class RenderSystem(System):
                     our_center = entity[IngameObject].position
                     break
 
+        collidable = []
+        for key, entity in game.entities.items():
+            if IngameObject in entity and Collidable in entity:
+                collidable.append(entity)
+        ignore = []
+
         # Render everything we can
         for key, entity in game.entities.items():
+            if IngameObject in entity and Collidable in entity:
+                checkCollisions(entity,collidable,ignore)
+
             # Is this an entity we should draw?
             if IngameObject in entity and SpriteSheet in entity:
                 spritesheet = entity[SpriteSheet]

@@ -43,3 +43,12 @@ class Profile:
 class PlayerControl:
     """Lets an entity be controlled by specific player's arrow keys."""
     player_id: str
+
+@component(networked=False)
+class Collidable:
+    """Lets an entity collide with another collidable"""
+    def toRect(self):
+        return (self.position[0], self.position[1], self.size[0], self.size[1])
+    def defaultFunction(other):
+        return False
+    onCollide = defaultFunction

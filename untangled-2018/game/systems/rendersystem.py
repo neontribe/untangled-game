@@ -56,6 +56,10 @@ class RenderSystem(System):
                     img_index = img_indexes[0]
                 img = self.get_image(spritesheet, img_index)
                 
+                #Scale the image
+                if img.get_size() not entity[IngameObject].size:
+                    img = pygame.transform.scale(img, entity[IngameObject].size)
+                
                 rect = Rect(screen_pos, entity[IngameObject].size)
                 rect.center = screen_pos
                 

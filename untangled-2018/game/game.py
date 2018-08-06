@@ -65,6 +65,9 @@ class GameState:
             # They should have a health
             Health(value=100),
 
+            # They should have an inventory
+            Inventory([]),
+
             # They should be facing a certain direction
             Directioned(direction='default'),
 

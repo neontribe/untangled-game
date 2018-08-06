@@ -16,6 +16,12 @@ class Health:
     value: int
 
 @component(networked=True)
+class Inventory:
+    """Gives a player items"""
+    items: List[Tuple[str, int]]
+    maxSlots: int = 6
+
+@component(networked=True)
 class SpriteSheet:
     """Gives an entity an image and animations."""
     path: str

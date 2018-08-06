@@ -218,11 +218,9 @@ class LobbyMenuItem(MenuItem):
                     self.selected_option += 1
                 elif event.key == pygame.locals.K_RETURN:
                     if self.selected_option < len(self.hosts):
-                        print("joining")
                         self.menu_state.net.join_group(self.hosts[self.selected_option])
                         self.menu_state.current_state = MenuStates.PLAY
                     elif self.selected_option == (len(self.hosts)):
-                        print(self.menu_state.net.get_all_groups())
                         if HOSTNAME not in self.menu_state.net.get_all_groups():
                             self.menu_state.net.host_group(HOSTNAME)
                             self.menu_state.current_state = MenuStates.PLAY

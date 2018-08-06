@@ -56,5 +56,10 @@ class Directioned:
     direction: str
 
 @component(networked=True)
+class Profile:
+    name: str = 'Player'
+    gender: str = 'Unknown'
+
+@component(networked=True)
 class PlayerControl:
     player_id: str

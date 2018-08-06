@@ -8,6 +8,7 @@ from ecs.menu import MenuState, MenuStates
 from ecs.network import Network
 from ecs.systems.rendersystem import RenderSystem
 from ecs.systems.userinputsystem import UserInputSystem
+from ecs.systems.profilesystem import ProfileSystem
 from ecs.components.component import *
 
 
@@ -47,19 +48,20 @@ class Framework:
         sys.exit()
 
     def enter_game(self, char_name, char_gender):
-        self.state = GameState(self)
+        self.state = GameState(self, char_name, char_gender)
 
 
 class GameState:
     entities = {}
     systems = []
 
-    def __init__(self, framework: Framework):
+    def __init__(self, framework: Framework, name, gender):
         self.framework = framework
         self.screen = framework.screen
         self.net = framework.net
 
         self.systems.extend([
+            ProfileSystem(name, gender),
             UserInputSystem(),
             RenderSystem(self.screen)
         ])
@@ -76,6 +78,7 @@ class GameState:
         self.add_entity([
             IngameObject(position=(0, 0), size=(64, 64)),
             Directioned(direction='default'),
+            Profile(),
             SpriteSheet(
                 path='./assets/sprites/player.png',
                 tile_size=48,

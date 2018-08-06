@@ -39,7 +39,7 @@ class RenderSystem(System):
         our_center = (0, 0)
         for key, entity in game.entities.items():
             # Are they a player?
-            if PlayerControl and IngameObject in entity:
+            if PlayerControl in entity and IngameObject in entity:
                 # Are they us?
                 if game.net.is_me(entity[PlayerControl].player_id):
                     our_center = entity[IngameObject].position

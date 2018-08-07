@@ -68,13 +68,23 @@ class RenderSystem(System):
 
                 # Center health bar and nametag
                 rect.x -= 30
+                # Checks if entity has an energy component
+                if Energy in entity:
+                    # Energy bar wrapper
+                    energyBarThickness = 2
+                    pygame.draw.rect(self.screen, (255, 255, 255),(rect.x, rect.y-45, 100+energyBarThickness*2, 10), energyBarThickness)
+                    
+                    # Yellow energy bar
+                    if entity[Energy].value > 0:
+                        currentEnergyPos = (rect.x+energyBarThickness, rect.y-45+energyBarThickness, entity[Energy].value, 10-energyBarThickness*2)
+                        pygame.draw.rect(self.screen, (255, 255, 0), currentEnergyPos)
 
                 # Checks if entity has a health component
                 if Health in entity:
                     # Health bar wrapper
                     healthBarThickness = 2
                     pygame.draw.rect(self.screen, (255, 255, 255), (rect.x, rect.y-30, 100+healthBarThickness*2, 10), healthBarThickness)
-
+             
                     # Red health bar
                     if entity[Health].value > 0:
                         currentHealthPos = (rect.x+healthBarThickness, rect.y-30+healthBarThickness, entity[Health].value, 10-healthBarThickness*2)
@@ -89,7 +99,7 @@ class RenderSystem(System):
 
 
                     # Move the nametag above the player
-                    rect.y -= 70
+                    rect.y -= 100
 
                     # Draw this rendered text we've made to the screen
                     self.screen.blit(rendered_text_surface, rect)

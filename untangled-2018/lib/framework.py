@@ -4,14 +4,11 @@ import sys
 from lib.network import Network
 from lib.menu import MenuState
 
-global SCREENSIZE
-SCREENSIZE = (512,512)
-
 class Framework:
     """The core state of our app."""
 
     caption = 'Untangled 2018'
-    dimensions = SCREENSIZE
+    dimensions = (512,512)
     fps = 60
     running = True
     clock = pygame.time.Clock()
@@ -30,7 +27,6 @@ class Framework:
         self.state = MenuState(self)
 
     def main_loop(self):
-        global SCREENSIZE
         # Initial tick so our first tick doesn't return all the time since __init__
         self.clock.tick()
         

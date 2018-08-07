@@ -87,7 +87,7 @@ class RenderSystem(System):
                             currentWaterPos = (rect.x+waterBarThickness, rect.y-60+waterBarThickness, entity[WaterBar].value, 10-waterBarThickness*2)
                             pygame.draw.rect(self.screen, (0, 0, 255), currentWaterPos)
 
-                        rect.y -= 30
+                        rect.y -= 15
 
                 # Does the entity have a name we can draw
                 if Profile in entity:
@@ -98,7 +98,7 @@ class RenderSystem(System):
 
 
                     # Move the nametag above the player
-                    rect.y -= 70 # 60px for the bars
+                    rect.y -= 85 # 60px for the bars
 
                     # Draw this rendered text we've made to the screen
                     self.screen.blit(rendered_text_surface, rect)

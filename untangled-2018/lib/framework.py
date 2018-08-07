@@ -8,7 +8,7 @@ class Framework:
     """The core state of our app."""
 
     caption = 'Untangled 2018'
-    dimensions = (1024, 824)
+    dimensions = (1024, 1024)
     fps = 60
     running = True
     clock = pygame.time.Clock()

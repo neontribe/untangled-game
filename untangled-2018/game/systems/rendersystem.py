@@ -63,11 +63,11 @@ class RenderSystem(System):
                     rel_pos[1] + game.framework.dimensions[1]/2
                 )
 
-                img_indexes = spritesheet.default
+                img_indexes = spritesheet.tiles["default"]
 
                 # Will they be facing a certain direction?
                 if Directioned in entity:
-                    alts = spritesheet.__dict__[entity[Directioned].direction]
+                    alts = spritesheet.tiles[entity[Directioned].direction]
                     if alts != None:
                         img_indexes = alts
 
@@ -79,7 +79,7 @@ class RenderSystem(System):
                 img = self.get_image(spritesheet, img_index)
                 
                 #Scale the image
-                if img.get_size() not entity[IngameObject].size:
+                if img.get_size() != entity[IngameObject].size:
                     img = pygame.transform.scale(img, entity[IngameObject].size)
                 
                 rect = Rect(screen_pos, entity[IngameObject].size)

@@ -3,7 +3,7 @@ import pygame.locals
 from lib.system import System
 from game.components import *
 
-SPEED = 4
+SPEED = 10
 
 class UserInputSystem(System):
     """This system updates certain entities based on the arrow keys."""

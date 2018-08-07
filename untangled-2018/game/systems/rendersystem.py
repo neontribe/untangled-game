@@ -31,15 +31,20 @@ class RenderSystem(System):
                     break
 
         for key, entity in game.entities.items():
-            if Map in entity and Tileset in entity:
-                tileset = entity[Tileset]
+            if Map in entity and SpriteSheet in entity:
+                spritesheet = entity[SpriteSheet]
                 map = entity[Map]
                 for y, row in enumerate(map.grid):
                     for x, tile in enumerate(row):
-                        image = self.get_image(tileset, tile-1)
+                        img_indexes = spritesheet.tiles[tile-1]
+                        if spritesheet.moving:
+                            img_index = img_indexes[frame % len(img_indexes)]
+                        else:
+                            img_index = img_indexes[0]
+                        image = self.get_image(spritesheet, img_index)
                         rel_pos = (
-                            x * tileset.tile_size - our_center[0],
-                            y * tileset.tile_size - our_center[1]
+                            x * spritesheet.tile_size - our_center[0],
+                            y * spritesheet.tile_size - our_center[1]
                         )
 
                         screen_pos = (

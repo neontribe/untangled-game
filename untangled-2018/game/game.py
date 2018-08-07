@@ -82,12 +82,14 @@ class GameState:
             SpriteSheet(
                 path='./assets/sprites/player.png',
                 tile_size=48,
-                default=[58],
-                left=[70, 71, 69],
-                right=[82, 83, 81],
-                up=[94, 95, 93],
-                down=[58, 59, 57],
-                moving=False
+                moving=False,
+                tiles={
+                    'default':[58],
+                    'left':[70,71,69],
+                    'right':[82,83,81],
+                    'up':[94,95,93],
+                    'down':[58,59,57]
+                }
             ),
 
             # The player who has connected con control them with the arrow keys

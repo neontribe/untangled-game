@@ -20,8 +20,9 @@ class Health:
 class Inventory:
     """Gives a player items"""
     items: List[Tuple[str, int]]
-    maxSlots: int = 6
+    maxSlots: int = 6 # it represents the last index, not the number of slots
     activeSlot: int = 0
+    hoverSlot: int = None
 
     slotOffset: int = 10
     slotSize: int = 55

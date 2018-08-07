@@ -52,3 +52,30 @@ class UserInputSystem(System):
                     # Checks if mouse is pressed
                     if mousedown:
                         mouse_x, mouse_y = pygame.mouse.get_pos()
+
+                        # Checks if the user clicks the slots
+                        if Inventory in entity:
+                            inv = entity[Inventory]
+
+                            # If mouse coordinates are within the inventory bar
+                            isMouseX = mouse_x > inv.x + inv.slotOffset and mouse_x < inv.x + inv.width - inv.slotOffset
+                            isMouseY = mouse_y > inv.y + inv.slotOffset and mouse_y < inv.y + inv.height - inv.slotOffset
+                            if isMouseX and isMouseY:
+                                pos_x = mouse_x - inv.x - inv.slotOffset
+
+                                # If mouse clicks a slot
+                                if pos_x % (inv.slotSize + inv.slotOffset) <= inv.slotSize:
+                                    activeSlot = int(pos_x // (inv.slotSize + inv.slotOffset))
+                                    
+                                    # If the mouse is pressed, it changes the active slot
+                                    if mousedown[0]:
+                                        entity[Inventory].activeSlot = activeSlot
+                                        entity[Inventory].hoverSlot = None
+                                    
+                                    # If the mouse only hovers, change the hover slot
+                                    else:
+                                        entity[Inventory].hoverSlot = activeSlot
+                                        
+                            # If the mouse is out of the inventory slots, the hovered slot should no longer be highlighted
+                            else:
+                                entity[Inventory].hoverSlot = None

@@ -103,8 +103,19 @@ class RenderSystem(System):
                     pygame.draw.rect(self.screen, inventoryBackgroundColour, inventoryPos)
 
                     # Draw slots
+                    slotIndex = 0
                     for x in range(int(inv.x+inv.slotOffset), int(inv.x+inv.width), inv.slotOffset+inv.slotSize):
-                        pygame.draw.rect(self.screen, slotBackgroundColour, (x, inv.y+inv.slotOffset, inv.slotSize, inv.slotSize))
+                        # The active slot has a different colour
+                        if slotIndex == inv.activeSlot:
+                            colour = (241, 196, 15)
+                        elif slotIndex == inv.hoverSlot:
+                            colour = (243, 156, 18)
+                        else:
+                            colour = slotBackgroundColour
+
+                        pygame.draw.rect(self.screen, colour, (x, inv.y+inv.slotOffset, inv.slotSize, inv.slotSize))
+
+                        slotIndex += 1
 
     def get_image(self, spritesheet, index):
         # Ideally, we cache so we only process a file once

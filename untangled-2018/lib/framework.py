@@ -19,7 +19,9 @@ class Framework:
         pygame.font.init()
         pygame.mixer.init()
         pygame.display.set_caption(self.caption)
-        self.screen = pygame.display.set_mode(self.dimensions, pygame.HWSURFACE | pygame.DOUBLEBUF)
+        disp_info = pygame.display.Info()
+        self.dimensions = (min(1024, disp_info.current_w), min(1024, disp_info.current_h))
+        self.screen = pygame.display.set_mode(self.dimensions, pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
 
         # Delegate
         self.net = Network()
@@ -46,6 +48,11 @@ class Framework:
                 if event.type == pygame.QUIT:
                     self.running = False
                     break
+                elif event.type==pygame.VIDEORESIZE:
+                    disp_info = pygame.display.Info()
+                    self.dimensions = (min(1024, disp_info.current_w), min(1024, disp_info.current_h))
+                    self.screen = pygame.display.set_mode(self.dimensions, pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
+                    pygame.display.flip()
 
             # Update the current state
             self.state.update(dt, events)

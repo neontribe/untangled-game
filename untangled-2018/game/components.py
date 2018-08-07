@@ -16,6 +16,29 @@ class Health:
     value: int
 
 @component(networked=True)
+<<<<<<< Updated upstream
+=======
+class Inventory:
+    """Gives a player items"""
+    items: List[Tuple[str, int]]
+    maxSlots: int = 6
+    activeSlot: int = 0
+
+    slotOffset: int = 10
+    slotSize: int = 55
+
+    height: float = slotOffset*2 + slotSize
+    width: float = slotSize * maxSlots + (slotOffset+1) * maxSlots * 2
+
+    x: float = Framework.dimensions[0] / 2 - width / 2
+    y: float = Framework.dimensions[1] - height - slotOffset
+        
+    def update_pos(self):
+        self.x: float = Framework.dimensions[0] / 2 - self.width / 2
+        self.y: float = Framework.dimensions[1] - self.height - self.slotOffset
+
+@component(networked=True)
+>>>>>>> Stashed changes
 class SpriteSheet:
     """Gives an entity an image and animations."""
     path: str

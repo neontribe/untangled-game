@@ -94,6 +94,26 @@ class RenderSystem(System):
                     # Draw this rendered text we've made to the screen
                     self.screen.blit(rendered_text_surface, rect)
 
+<<<<<<< Updated upstream
+=======
+                # Draw the inventory bar for us only
+                if game.net.is_me(entity[PlayerControl].player_id):
+                    inv = entity[Inventory]
+                    inv.update_pos()
+
+                    # Inventory bar colours
+                    inventoryBackgroundColour = (183, 92, 5)
+                    slotBackgroundColour = (255, 159, 67)
+
+                    # Draw inventory bar
+                    inventoryPos = (inv.x, inv.y, inv.width, inv.height)
+                    pygame.draw.rect(self.screen, inventoryBackgroundColour, inventoryPos)
+
+                    # Draw slots
+                    for x in range(int(inv.x+inv.slotOffset), int(inv.x+inv.width), inv.slotOffset+inv.slotSize):
+                        pygame.draw.rect(self.screen, slotBackgroundColour, (x, inv.y+inv.slotOffset, inv.slotSize, inv.slotSize))
+
+>>>>>>> Stashed changes
     def get_image(self, spritesheet, index):
         # Ideally, we cache so we only process a file once
         if spritesheet.path not in self.image_cache:

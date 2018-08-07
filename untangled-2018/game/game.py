@@ -65,6 +65,22 @@ class GameState:
                 Directioned(direction='default'),
                 MoveRandom()
             ])
+            #Add Animal code
+            self.add_entity([
+                SpriteSheet(
+                    path='./assets/sprites/sheep.png',
+                    tile_size=100,
+                    default=[0],
+                    left=[3, 4, 4],
+                    right=[0, 1, 2],
+                    up=[8, 9, 10],
+                    down=[5, 6, 7],
+                    moving=False
+                ),
+                IngameObject(position=(spawnp,spawnp), size=(64,64)),
+                Directioned(direction='default'),
+                MoveRandom()
+            ])
 
     def update(self, dt: float, events):
         """This code gets run 60fps. All of our game logic stems from updating

@@ -70,6 +70,7 @@ class GameState:
 
             # They should be facing a certain direction
             Directioned(direction='default'),
+            WaterBar(value=100),
 
             # They will have a name and gender
             Profile(),

@@ -17,6 +17,12 @@ class Health:
     value: int
 
 @component(networked=True)
+class WaterBar:
+    """Gives the entity a water bar"""
+    value: int
+    disabled: bool = False
+
+@component(networked=True)
 class Inventory:
     """Gives a player items"""
     items: List[Tuple[str, int]]

@@ -39,7 +39,7 @@ class RenderSystem(System):
                 # Where are they relative to us?
                 pos = entity[IngameObject].position
                 rel_pos = (pos[0] - our_center[0], pos[1] - our_center[1])
-                screen_pos = (rel_pos[0] + 512, rel_pos[1] + 512)
+                screen_pos = (rel_pos[0] + game.framework.dimensions[0] / 2, rel_pos[1] + game.framework.dimensions[1] / 2)
 
                 img_indexes = spritesheet.default
 
@@ -76,6 +76,19 @@ class RenderSystem(System):
                         currentHealthPos = (rect.x+healthBarThickness, rect.y-30+healthBarThickness, entity[Health].value, 10-healthBarThickness*2)
                         pygame.draw.rect(self.screen, (255, 0, 0), currentHealthPos)
 
+                if WaterBar in entity:
+                    if not entity[WaterBar].disabled:
+                        # Water bar wrapper
+                        waterBarThickness = 2
+                        pygame.draw.rect(self.screen, (255, 255, 255), (rect.x, rect.y-60, 100+waterBarThickness*2, 10), waterBarThickness)
+
+                        # Blue water bar
+                        if entity[Health].value > 0:
+                            currentWaterPos = (rect.x+waterBarThickness, rect.y-60+waterBarThickness, entity[WaterBar].value, 10-waterBarThickness*2)
+                            pygame.draw.rect(self.screen, (0, 0, 255), currentWaterPos)
+
+                        rect.y -= 30
+
                 # Does the entity have a name we can draw
                 if Profile in entity:
                     name = entity[Profile].name
@@ -85,37 +98,39 @@ class RenderSystem(System):
 
 
                     # Move the nametag above the player
-                    rect.y -= 70
+                    rect.y -= 70 # 60px for the bars
 
                     # Draw this rendered text we've made to the screen
                     self.screen.blit(rendered_text_surface, rect)
 
                 # Draw the inventory bar for us only
                 if game.net.is_me(entity[PlayerControl].player_id):
-                    inv = entity[Inventory]
+                    # Debugging if statement
+                    if Inventory in entity:
+                        inv = entity[Inventory]
 
-                    # Inventory bar colours
-                    inventoryBackgroundColour = (183, 92, 5)
-                    slotBackgroundColour = (255, 159, 67)
+                        # Inventory bar colours
+                        inventoryBackgroundColour = (183, 92, 5)
+                        slotBackgroundColour = (255, 159, 67)
 
-                    # Draw inventory bar
-                    inventoryPos = (inv.x, inv.y, inv.width, inv.height)
-                    pygame.draw.rect(self.screen, inventoryBackgroundColour, inventoryPos)
+                        # Draw inventory bar
+                        inventoryPos = (inv.x, inv.y, inv.width, inv.height)
+                        pygame.draw.rect(self.screen, inventoryBackgroundColour, inventoryPos)
 
-                    # Draw slots
-                    slotIndex = 0
-                    for x in range(int(inv.x+inv.slotOffset), int(inv.x+inv.width), inv.slotOffset+inv.slotSize):
-                        # The active slot has a different colour
-                        if slotIndex == inv.activeSlot:
-                            colour = (241, 196, 15)
-                        elif slotIndex == inv.hoverSlot:
-                            colour = (243, 156, 18)
-                        else:
-                            colour = slotBackgroundColour
+                        # Draw slots
+                        slotIndex = 0
+                        for x in range(int(inv.x+inv.slotOffset), int(inv.x+inv.width), inv.slotOffset+inv.slotSize):
+                            # The active slot has a different colour
+                            if slotIndex == inv.activeSlot:
+                                colour = (241, 196, 15)
+                            elif slotIndex == inv.hoverSlot:
+                                colour = (243, 156, 18)
+                            else:
+                                colour = slotBackgroundColour
 
-                        pygame.draw.rect(self.screen, colour, (x, inv.y+inv.slotOffset, inv.slotSize, inv.slotSize))
+                            pygame.draw.rect(self.screen, colour, (x, inv.y+inv.slotOffset, inv.slotSize, inv.slotSize))
 
-                        slotIndex += 1
+                            slotIndex += 1
 
     def get_image(self, spritesheet, index):
         # Ideally, we cache so we only process a file once

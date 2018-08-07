@@ -11,16 +11,21 @@ class IngameObject:
     size: Tuple[int, int]
 
 @component(networked=True)
+class Health:
+    """Gives the entity health"""
+    value: int
+
+@component(networked=True)
 class SpriteSheet:
     """Gives an entity an image and animations."""
     path: str
     tile_size: int
-    default: List[int]
-    left: Union[List[int], None]
-    right: Union[List[int], None]
-    up: Union[List[int], None]
-    down: Union[List[int], None]
+    tiles: dict
     moving: bool = False
+
+@component(networked=True)
+class BackgroundMusic:
+    path: str
 
 @component(networked=True)
 class Directioned:

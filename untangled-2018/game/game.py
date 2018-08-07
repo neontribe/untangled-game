@@ -5,6 +5,8 @@ from game.systems.rendersystem import RenderSystem
 from game.systems.userinputsystem import UserInputSystem
 from game.systems.profilesystem import ProfileSystem
 from game.systems.AI_system import AI_system
+from game.systems.soundsystem import SoundSystem
+
 
 class GameState:
     """Our core code.
@@ -36,12 +38,15 @@ class GameState:
             ProfileSystem(name, gender),
             UserInputSystem(),
             RenderSystem(self.screen),
-            AI_system()
+
+            AI_system
+            SoundSystem()
         ])
 
         # If we're hosting, we need to register that we joined our own game
         if self.net.is_hosting():
             self.on_player_join(self.net.get_id())
+
             #Add monster code
             '''self.add_entity([
                 SpriteSheet(
@@ -74,6 +79,13 @@ class GameState:
                 ChasePlayer(speed = 2)
             ])'''
 
+            self.add_entity([
+                BackgroundMusic (
+                    path="assets/sounds/overworld.wav"
+                )
+            ])
+
+
     def update(self, dt: float, events):
         """This code gets run 60fps. All of our game logic stems from updating
         our systems on our entities."""
@@ -95,6 +107,9 @@ class GameState:
             # They should have a position and size in game
             IngameObject(position=(0, 0), size=(64, 64)),
 
+            # They should have a health
+            Health(value=100),
+
             # They should be facing a certain direction
             Directioned(direction='default'),
 
@@ -105,12 +120,14 @@ class GameState:
             SpriteSheet(
                 path='./assets/sprites/player.png',
                 tile_size=48,
-                default=[58],
-                left=[70, 71, 69],
-                right=[82, 83, 81],
-                up=[94, 95, 93],
-                down=[58, 59, 57],
-                moving=False
+                moving=False,
+                tiles={
+                    'default':[58],
+                    'left':[70,71,69],
+                    'right':[82,83,81],
+                    'up':[94,95,93],
+                    'down':[58,59,57]
+                }
             ),
 
             # The player who has connected con control them with the arrow keys

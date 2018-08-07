@@ -43,11 +43,11 @@ class RenderSystem(System):
                 rel_pos = (pos[0] - our_center[0], pos[1] - our_center[1])
                 screen_pos = (rel_pos[0] + 512, rel_pos[1] + 512)
 
-                img_indexes = spritesheet.default
+                img_indexes = spritesheet.tiles["default"]
 
                 # Will they be facing a certain direction?
                 if Directioned in entity:
-                    alts = spritesheet.__dict__[entity[Directioned].direction]
+                    alts = spritesheet.tiles[entity[Directioned].direction]
                     if alts != None:
                         img_indexes = alts
 
@@ -57,6 +57,10 @@ class RenderSystem(System):
                 else:
                     img_index = img_indexes[0]
                 img = self.get_image(spritesheet, img_index)
+                
+                #Scale the image
+                if img.get_size() != entity[IngameObject].size:
+                    img = pygame.transform.scale(img, entity[IngameObject].size)
                 
                 rect = Rect(screen_pos, entity[IngameObject].size)
                 rect.center = screen_pos
@@ -69,8 +73,38 @@ class RenderSystem(System):
                     rendered_text_surface = self.font.render(name, False, (255, 255, 255))
                     rect.y = rect.y-50
 
+
                     self.screen.blit(rendered_text_surface, rect)
   
+                # Center health bar and nametag
+                rect.x -= 30
+
+                # Checks if entity has a health component
+                if Health in entity:
+                    # Health bar wrapper
+                    healthBarThickness = 2
+                    pygame.draw.rect(self.screen, (255, 255, 255), (rect.x, rect.y-30, 100+healthBarThickness*2, 10), healthBarThickness)
+
+                    # Red health bar
+                    if entity[Health].value > 0:
+                        currentHealthPos = (rect.x+healthBarThickness, rect.y-30+healthBarThickness, entity[Health].value, 10-healthBarThickness*2)
+                        pygame.draw.rect(self.screen, (255, 0, 0), currentHealthPos)
+
+                # Does the entity have a name we can draw
+                if Profile in entity:
+                    name = entity[Profile].name
+
+                    # Draw our name with our font in white
+                    rendered_text_surface = self.font.render(name, False, (0, 255, 25))
+
+
+                    # Move the nametag above the player
+                    rect.y -= 70
+
+                    # Draw this rendered text we've made to the screen
+                    self.screen.blit(rendered_text_surface, rect)
+
+
     def get_image(self, spritesheet, index):
         # Ideally, we cache so we only process a file once
         if spritesheet.path not in self.image_cache:

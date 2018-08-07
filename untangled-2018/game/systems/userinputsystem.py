@@ -2,6 +2,7 @@ import pygame.locals
 
 from lib.system import System
 from game.components import *
+from game.systems.particlesystem import Particle
 
 SPEED = 4
 
@@ -18,6 +19,8 @@ class UserInputSystem(System):
                 if game.net.is_me(entity[PlayerControl].player_id):
                     # Our ingane position and size
                     io = entity[IngameObject]
+
+                    prePos = io.position
 
                     # Store whether we've moved this frame
                     moved = False
@@ -47,3 +50,10 @@ class UserInputSystem(System):
                         entity[SpriteSheet].moving = moved
                     if Directioned in entity:
                         entity[Directioned].direction = direction
+
+                    if moved:
+                        partPos = ((prePos[0] - io.position[0]),(prePos[1] - io.position[1]))
+                        partVel = (partPos[0]/8,partPos[1]/8)
+                        randVel = (partPos[1]/2,partPos[0]/2)
+                        part = Particle("ring",(io.position[0],io.position[1]+32),20,colour=(137, 63, 69),velocity=partVel,below=True,randomness=randVel)
+                        game.particles.add_particle(part)

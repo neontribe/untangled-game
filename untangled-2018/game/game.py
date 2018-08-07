@@ -6,6 +6,7 @@ from game.systems.rendersystem import RenderSystem
 from game.systems.userinputsystem import UserInputSystem
 from game.systems.profilesystem import ProfileSystem
 from game.systems.collisionsystem import CollisionSystem, CollisionCall
+from game.systems.particlesystem import ParticleSystem
 from game.systems.soundsystem import SoundSystem
 
 class GameState:
@@ -33,14 +34,17 @@ class GameState:
         self.framework = framework
         self.screen = framework.screen
         self.net = framework.net
+        self.renderSystem = RenderSystem(self.screen)
         self.collisionSystem = CollisionSystem()
+        self.particles = ParticleSystem(self.renderSystem)
 
         # Add all systems we want to run
         self.systems.extend([
             ProfileSystem(name, gender),
             UserInputSystem(),
             self.collisionSystem,
-            RenderSystem(self.screen),
+            self.renderSystem,
+            self.particles,
             SoundSystem()
         ])
 

@@ -12,6 +12,16 @@ class RenderSystem(System):
         self.screen = screen
         self.image_cache = {}
         self.steps = 0
+        self.particles = {
+            'above':[],
+            'below':[]
+        }
+        self.particleFunc = {
+            'square': lambda p, s: self.particle_square(p,s),
+            'circle': lambda p, s: self.particle_circle(p,s),
+            'ring': lambda p, s: self.particle_ring(p,s),
+            'star': lambda p, s: self.particle_star(p,s)
+        }
 
         font_path = 'assets/fonts/alterebro-pixel-font.ttf'
         self.font = pygame.font.Font(font_path, 45)
@@ -30,6 +40,8 @@ class RenderSystem(System):
                 if game.net.is_me(entity[PlayerControl].player_id):
                     our_center = entity[IngameObject].position
                     break
+
+        self.draw_particles("below", our_center)
 
         previousCollidables = []
 
@@ -103,6 +115,8 @@ class RenderSystem(System):
                     # Draw this rendered text we've made to the screen
                     self.screen.blit(rendered_text_surface, rect)
 
+            self.draw_particles("above", our_center)
+
     def get_image(self, spritesheet, index):
         # Ideally, we cache so we only process a file once
         if spritesheet.path not in self.image_cache:
@@ -123,3 +137,23 @@ class RenderSystem(System):
 
         return self.image_cache[spritesheet.path][index]
 
+    def draw_particles(self, height: str, our_center):
+        if height in self.particles.keys():
+            for p in self.particles[height]:
+                pos = (round(p.position[0]), round(p.position[1]))
+                rel_pos = (pos[0] - our_center[0], pos[1] - our_center[1])
+                screen_pos = (rel_pos[0] + 512, rel_pos[1] + 512)
+                self.particleFunc[p.particleType](p, screen_pos)
+
+    def particle_square(self, p, pos):
+        rect = Rect(pos[0],pos[1],8,8)
+        pygame.draw.rect(self.screen,p.colour,rect)
+
+    def particle_circle(self, p, pos):
+        pygame.draw.circle(self.screen,p.colour,pos,4)
+        
+    def particle_ring(self, p, pos):
+        pygame.draw.circle(self.screen,p.colour,pos,4,2)
+
+    def particle_star(self, p, pos):
+        pass

@@ -17,6 +17,7 @@ class Framework:
         # Initialise pygame
         pygame.init()
         pygame.font.init()
+        pygame.mixer.init()
         pygame.display.set_caption(self.caption)
         self.screen = pygame.display.set_mode(self.dimensions, pygame.HWSURFACE | pygame.DOUBLEBUF)
 

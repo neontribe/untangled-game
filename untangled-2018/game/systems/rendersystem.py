@@ -3,6 +3,7 @@ from pygame import Rect
 
 from lib.system import System
 from game.components import *
+from game.systems.collisionsystem import *
 
 class RenderSystem(System):
     """This system draws any entity with a SpriteSheet component."""
@@ -30,8 +31,16 @@ class RenderSystem(System):
                     our_center = entity[IngameObject].position
                     break
 
+        previousCollidables = []
+
         # Render everything we can
         for key, entity in game.entities.items():
+            #Check collisions for entity against all previously checked entities
+            if IngameObject in entity and Collidable in entity:
+                if entity[Collidable].canCollide:
+                    game.collisionSystem.checkCollisions(game,key,entity[Collidable],previousCollidables)
+                    previousCollidables.append((key,entity[Collidable]))
+
             # Is this an entity we should draw?
             if IngameObject in entity and SpriteSheet in entity:
                 spritesheet = entity[SpriteSheet]
@@ -41,11 +50,11 @@ class RenderSystem(System):
                 rel_pos = (pos[0] - our_center[0], pos[1] - our_center[1])
                 screen_pos = (rel_pos[0] + game.framework.dimensions[0] / 2, rel_pos[1] + game.framework.dimensions[1] / 2)
 
-                img_indexes = spritesheet.default
+                img_indexes = spritesheet.tiles["default"]
 
                 # Will they be facing a certain direction?
                 if Directioned in entity:
-                    alts = spritesheet.__dict__[entity[Directioned].direction]
+                    alts = spritesheet.tiles[entity[Directioned].direction]
                     if alts != None:
                         img_indexes = alts
 
@@ -56,6 +65,10 @@ class RenderSystem(System):
                     img_index = img_indexes[0]
                 img = self.get_image(spritesheet, img_index)
                 
+                #Scale the image
+                if img.get_size() != entity[IngameObject].size:
+                    img = pygame.transform.scale(img, entity[IngameObject].size)
+                
                 rect = Rect(screen_pos, entity[IngameObject].size)
                 rect.center = screen_pos
                 
@@ -65,7 +78,7 @@ class RenderSystem(System):
                 # Center health bar and nametag
                 rect.x -= 30
 
-                # Checks if the entity has a health
+                # Checks if entity has a health component
                 if Health in entity:
                     # Health bar wrapper
                     healthBarThickness = 2
@@ -103,34 +116,36 @@ class RenderSystem(System):
                     # Draw this rendered text we've made to the screen
                     self.screen.blit(rendered_text_surface, rect)
 
-                # Draw the inventory bar for us only
-                if game.net.is_me(entity[PlayerControl].player_id):
-                    # Debugging if statement
-                    if Inventory in entity:
-                        inv = entity[Inventory]
+                # Checks if it is a player
+                if PlayerControl in entity:
+                    # Draw the inventory bar for us only
+                    if game.net.is_me(entity[PlayerControl].player_id):
+                        # Debugging if statement
+                        if Inventory in entity:
+                            inv = entity[Inventory]
 
-                        # Inventory bar colours
-                        inventoryBackgroundColour = (183, 92, 5)
-                        slotBackgroundColour = (255, 159, 67)
+                            # Inventory bar colours
+                            inventoryBackgroundColour = (183, 92, 5)
+                            slotBackgroundColour = (255, 159, 67)
 
-                        # Draw inventory bar
-                        inventoryPos = (inv.x, inv.y, inv.width, inv.height)
-                        pygame.draw.rect(self.screen, inventoryBackgroundColour, inventoryPos)
+                            # Draw inventory bar
+                            inventoryPos = (inv.x, inv.y, inv.width, inv.height)
+                            pygame.draw.rect(self.screen, inventoryBackgroundColour, inventoryPos)
 
-                        # Draw slots
-                        slotIndex = 0
-                        for x in range(int(inv.x+inv.slotOffset), int(inv.x+inv.width), inv.slotOffset+inv.slotSize):
-                            # The active slot has a different colour
-                            if slotIndex == inv.activeSlot:
-                                colour = (241, 196, 15)
-                            elif slotIndex == inv.hoverSlot:
-                                colour = (243, 156, 18)
-                            else:
-                                colour = slotBackgroundColour
+                            # Draw slots
+                            slotIndex = 0
+                            for x in range(int(inv.x+inv.slotOffset), int(inv.x+inv.width), inv.slotOffset+inv.slotSize):
+                                # The active slot has a different colour
+                                if slotIndex == inv.activeSlot:
+                                    colour = (241, 196, 15)
+                                elif slotIndex == inv.hoverSlot:
+                                    colour = (243, 156, 18)
+                                else:
+                                    colour = slotBackgroundColour
 
-                            pygame.draw.rect(self.screen, colour, (x, inv.y+inv.slotOffset, inv.slotSize, inv.slotSize))
+                                pygame.draw.rect(self.screen, colour, (x, inv.y+inv.slotOffset, inv.slotSize, inv.slotSize))
 
-                            slotIndex += 1
+                                slotIndex += 1
 
     def get_image(self, spritesheet, index):
         # Ideally, we cache so we only process a file once

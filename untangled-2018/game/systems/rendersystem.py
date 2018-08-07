@@ -3,7 +3,7 @@ from pygame import Rect
 
 from lib.system import System
 from game.components import *
-from collisionsystem import *
+from game.systems.collisionsystem import *
 
 class RenderSystem(System):
     """This system draws any entity with a SpriteSheet component."""
@@ -38,8 +38,8 @@ class RenderSystem(System):
             #Check collisions for entity against all previously checked entities
             if IngameObject in entity and Collidable in entity:
                 if entity[Collidable].canCollide:
-                    checkCollisions(entity,previousCollidables)
-                    previousCollidables.append(entity)
+                    game.collisionSystem.checkCollisions(game,key,entity[Collidable],previousCollidables)
+                    previousCollidables.append((key,entity[Collidable]))
 
             # Is this an entity we should draw?
             if IngameObject in entity and SpriteSheet in entity:
@@ -66,7 +66,7 @@ class RenderSystem(System):
                 img = self.get_image(spritesheet, img_index)
                 
                 #Scale the image
-                if img.get_size() not entity[IngameObject].size:
+                if img.get_size() is not entity[IngameObject].size:
                     img = pygame.transform.scale(img, entity[IngameObject].size)
                 
                 rect = Rect(screen_pos, entity[IngameObject].size)

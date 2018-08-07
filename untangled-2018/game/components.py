@@ -1,9 +1,10 @@
 from typing import List
 from typing import Tuple
 from typing import Union
+from pygame import Rect
 
 from lib.component import component
-from systems.collisionsystem import CollisionCall
+from game.systems.collisionsystem import CollisionCall
 
 @component(networked=True)
 class IngameObject:
@@ -48,16 +49,23 @@ class PlayerControl:
 @component(networked=False)
 class Collidable:
     """Lets an entity collide with another collidable"""
-    canCollide: bool
+    call: CollisionCall
+    canCollide: bool = True
     #rect to override
     customCollisionBox = None
-    call: CollisionCall
     def setCustomCollisionBox(self, obj: IngameObject, width: int, height: int):
         center = (obj.position[0] + (obj.size[0] / 2), obj.position[1] + (obj.size[1] / 2))
         newTopLeft = (center[0] - (width/2), center[1] - (height/2))
-        self.customCollisionBox = (newTopLeft[0], newTopLeft[1], width, height)
+        self.customCollisionBox = Rect(newTopLeft[0], newTopLeft[1], width, height)
 
-    def toRect(self):
-        if self.customCollisionBox not None:
+    def toRect(self,entity):
+        if self.customCollisionBox is not None:
             return self.customCollisionBox
-        return (self.position[0], self.position[1], self.size[0], self.size[1])
+        pos = entity[IngameObject].position
+        size = entity[IngameObject].size
+        return Rect(
+            pos[0] - (size[0] / 2),
+            pos[1] - (size[1] / 2),
+            entity[IngameObject].size[0],
+            entity[IngameObject].size[1]
+        )

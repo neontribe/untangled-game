@@ -60,11 +60,11 @@ class GameState:
                 call = CollisionCall()
             )
         ])
-            self.add_entity([
-                BackgroundMusic (
-                    path="assets/sounds/overworld.wav"
-                )
-            ])
+        self.add_entity([
+            BackgroundMusic (
+                path="assets/sounds/overworld.wav"
+            )
+        ])
 
     def update(self, dt: float, events):
         """This code gets run 60fps. All of our game logic stems from updating

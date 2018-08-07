@@ -5,7 +5,7 @@ from game.systems.rendersystem import RenderSystem
 from game.systems.userinputsystem import UserInputSystem
 from game.systems.profilesystem import ProfileSystem
 from game.systems.soundsystem import SoundSystem
-
+from game.systems.plantsystem import PlantSystem
 class GameState:
     """Our core code.
     
@@ -36,7 +36,8 @@ class GameState:
             ProfileSystem(name, gender),
             UserInputSystem(),
             RenderSystem(self.screen),
-            SoundSystem()
+            SoundSystem(),
+            PlantSystem()
         ])
 
         # If we're hosting, we need to register that we joined our own game
@@ -46,6 +47,14 @@ class GameState:
                 BackgroundMusic (
                     path="assets/sounds/overworld.wav"
                 )
+            ])
+            self.add_entity([
+                IngameObject(position=(100,100),size=(64, 64)),
+                Health(value=10), 
+                Crops(name="wheat", growth_rate=3,dehydration_rate=2, max_growth_stage=4,growth_stage=0),
+                SpriteSheet(path="assets/sprites/wheat.png",tile_size=16,tiles={
+                    'default':[0,1, 2, 3]    
+                })
             ])
 
     def update(self, dt: float, events):

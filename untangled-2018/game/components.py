@@ -1,7 +1,7 @@
 from typing import List
 from typing import Tuple
 from typing import Union
-
+import time
 from lib.component import component
 
 @component(networked=True)
@@ -14,13 +14,22 @@ class IngameObject:
 class Health:
     """Gives the entity health"""
     value: int
-
+@component(networked=True)
+class Crops:
+    """Stores infomation about crops"""
+    name: str
+    growth_rate: int
+    dehydration_rate: int
+    growth_stage:int
+    max_growth_stage:int
+    plantage_time:float = time.time()
 @component(networked=True)
 class SpriteSheet:
     """Gives an entity an image and animations."""
     path: str
     tile_size: int
     tiles: dict
+    default_tile: int = 0
     moving: bool = False
 
 @component(networked=True)

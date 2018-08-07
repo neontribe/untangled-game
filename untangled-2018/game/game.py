@@ -38,8 +38,7 @@ class GameState:
             ProfileSystem(name, gender),
             UserInputSystem(),
             RenderSystem(self.screen),
-
-            AI_system
+            AI_system(),
             SoundSystem()
         ])
 
@@ -48,15 +47,17 @@ class GameState:
             self.on_player_join(self.net.get_id())
 
             #Add monster code
-            '''self.add_entity([
+            self.add_entity([
                 SpriteSheet(
                     path='./assets/sprites/ZOM_enemy.png',
                     tile_size=32,
-                    default=[0],
-                    left=[9, 10, 11],
-                    right=[6, 7, 8],
-                    up=[3, 4, 5],
-                    down=[0, 1, 2],
+                    tiles={
+                        'default': [0],
+                        'left': [9, 10, 11],
+                        'right': [6, 7, 8],
+                        'up': [3, 4, 5],
+                        'down': [0, 1, 2]
+                    },
                     moving=False
                 ),
                 IngameObject(position=(0, 0), size=(64, 64)),
@@ -67,24 +68,25 @@ class GameState:
                 SpriteSheet(
                     path='./assets/sprites/BOUNCE_enemy.png',
                     tile_size=32,
-                    default=[0],
-                    left=[9, 10, 11],
-                    right=[6, 7, 8],
-                    up=[3, 4, 5],
-                    down=[12, 13, 14],
+                    tiles={
+                        'default': [0],
+                        'left': [9, 10, 11],
+                        'right': [6, 7, 8],
+                        'up': [3, 4, 5],
+                        'down': [12, 13, 14]
+                    },
                     moving=False
                 ),
                 IngameObject(position=(0, 0), size=(64, 64)),
                 Directioned(direction='default'),
                 ChasePlayer(speed = 2)
-            ])'''
+            ])
 
             self.add_entity([
                 BackgroundMusic (
                     path="assets/sounds/overworld.wav"
                 )
             ])
-
 
     def update(self, dt: float, events):
         """This code gets run 60fps. All of our game logic stems from updating

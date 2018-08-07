@@ -36,8 +36,6 @@ class RenderSystem(System):
             if IngameObject in entity and SpriteSheet in entity:
                 spritesheet = entity[SpriteSheet]
 
-            
-
                 # Where are they relative to us?
                 pos = entity[IngameObject].position
                 rel_pos = (pos[0] - our_center[0], pos[1] - our_center[1])
@@ -67,14 +65,6 @@ class RenderSystem(System):
                 
                 # Draw the image
                 self.screen.blit(img, rect)
-                #XDoes the entity have a name
-                if Profile in entity:
-                    name = entity[Profile].name
-                    rendered_text_surface = self.font.render(name, False, (255, 255, 255))
-                    rect.y = rect.y-50
-
-
-                    self.screen.blit(rendered_text_surface, rect)
   
                 # Center health bar and nametag
                 rect.x -= 30

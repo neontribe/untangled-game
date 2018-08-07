@@ -13,6 +13,7 @@ class IngameObject:
 @component(networked=True)
 class Health:
     """Gives the entity health"""
+    maxValue: int
     value: int
 
 @component(networked=True)

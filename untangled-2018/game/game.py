@@ -63,7 +63,7 @@ class GameState:
             IngameObject(position=(0, 0), size=(64, 64)),
 
             # They should have a health
-            Health(value=100),
+            Health(maxValue=200, value=200),
 
             # They should be facing a certain direction
             Directioned(direction='default'),

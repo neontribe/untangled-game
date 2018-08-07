@@ -1,9 +1,16 @@
 import uuid
+import random
+from random import randint
 
 from game.components import *
 from game.systems.rendersystem import RenderSystem
 from game.systems.userinputsystem import UserInputSystem
 from game.systems.profilesystem import ProfileSystem
+from game.systems.animalsystem import AnimalSystem
+
+
+spawnp = random.randint(1, 200)
+
 
 class GameState:
     """Our core code.
@@ -34,12 +41,30 @@ class GameState:
         self.systems.extend([
             ProfileSystem(name, gender),
             UserInputSystem(),
-            RenderSystem(self.screen)
+            RenderSystem(self.screen),
+            AnimalSystem()
         ])
 
         # If we're hosting, we need to register that we joined our own game
         if self.net.is_hosting():
             self.on_player_join(self.net.get_id())
+
+            #Add Animal code
+            self.add_entity([
+                SpriteSheet(
+                    path='./assets/sprites/chick5.png',
+                    tile_size=50,
+                    default=[0],
+                    left=[3, 3, 3],
+                    right=[0, 0, 0],
+                    up=[0, 0, 0],
+                    down=[0, 0, 0],
+                    moving=False
+                ),
+                IngameObject(position=(spawnp,spawnp), size=(64,64)),
+                Directioned(direction='default'),
+                MoveRandom()
+            ])
 
     def update(self, dt: float, events):
         """This code gets run 60fps. All of our game logic stems from updating

@@ -38,3 +38,7 @@ class Profile:
 class PlayerControl:
     """Lets an entity be controlled by specific player's arrow keys."""
     player_id: str
+@component()
+class MoveRandom:
+    direction: str = 'default'
+    lastmove: float = 0

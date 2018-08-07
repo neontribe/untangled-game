@@ -53,7 +53,7 @@ class GameState:
             UserInputSystem(),
 
             RenderSystem(self.screen),
-            AnimalSystem()
+            AnimalSystem(),
 
             self.collisionSystem,
             RenderSystem(self.screen),
@@ -88,11 +88,13 @@ class GameState:
                 SpriteSheet(
                     path='./assets/sprites/chick5.png',
                     tile_size=50,
-                    default=[0],
-                    left=[3, 3, 3],
-                    right=[0, 0, 0],
-                    up=[0, 0, 0],
-                    down=[0, 0, 0],
+                    tiles={
+                        'default': [0],
+                        'left': [3, 3, 3],
+                        'right': [0, 0, 0],
+                        'up': [0, 0, 0],
+                        'down': [0, 0, 0]
+                    },
                     moving=False
                 ),
                 IngameObject(position=(spawnp,spawnp), size=(64,64)),
@@ -104,11 +106,13 @@ class GameState:
                 SpriteSheet(
                     path='./assets/sprites/sheep.png',
                     tile_size=100,
-                    default=[0],
-                    left=[3, 4, 4],
-                    right=[0, 1, 2],
-                    up=[8, 9, 10],
-                    down=[5, 6, 7],
+                    tiles={
+                        'default' : [0],
+                        'left' : [3, 4, 4],
+                        'right' : [0, 1, 2],
+                        'up' : [8, 9, 10],
+                        'down' : [5, 6, 7],
+                    },
                     moving=False
                 ),
                 IngameObject(position=(spawnp,spawnp), size=(64,64)),

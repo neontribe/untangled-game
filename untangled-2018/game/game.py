@@ -47,24 +47,23 @@ class GameState:
         # If we're hosting, we need to register that we joined our own game
         if self.net.is_hosting():
             self.on_player_join(self.net.get_id())
-        
-        self.add_entity([
-            IngameObject(position=(0,0), size=(128,128)),
-            SpriteSheet(
-                path='./assets/sprites/test.png',
-                tile_size=8,
-                default=[0],
-                left=[],right=[],up=[],down=[],moving=False
-            ),
-            Collidable(
-                call = CollisionCall()
-            )
-        ])
-        self.add_entity([
-            BackgroundMusic (
-                path="assets/sounds/overworld.wav"
-            )
-        ])
+            self.add_entity([
+                BackgroundMusic (
+                    path="assets/sounds/overworld.wav"
+                )
+            ])
+            self.add_entity([
+                IngameObject(position=(0,0), size=(128,128)),
+                SpriteSheet(
+                    path='./assets/sprites/test.png',
+                    tile_size=8,
+                    default=[0],
+                    left=[],right=[],up=[],down=[],moving=False
+                ),
+                Collidable(
+                    call = CollisionCall()
+                )
+            ])
 
     def update(self, dt: float, events):
         """This code gets run 60fps. All of our game logic stems from updating

@@ -31,16 +31,15 @@ class RenderSystem(System):
                     our_center = entity[IngameObject].position
                     break
 
-        collidable = []
-        for key, entity in game.entities.items():
-            if IngameObject in entity and Collidable in entity:
-                collidable.append(entity)
-        ignore = []
+        previousCollidables = []
 
         # Render everything we can
         for key, entity in game.entities.items():
+            #Check collisions for entity against all previously checked entities
             if IngameObject in entity and Collidable in entity:
-                checkCollisions(entity,collidable,ignore)
+                if entity[Collidable].canCollide:
+                    checkCollisions(entity,previousCollidables)
+                    previousCollidables.append(entity)
 
             # Is this an entity we should draw?
             if IngameObject in entity and SpriteSheet in entity:

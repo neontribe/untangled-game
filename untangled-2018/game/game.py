@@ -4,6 +4,7 @@ from game.components import *
 from game.systems.rendersystem import RenderSystem
 from game.systems.userinputsystem import UserInputSystem
 from game.systems.profilesystem import ProfileSystem
+from game.systems.collisionsystem import CollisionSystem
 
 class GameState:
     """Our core code.
@@ -34,6 +35,7 @@ class GameState:
         self.systems.extend([
             ProfileSystem(name, gender),
             UserInputSystem(),
+            CollisionSystem(),
             RenderSystem(self.screen)
         ])
 

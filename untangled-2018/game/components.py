@@ -3,6 +3,7 @@ from typing import Tuple
 from typing import Union
 
 from lib.component import component
+from systems.collisionsystem import CollisionCall
 
 @component(networked=True)
 class IngameObject:
@@ -47,8 +48,16 @@ class PlayerControl:
 @component(networked=False)
 class Collidable:
     """Lets an entity collide with another collidable"""
+    canCollide: bool
+    #rect to override
+    customCollisionBox = None
+    call: CollisionCall
+    def setCustomCollisionBox(self, obj: IngameObject, width: int, height: int):
+        center = (obj.position[0] + (obj.size[0] / 2), obj.position[1] + (obj.size[1] / 2))
+        newTopLeft = (center[0] - (width/2), center[1] - (height/2))
+        self.customCollisionBox = (newTopLeft[0], newTopLeft[1], width, height)
+
     def toRect(self):
+        if self.customCollisionBox not None:
+            return self.customCollisionBox
         return (self.position[0], self.position[1], self.size[0], self.size[1])
-    def defaultFunction(other):
-        return False
-    onCollide = defaultFunction

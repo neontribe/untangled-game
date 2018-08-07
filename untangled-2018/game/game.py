@@ -59,7 +59,7 @@ class GameState:
                     tile_size=8,
                     moving=False,
                     tiles={
-                        'default'=[0]
+                        'default':[0]
                     }
                 ),
                 Collidable(
@@ -116,9 +116,9 @@ class GameState:
 
             Collidable(
                 call = CollisionCall(
-                    #start = lambda event: print("Player Collision Start")
-                    #update = lambda event: print("Player Collision Update")
-                    #end = lambda event: print("Player Collision End")
+                    start = lambda event: print("Player Collision Start"),
+                    #update = lambda event: print("Player Collision Update"),
+                    end = lambda event: print("Player Collision End")
                 )
             )
         ])

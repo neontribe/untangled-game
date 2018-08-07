@@ -41,6 +41,7 @@ class CollisionSystem(System):
     def createCollision(self,keys: list):
         #Collide the entities
         if self.collisionExists(keys) is None:
+            print("Collision Started")
             self.COLLISIONEVENTS.append(CollisionEvent(self, keys))
 
     def allExcept(self, exclude, l: list):
@@ -67,7 +68,8 @@ class CollisionSystem(System):
             if c.doEnd:
                 c.end()
                 remove.append(c)
-                print("Collision Ended")
+                c.calls = []
+                #print("Collision Ended")
             else:
                 c.update()
         for r in remove:
@@ -85,7 +87,7 @@ class CollisionEvent:
         for k in keys:
             if colSystem.COLLISIONCALLS[k] is not None:
                 self.calls.append(colSystem.COLLISIONCALLS[k])
-        print("Collision Started")
+        #print("Collision Started")
         self.start()
         
     def start(self):

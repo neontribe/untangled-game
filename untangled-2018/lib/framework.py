@@ -4,11 +4,14 @@ import sys
 from lib.network import Network
 from lib.menu import MenuState
 
+global SCREENSIZE
+SCREENSIZE = (512,512)
+
 class Framework:
     """The core state of our app."""
 
     caption = 'Untangled 2018'
-    dimensions = (1024, 1024)
+    dimensions = SCREENSIZE
     fps = 60
     running = True
     clock = pygame.time.Clock()
@@ -19,7 +22,7 @@ class Framework:
         pygame.font.init()
         pygame.mixer.init()
         pygame.display.set_caption(self.caption)
-        self.screen = pygame.display.set_mode(self.dimensions, pygame.HWSURFACE | pygame.DOUBLEBUF)
+        self.screen = pygame.display.set_mode(self.dimensions, pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
 
         # Delegate
         self.net = Network()
@@ -27,8 +30,10 @@ class Framework:
         self.state = MenuState(self)
 
     def main_loop(self):
+        global SCREENSIZE
         # Initial tick so our first tick doesn't return all the time since __init__
         self.clock.tick()
+        
 
         # While we haven't been stopped
         while self.running:
@@ -46,6 +51,10 @@ class Framework:
                 if event.type == pygame.QUIT:
                     self.running = False
                     break
+                if event.type == pygame.VIDEORESIZE:
+                    SCREENSIZE = (event.w,event.h)
+                    pygame.display.set_mode(SCREENSIZE, pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
+                    self.dimensions = SCREENSIZE
 
             # Update the current state
             self.state.update(dt, events)

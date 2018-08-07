@@ -20,11 +20,7 @@ class SpriteSheet:
     """Gives an entity an image and animations."""
     path: str
     tile_size: int
-    default: List[int]
-    left: Union[List[int], None]
-    right: Union[List[int], None]
-    up: Union[List[int], None]
-    down: Union[List[int], None]
+    tiles: dict
     moving: bool = False
 
 @component(networked=True)

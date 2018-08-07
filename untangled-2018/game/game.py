@@ -6,6 +6,7 @@ from game.systems.rendersystem import RenderSystem
 from game.systems.userinputsystem import UserInputSystem
 from game.systems.profilesystem import ProfileSystem
 from game.systems.collisionsystem import CollisionSystem, CollisionCall
+from game.systems.soundsystem import SoundSystem
 
 class GameState:
     """Our core code.
@@ -39,7 +40,8 @@ class GameState:
             ProfileSystem(name, gender),
             UserInputSystem(),
             self.collisionSystem,
-            RenderSystem(self.screen)
+            RenderSystem(self.screen),
+            SoundSystem()
         ])
 
         # If we're hosting, we need to register that we joined our own game
@@ -58,6 +60,11 @@ class GameState:
                 call = CollisionCall()
             )
         ])
+            self.add_entity([
+                BackgroundMusic (
+                    path="assets/sounds/overworld.wav"
+                )
+            ])
 
     def update(self, dt: float, events):
         """This code gets run 60fps. All of our game logic stems from updating
@@ -93,12 +100,14 @@ class GameState:
             SpriteSheet(
                 path='./assets/sprites/player.png',
                 tile_size=48,
-                default=[58],
-                left=[70, 71, 69],
-                right=[82, 83, 81],
-                up=[94, 95, 93],
-                down=[58, 59, 57],
-                moving=False
+                moving=False,
+                tiles={
+                    'default':[58],
+                    'left':[70,71,69],
+                    'right':[82,83,81],
+                    'up':[94,95,93],
+                    'down':[58,59,57]
+                }
             ),
 
             # The player who has connected con control them with the arrow keys

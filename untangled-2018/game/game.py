@@ -1,15 +1,23 @@
 import uuid
+
 import random
 from random import randint
+
+import time
+
 
 from game.components import *
 from game.systems.rendersystem import RenderSystem
 from game.systems.userinputsystem import UserInputSystem
 from game.systems.profilesystem import ProfileSystem
+
 from game.systems.animalsystem import AnimalSystem
 
 
 spawnp = random.randint(1, 200)
+
+from game.systems.collisionsystem import CollisionSystem, CollisionCall
+from game.systems.soundsystem import SoundSystem
 
 
 class GameState:
@@ -30,24 +38,50 @@ class GameState:
 
     entities = {}
     systems = []
+    collisionSystem = None
 
     def __init__(self, framework, name, gender):
         """Creates a GameState to fit our framework, with some information about ourselves."""
         self.framework = framework
         self.screen = framework.screen
         self.net = framework.net
+        self.collisionSystem = CollisionSystem()
 
         # Add all systems we want to run
         self.systems.extend([
             ProfileSystem(name, gender),
             UserInputSystem(),
+
             RenderSystem(self.screen),
             AnimalSystem()
+
+            self.collisionSystem,
+            RenderSystem(self.screen),
+
         ])
 
         # If we're hosting, we need to register that we joined our own game
         if self.net.is_hosting():
             self.on_player_join(self.net.get_id())
+            self.add_entity([
+                BackgroundMusic (
+                    path="assets/sounds/overworld.wav"
+                )
+            ])
+            self.add_entity([
+                IngameObject(position=(0,0), size=(128,128)),
+                SpriteSheet(
+                    path='./assets/sprites/test.png',
+                    tile_size=8,
+                    moving=False,
+                    tiles={
+                        'default':[0]
+                    }
+                ),
+                Collidable(
+                    call = CollisionCall()
+                )
+            ])
 
             #Add Animal code
             self.add_entity([
@@ -103,6 +137,9 @@ class GameState:
             # They should have a position and size in game
             IngameObject(position=(0, 0), size=(64, 64)),
 
+            # They should have a health
+            Health(value=100),
+
             # They should be facing a certain direction
             Directioned(direction='default'),
 
@@ -113,16 +150,26 @@ class GameState:
             SpriteSheet(
                 path='./assets/sprites/player.png',
                 tile_size=48,
-                default=[58],
-                left=[70, 71, 69],
-                right=[82, 83, 81],
-                up=[94, 95, 93],
-                down=[58, 59, 57],
-                moving=False
+                moving=False,
+                tiles={
+                    'default':[58],
+                    'left':[70,71,69],
+                    'right':[82,83,81],
+                    'up':[94,95,93],
+                    'down':[58,59,57]
+                }
             ),
 
             # The player who has connected con control them with the arrow keys
             PlayerControl(player_id=player_id),
+
+            Collidable(
+                call = CollisionCall(
+                    start = lambda event: print("Player Collision Start"),
+                    #update = lambda event: print("Player Collision Update"),
+                    end = lambda event: print("Player Collision End")
+                )
+            )
         ])
 
     def on_player_quit(self, player_id):
@@ -138,4 +185,10 @@ class GameState:
         ID for the entity."""
         key = uuid.uuid4()
         self.entities[key] = {type(value): value for (value) in components}
+        if Collidable in self.entities[key]:
+            self.registerCollisionCalls(key, self.entities[key])
         return key
+
+    def registerCollisionCalls(self, key, entity):
+        self.collisionSystem.COLLISIONCALLS[key] = entity[Collidable].call
+

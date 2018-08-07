@@ -57,8 +57,10 @@ class GameState:
                 SpriteSheet(
                     path='./assets/sprites/test.png',
                     tile_size=8,
-                    default=[0],
-                    left=[],right=[],up=[],down=[],moving=False
+                    moving=False,
+                    tiles={
+                        'default'=[0]
+                    }
                 ),
                 Collidable(
                     call = CollisionCall()

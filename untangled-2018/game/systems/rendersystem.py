@@ -50,11 +50,11 @@ class RenderSystem(System):
                 rel_pos = (pos[0] - our_center[0], pos[1] - our_center[1])
                 screen_pos = (rel_pos[0] + 512, rel_pos[1] + 512)
 
-                img_indexes = spritesheet.default
+                img_indexes = spritesheet.tiles["default"]
 
                 # Will they be facing a certain direction?
                 if Directioned in entity:
-                    alts = spritesheet.__dict__[entity[Directioned].direction]
+                    alts = spritesheet.tiles[entity[Directioned].direction]
                     if alts != None:
                         img_indexes = alts
 

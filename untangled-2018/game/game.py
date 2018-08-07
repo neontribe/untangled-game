@@ -4,6 +4,7 @@ from game.components import *
 from game.systems.rendersystem import RenderSystem
 from game.systems.userinputsystem import UserInputSystem
 from game.systems.profilesystem import ProfileSystem
+from game.systems.AI_system import AI_system
 
 class GameState:
     """Our core code.
@@ -34,12 +35,44 @@ class GameState:
         self.systems.extend([
             ProfileSystem(name, gender),
             UserInputSystem(),
-            RenderSystem(self.screen)
+            RenderSystem(self.screen),
+            AI_system()
         ])
 
         # If we're hosting, we need to register that we joined our own game
         if self.net.is_hosting():
             self.on_player_join(self.net.get_id())
+            #Add monster code
+            '''self.add_entity([
+                SpriteSheet(
+                    path='./assets/sprites/ZOM_enemy.png',
+                    tile_size=32,
+                    default=[0],
+                    left=[9, 10, 11],
+                    right=[6, 7, 8],
+                    up=[3, 4, 5],
+                    down=[0, 1, 2],
+                    moving=False
+                ),
+                IngameObject(position=(0, 0), size=(64, 64)),
+                Directioned(direction='default'),
+                ChasePlayer(speed = 1)
+            ])
+            self.add_entity([
+                SpriteSheet(
+                    path='./assets/sprites/BOUNCE_enemy.png',
+                    tile_size=32,
+                    default=[0],
+                    left=[9, 10, 11],
+                    right=[6, 7, 8],
+                    up=[3, 4, 5],
+                    down=[12, 13, 14],
+                    moving=False
+                ),
+                IngameObject(position=(0, 0), size=(64, 64)),
+                Directioned(direction='default'),
+                ChasePlayer(speed = 2)
+            ])'''
 
     def update(self, dt: float, events):
         """This code gets run 60fps. All of our game logic stems from updating

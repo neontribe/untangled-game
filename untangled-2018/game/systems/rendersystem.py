@@ -12,6 +12,9 @@ class RenderSystem(System):
         self.image_cache = {}
         self.steps = 0
 
+        font_path = 'assets/fonts/alterebro-pixel-font.ttf'
+        self.font = pygame.font.Font(font_path, 45)
+
     def update(self, game, dt: float, events: list):
         # Step through 15 sprite frames each second
         self.steps += dt
@@ -32,6 +35,8 @@ class RenderSystem(System):
             # Is this an entity we should draw?
             if IngameObject in entity and SpriteSheet in entity:
                 spritesheet = entity[SpriteSheet]
+
+            
 
                 # Where are they relative to us?
                 pos = entity[IngameObject].position
@@ -58,7 +63,14 @@ class RenderSystem(System):
                 
                 # Draw the image
                 self.screen.blit(img, rect)
+                #XDoes the entity have a name
+                if Profile in entity:
+                    name = entity[Profile].name
+                    rendered_text_surface = self.font.render(name, False, (255, 255, 255))
+                    rect.y = rect.y-50
 
+                    self.screen.blit(rendered_text_surface, rect)
+  
     def get_image(self, spritesheet, index):
         # Ideally, we cache so we only process a file once
         if spritesheet.path not in self.image_cache:

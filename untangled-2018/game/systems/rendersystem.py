@@ -1,3 +1,4 @@
+import math
 import pygame
 from pygame import Rect
 
@@ -46,8 +47,14 @@ class RenderSystem(System):
             if Map in entity and SpriteSheet in entity:
                 spritesheet = entity[SpriteSheet]
                 map = entity[Map]
-                for y, row in enumerate(map.grid):
-                    for x, tile in enumerate(row):
+                # minimum and maximum tile indexes coordinates possible
+                min_x = int((our_center[0] - game.framework.dimensions[0]/2) / spritesheet.tile_size)
+                min_y = int((our_center[1] - game.framework.dimensions[1]/2) / spritesheet.tile_size)
+                max_x = int((our_center[0] + game.framework.dimensions[0]/2) / spritesheet.tile_size)
+                max_y = int((our_center[1] + game.framework.dimensions[1]/2) / spritesheet.tile_size)
+                for y in range(max(min_y, 0), min(max_y + 1, len(map.grid))):
+                    for x in range(max(min_x, 0), min(max_x + 1, len(map.grid[y]))):
+                        tile = map.grid[y][x]
                         img_indexes = spritesheet.tiles[str(tile-1)]
                         if spritesheet.moving:
                             img_index = img_indexes[frame % len(img_indexes)]
@@ -202,3 +209,4 @@ class RenderSystem(System):
         )
         pygame.draw.line(self.screen,p.colour,hor[0],hor[1],2)
         pygame.draw.line(self.screen,p.colour,ver[0],ver[1],2)
+

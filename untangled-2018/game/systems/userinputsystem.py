@@ -2,6 +2,7 @@ import pygame.locals
 
 from lib.system import System
 from game.components import *
+from game.systems.particlesystem import Particle
 
 SPEED = 4
 
@@ -18,6 +19,8 @@ class UserInputSystem(System):
                 if game.net.is_me(entity[PlayerControl].player_id):
                     # Our ingane position and size
                     io = entity[IngameObject]
+
+                    prePos = io.position
 
                     # Store whether we've moved this frame
                     moved = False

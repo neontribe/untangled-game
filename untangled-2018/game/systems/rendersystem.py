@@ -71,7 +71,7 @@ class RenderSystem(System):
                 pos = entity[IngameObject].position
                 rel_pos = (pos[0] - our_center[0], pos[1] - our_center[1])
                 
-                screen_pos = (rel_pos[0] + game.framework.dimensions[0]/2, rel_pos[1] + game.framework.dimensions[1]/2
+                screen_pos = (rel_pos[0] + game.framework.dimensions[0]/2, rel_pos[1] + game.framework.dimensions[1]/2)
 
                 img_indexes = spritesheet.tiles["default"]
 

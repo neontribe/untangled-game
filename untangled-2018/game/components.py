@@ -21,8 +21,8 @@ class IngameObject:
 class Health:
     """Gives the entity health"""
     value: int
-@component(networked=True)
 
+@component(networked=True)
 class Crops:
     """Stores infomation about crops"""
     name: str
@@ -32,6 +32,7 @@ class Crops:
     max_growth_stage:int
     plantage_time:float = time.time()
 
+@component(networked=True)
 class Energy:
     """"Gives the entity energy"""
     value: int
@@ -116,10 +117,11 @@ class Profile:
 class PlayerControl:
     """Lets an entity be controlled by specific player's arrow keys."""
     player_id: str
+
 @component(networked=True)
 class GameAction:
     action: str = ''
-
+    last_plant: float = 0.0
 
 @component()
 class MoveRandom:

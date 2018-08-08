@@ -1,3 +1,4 @@
+import time
 import pygame
 import pygame.locals
 
@@ -48,7 +49,8 @@ class UserInputSystem(System):
                     elif keysdown[pygame.locals.K_p]:
                         if GameAction in entity:
                             action = entity[GameAction]
-                            action.action = 'plant'
+                            if action.last_plant + 2 < time.time():
+                                action.action = 'plant'
                     elif keysdown[pygame.locals.K_o]:
                         if GameAction in entity:
                             action = entity[GameAction]

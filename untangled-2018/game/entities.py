@@ -38,6 +38,7 @@ def create_player(player_id):
 
         # The player who has connected con control them with the arrow keys
         PlayerControl(player_id=player_id),
+        GameAction(),
 
         Collidable(
             call = CollisionCall()
@@ -139,6 +140,23 @@ def create_chicken(position):
         IngameObject(position=position, size=(64,64)),
         Directioned(direction='default'),
         MoveRandom()
+    ]
+
+def create_plant(game, position):
+    return [
+        IngameObject(position=position,size=(64, 64)),
+            
+        Health(value=10), 
+        Crops(name="wheat", growth_rate=3,dehydration_rate=2, max_growth_stage=4,growth_stage=0),
+        SpriteSheet(path="assets/sprites/wheat.png",tile_size=16,tiles={
+            'default':[0,1, 2, 3]    
+        }),
+        Collidable(
+            call = CollisionCall(
+                start = lambda event: game.plantsystem.oncollidestart(game,event),
+                end = lambda event: game.plantsystem.oncollideend(game,event)
+            )
+        )
     ]
 
 

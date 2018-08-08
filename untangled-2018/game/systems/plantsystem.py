@@ -1,5 +1,6 @@
 from lib.system import System
 from game.components import *
+from game.entities import *
 import pygame
 import time
 
@@ -39,43 +40,41 @@ class PlantSystem(System):
                 self.disablePlant(crop[IngameObject].id)
 
     def update(self, game, dt, events):
-        for key,entity in game.entities.items():
-            if Crops in entity:
-                crops = entity[Crops]
-                spritesheet = entity[SpriteSheet]
-                health = entity[Health]
-                plantedTime = crops.plantage_time          
-                timeDifference = time.time() - plantedTime
+        if game.net.is_hosting():
+            for key,entity in game.entities.items():
+                if Crops in entity:
+                    crops = entity[Crops]
+                    spritesheet = entity[SpriteSheet]
+                    health = entity[Health]
+                    plantedTime = crops.plantage_time          
+                    timeDifference = time.time() - plantedTime
 
-                # Get the health value
-                # Use the health value to determine when the growth stage should be changed
-                if 10 < health.value < 40 :
-                    crops.growth_stage = 0
-                elif 40 < health.value < 60:
-                    crops.growth_stage = 1
-                elif 60 < health.value < 80:
-                    crops.growth_stage = 2
-                elif health.value > 100:
-                    crops.growth_stage = 3
-                if health.value > 100:
-                    health.value = 101
-                
-                spritesheet.default_tile = crops.growth_stage
-        for key,entity in dict(game.entities).items():
-            if GameAction in entity and IngameObject in entity:
-                if game.net.is_hosting():
+                    # Get the health value
+                    # Use the health value to determine when the growth stage should be changed
+                    if 10 < health.value < 40 :
+                        crops.growth_stage = 0
+                    elif 40 < health.value < 60:
+                        crops.growth_stage = 1
+                    elif 60 < health.value < 80:
+                        crops.growth_stage = 2
+                    elif health.value > 100:
+                        crops.growth_stage = 3
+                    
+                    spritesheet.default_tile = crops.growth_stage
+            for key,entity in dict(game.entities).items():
+                if GameAction in entity and IngameObject in entity:
                     action = entity[GameAction]
-                    if action.action == 'plant' and self.last_plant + 2 < time.time():
+                    if action.action == 'plant' and action.last_plant + 2 < time.time():
                         io = entity[IngameObject]
-                        game.NewPlant(io.position)
+                        game.add_entity(create_plant(game, io.position))
                         action.action = ''
-                        self.last_plant = time.time()
+                        action.last_plant = time.time()
                     if action.action == 'water':
                         for k in self.colplants:
                             health = game.entities[k][Health]
-                            health.value = health.value + 3
+                            health.value = min(health.value + 3, 100)
                             action.action = ''
 
-                        # Get the health component
-                        # Add to the health.value when watered
+                            # Get the health component
+                            # Add to the health.value when watered
 

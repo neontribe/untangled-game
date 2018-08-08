@@ -4,6 +4,7 @@ from game.components import *
 from game.systems.rendersystem import RenderSystem
 from game.systems.userinputsystem import UserInputSystem
 from game.systems.profilesystem import ProfileSystem
+from game.systems.soundsystem import SoundSystem
 
 class GameState:
     """Our core code.
@@ -34,12 +35,18 @@ class GameState:
         self.systems.extend([
             ProfileSystem(name, gender),
             UserInputSystem(),
-            RenderSystem(self.screen)
+            RenderSystem(self.screen),
+            SoundSystem()
         ])
 
         # If we're hosting, we need to register that we joined our own game
         if self.net.is_hosting():
             self.on_player_join(self.net.get_id())
+            self.add_entity([
+                BackgroundMusic (
+                    path="assets/sounds/overworld.wav"
+                )
+            ])
             loaded_map_component = self.loadMap(Map(
                 path="assets/maps/map2.tmx",
                 width=1,
@@ -48,9 +55,29 @@ class GameState:
             ))
             self.add_entity([
                 loaded_map_component,
-                Tileset(
+                SpriteSheet(
                     tile_size=32,
-                    path="assets/tilesets/map.png"
+                    path="assets/tilesets/map.png",
+                    tiles={
+                        'default':[0],
+                        0:[0],
+                        1:[1],
+                        2:[2],
+                        3:[3],
+                        4:[4],
+                        5:[5],
+                        6:[6],
+                        7:[7],
+                        8:[8],
+                        9:[9],
+                        10:[10],
+                        11:[11],
+                        12:[12],
+                        13:[13],
+                        14:[14],
+                        15:[15]
+                    },
+                    moving=True
                 )
             ])
 
@@ -91,6 +118,9 @@ class GameState:
             # They should have a position and size in game
             IngameObject(position=(0, 0), size=(64, 64)),
 
+            # They should have a health
+            Health(value=100),
+
             # They should be facing a certain direction
             Directioned(direction='default'),
 
@@ -101,12 +131,14 @@ class GameState:
             SpriteSheet(
                 path='./assets/sprites/player.png',
                 tile_size=48,
-                default=[58],
-                left=[70, 71, 69],
-                right=[82, 83, 81],
-                up=[94, 95, 93],
-                down=[58, 59, 57],
-                moving=False
+                moving=False,
+                tiles={
+                    'default':[58],
+                    'left':[70,71,69],
+                    'right':[82,83,81],
+                    'up':[94,95,93],
+                    'down':[58,59,57]
+                }
             ),
 
             # The player who has connected con control them with the arrow keys

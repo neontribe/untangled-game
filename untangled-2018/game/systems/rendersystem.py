@@ -12,6 +12,9 @@ class RenderSystem(System):
         self.image_cache = {}
         self.steps = 0
 
+        font_path = 'assets/fonts/alterebro-pixel-font.ttf'
+        self.font = pygame.font.Font(font_path, 45)
+
     def update(self, game, dt: float, events: list):
         # Step through 15 sprite frames each second
         self.steps += dt
@@ -28,15 +31,20 @@ class RenderSystem(System):
                     break
 
         for key, entity in game.entities.items():
-            if Map in entity and Tileset in entity:
-                tileset = entity[Tileset]
+            if Map in entity and SpriteSheet in entity:
+                spritesheet = entity[SpriteSheet]
                 map = entity[Map]
                 for y, row in enumerate(map.grid):
                     for x, tile in enumerate(row):
-                        image = self.get_image(tileset, tile-1)
+                        img_indexes = spritesheet.tiles[tile-1]
+                        if spritesheet.moving:
+                            img_index = img_indexes[frame % len(img_indexes)]
+                        else:
+                            img_index = img_indexes[0]
+                        image = self.get_image(spritesheet, img_index)
                         rel_pos = (
-                            x * tileset.tile_size - our_center[0],
-                            y * tileset.tile_size - our_center[1]
+                            x * spritesheet.tile_size - our_center[0],
+                            y * spritesheet.tile_size - our_center[1]
                         )
 
                         screen_pos = (
@@ -60,11 +68,11 @@ class RenderSystem(System):
                     rel_pos[1] + game.framework.dimensions[1]/2
                 )
 
-                img_indexes = spritesheet.default
+                img_indexes = spritesheet.tiles["default"]
 
                 # Will they be facing a certain direction?
                 if Directioned in entity:
-                    alts = spritesheet.__dict__[entity[Directioned].direction]
+                    alts = spritesheet.tiles[entity[Directioned].direction]
                     if alts != None:
                         img_indexes = alts
 
@@ -75,11 +83,43 @@ class RenderSystem(System):
                     img_index = img_indexes[0]
                 img = self.get_image(spritesheet, img_index)
                 
+                #Scale the image
+                if img.get_size() != entity[IngameObject].size:
+                    img = pygame.transform.scale(img, entity[IngameObject].size)
+                
                 rect = Rect(screen_pos, entity[IngameObject].size)
                 rect.center = screen_pos
                 
                 # Draw the image
                 self.screen.blit(img, rect)
+
+                # Center health bar and nametag
+                rect.x -= 30
+
+                # Checks if entity has a health component
+                if Health in entity:
+                    # Health bar wrapper
+                    healthBarThickness = 2
+                    pygame.draw.rect(self.screen, (255, 255, 255), (rect.x, rect.y-30, 100+healthBarThickness*2, 10), healthBarThickness)
+
+                    # Red health bar
+                    if entity[Health].value > 0:
+                        currentHealthPos = (rect.x+healthBarThickness, rect.y-30+healthBarThickness, entity[Health].value, 10-healthBarThickness*2)
+                        pygame.draw.rect(self.screen, (255, 0, 0), currentHealthPos)
+
+                # Does the entity have a name we can draw
+                if Profile in entity:
+                    name = entity[Profile].name
+
+                    # Draw our name with our font in white
+                    rendered_text_surface = self.font.render(name, False, (0, 255, 25))
+
+
+                    # Move the nametag above the player
+                    rect.y -= 70
+
+                    # Draw this rendered text we've made to the screen
+                    self.screen.blit(rendered_text_surface, rect)
 
     def get_image(self, spritesheet, index):
         # Ideally, we cache so we only process a file once

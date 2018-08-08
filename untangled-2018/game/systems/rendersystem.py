@@ -156,4 +156,13 @@ class RenderSystem(System):
         pygame.draw.circle(self.screen,p.colour,pos,4,2)
 
     def particle_star(self, p, pos):
-        pass
+        hor = (
+            [pos[0] - 4, pos[1]],
+            [pos[0] + 4, pos[1]]
+        )
+        ver = (
+            [pos[0], pos[1] - 4],
+            [pos[0], pos[1] + 4]
+        )
+        pygame.draw.line(self.screen,p.colour,hor[0],hor[1],2)
+        pygame.draw.line(self.screen,p.colour,ver[0],ver[1],2)

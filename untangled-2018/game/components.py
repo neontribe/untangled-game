@@ -20,6 +20,10 @@ class IngameObject:
 class Health:
     """Gives the entity health"""
     value: int
+@component(networked=True)
+class Energy:
+    """"Gives the entity energy"""
+    value: int
 
 @component(networked=True)
 class Damager:

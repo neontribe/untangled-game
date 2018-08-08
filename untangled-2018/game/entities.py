@@ -6,8 +6,11 @@ def create_player(player_id):
         # They should have a position and size in game
         IngameObject(position=(0, 0), size=(64, 64)),
 
-        # They should have a health
+        # They should have a health component
         Health(value=100),
+
+        # They should have an energy component
+        Energy(value=100),
 
         # They should have an inventory
         Inventory([]),

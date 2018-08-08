@@ -44,7 +44,7 @@ class GameState:
                 path="assets/maps/map2.tmx",
                 width=1,
                 height=1,
-                grid=[]
+                grid=[],
             ))
             self.add_entity([
                 loaded_map_component,

@@ -1,14 +1,30 @@
 import uuid
+
+import random
+from random import randint
+
 import time
+import random
+from random import randint
+
 
 from game.components import *
+from game.entities import *
 from game.systems.rendersystem import RenderSystem
 from game.systems.userinputsystem import UserInputSystem
 from game.systems.profilesystem import ProfileSystem
+from game.systems.animalsystem import AnimalSystem
+from game.systems.AI_system import AI_system
 from game.systems.collisionsystem import CollisionSystem, CollisionCall
 from game.systems.particlesystem import ParticleSystem
 from game.systems.soundsystem import SoundSystem
+
 from game.systems.plantsystem import PlantSystem
+
+from game.systems.damagesystem import DamageSystem
+from game.systems.inventorysystem import *
+
+
 
 class GameState:
     """Our core code.
@@ -37,25 +53,38 @@ class GameState:
         self.net = framework.net
         self.renderSystem = RenderSystem(self.screen)
         self.collisionSystem = CollisionSystem()
+        self.inventorySystem = InventorySystem()
         self.particles = ParticleSystem(self.renderSystem)
+
         self.plantsystem = PlantSystem()
+
+        self.damagesystem = DamageSystem()
+
 
         # Add all systems we want to run
         self.systems.extend([
             self.plantsystem,
             ProfileSystem(name, gender),
             UserInputSystem(),
+
             RenderSystem(self.screen),
             SoundSystem(),
+
+            AI_system(),
+            AnimalSystem(),
+
             self.collisionSystem,
+            self.inventorySystem,
             self.renderSystem,
             self.particles,
-            SoundSystem()
+            SoundSystem(),
+            self.damagesystem
         ])
 
-        # If we're hosting, we need to register that we joined our own game
         if self.net.is_hosting():
+            # If we're hosting, we need to register that we joined our own game
             self.on_player_join(self.net.get_id())
+
             self.add_entity([
                 BackgroundMusic (
                     path="assets/sounds/overworld.wav"
@@ -78,6 +107,36 @@ class GameState:
             )
         ])
 
+            
+            # Spawn zombies
+            for i in range(4):
+                spawnx = random.randint(-4000, 4000)
+                spawny = random.randint(-4000, 4000)
+                self.add_entity(create_zombie(self, (spawnx, spawny)))
+
+            # Spawn bounces
+            for i in range(4):
+                spawnx = random.randint(-4000, 4000)
+                spawny = random.randint(-4000, 4000)
+                self.add_entity(create_bounce((spawnx, spawny)))
+
+            # Spawn sheep
+            for i in range(30):
+                spawnx = random.randint(-4000, 4000)
+                spawny = random.randint(-4000, 4000)
+                self.add_entity(create_sheep((spawnx, spawny)))
+
+            # Spawn chicken
+            for i in range(30):
+                spawnx = random.randint(-4000, 4000)
+                spawny = random.randint(-4000, 4000)
+                self.add_entity(create_chicken((spawnx, spawny)))
+
+            # We need to make all other entities at the start of the game here
+            self.add_entity(create_background_music())
+            self.add_entity(create_test_collision_object())
+
+
     def update(self, dt: float, events):
         """This code gets run 60fps. All of our game logic stems from updating
         our systems on our entities."""
@@ -95,6 +154,7 @@ class GameState:
     def on_player_join(self, player_id):
         """This code gets run whenever a new player joins the game."""
         # Let's give them an entity that they can control
+
         self.add_entity([
             # They should have a position and size in game
             IngameObject(position=(0, 0), size=(64, 64)),
@@ -144,6 +204,9 @@ class GameState:
             )
         ])
 
+        self.add_entity(create_player(player_id))
+
+
     def on_player_quit(self, player_id):
         """This code gets run whever a player exits the game."""
         # Remove any entities tied to them - e.g. the player they control
@@ -161,8 +224,15 @@ class GameState:
             self.entities[key][IngameObject].id = key
         if Collidable in self.entities[key]:
             self.registerCollisionCalls(key, self.entities[key])
+        if Inventory in self.entities[key]:
+            self.registerInventory(key)
         return key
 
     def registerCollisionCalls(self, key, entity):
         self.collisionSystem.COLLISIONCALLS[key] = entity[Collidable].call
 
+    def registerInventory(self, key):
+        self.entities[key][Collidable].call.onCollisionStart = lambda event: self.inventorySystem.itemPickedUp(self, event, key)
+
+    def itemPickedUp(self, event):
+        print(event.keys)

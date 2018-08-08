@@ -5,6 +5,7 @@ from pygame import Rect
 import random
 
 from lib.component import component
+from lib.framework import Framework
 from game.systems.collisionsystem import CollisionCall
 from game.systems.particlesystem import Particle
 
@@ -19,6 +20,48 @@ class IngameObject:
 class Health:
     """Gives the entity health"""
     value: int
+@component(networked=True)
+class Energy:
+    """"Gives the entity energy"""
+    value: int
+
+@component(networked=True)
+class Damager:
+    damagemin: int
+    damagemax: int
+    cooldown: float
+    lasthit: float = 0.0
+    exclude = []
+
+@component(networked=True)
+class CanPickUp:
+    pickedUp: bool = False
+    quantity: int = 1
+
+@component(networked=True)
+class WaterBar:
+    """Gives the entity a water bar"""
+    value: int
+    disabled: bool = False
+
+@component(networked=True)
+class Inventory:
+    """Gives a player items"""
+    items: List[Tuple[str, int]]
+    maxSlots: int = 6
+    activeSlot: int = 0
+    hoverSlot: int = None
+    activeItem: Tuple[str, int] = ()
+
+    itemSlotOffset: int = 6
+    slotOffset: int = 10
+    slotSize: int = 55
+
+    height: float = slotOffset*2 + slotSize
+    width: float = slotSize * maxSlots + slotOffset * maxSlots + slotOffset
+
+    x: float = Framework.dimensions[0] / 2 - width / 2
+    y: float = Framework.dimensions[1] - height - slotOffset
 
 @component(networked=True)
 class SpriteSheet:
@@ -60,6 +103,15 @@ class Profile:
 class PlayerControl:
     """Lets an entity be controlled by specific player's arrow keys."""
     player_id: str
+
+@component()
+class MoveRandom:
+    direction: str = 'default'
+    lastmove: float = 0
+
+@component()
+class ChasePlayer:
+    speed: int
 
 @component(networked=True)
 class ParticleEmitter:
@@ -123,8 +175,6 @@ class ParticleEmitter:
                 return part
         return None
 
-        
-
 @component(networked=False)
 class Collidable:
     """Lets an entity collide with another collidable"""
@@ -148,3 +198,4 @@ class Collidable:
             entity[IngameObject].size[0],
             entity[IngameObject].size[1]
         )
+

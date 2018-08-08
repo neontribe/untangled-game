@@ -22,6 +22,14 @@ class Health:
     value: int
 
 @component(networked=True)
+class Damager:
+    damagemin: int
+    damagemax: int
+    cooldown: float
+    lasthit: float = 0.0
+    exclude = []
+
+@component(networked=True)
 class CanPickUp:
     pickedUp: bool = False
     quantity: int = 1
@@ -92,6 +100,9 @@ class PlayerControl:
     """Lets an entity be controlled by specific player's arrow keys."""
     player_id: str
 
+@component()
+class ChasePlayer:
+    speed: int
 @component(networked=True)
 class ParticleEmitter:
     # square / circle / ring / star

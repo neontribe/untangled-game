@@ -51,6 +51,55 @@ def create_player(player_id):
         )
     ]
 
+def create_zombie(game, position):
+    #Add monster code
+    return [
+        SpriteSheet(
+            path='./assets/sprites/ZOM_enemy.png',
+            tile_size=32,
+            tiles={
+                'default': [0],
+                'left': [9, 10, 11],
+                'right': [6, 7, 8],
+                'up': [3, 4, 5],
+                'down': [0, 1, 2]
+            },
+            moving=False
+        ),
+        IngameObject(position=position, size=(64, 64)),
+        Directioned(direction='default'),
+        ChasePlayer(speed = 1),
+        Collidable(
+            call = CollisionCall(
+                update = lambda event: game.damagesystem.onDamage(game,event)
+            )
+        ),
+        Damager(
+            damagemin=10, # Someone change these, they're op.
+            damagemax=20,
+            cooldown=1.5
+        )
+    ]
+
+def create_bounce(position):
+    return [
+        SpriteSheet(
+            path='./assets/sprites/BOUNCE_enemy.png',
+            tile_size=32,
+            tiles={
+                'default': [0],
+                'left': [9, 10, 11],
+                'right': [6, 7, 8],
+                'up': [3, 4, 5],
+                'down': [12, 13, 14]
+            },
+            moving=False
+        ),
+        IngameObject(position=position, size=(64, 64)),
+        Directioned(direction='default'),
+        ChasePlayer(speed = 2)
+    ]
+
 def create_background_music():
     return [
         BackgroundMusic (

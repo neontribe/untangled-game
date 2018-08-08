@@ -1,14 +1,18 @@
 import uuid
 import time
+import random
+from random import randint
 
 from game.components import *
 from game.entities import *
 from game.systems.rendersystem import RenderSystem
 from game.systems.userinputsystem import UserInputSystem
 from game.systems.profilesystem import ProfileSystem
+from game.systems.AI_system import AI_system
 from game.systems.collisionsystem import CollisionSystem, CollisionCall
 from game.systems.particlesystem import ParticleSystem
 from game.systems.soundsystem import SoundSystem
+from game.systems.damagesystem import DamageSystem
 from game.systems.inventorysystem import *
 
 class GameState:
@@ -40,21 +44,37 @@ class GameState:
         self.collisionSystem = CollisionSystem()
         self.inventorySystem = InventorySystem()
         self.particles = ParticleSystem(self.renderSystem)
+        self.damagesystem = DamageSystem()
 
         # Add all systems we want to run
         self.systems.extend([
             ProfileSystem(name, gender),
             UserInputSystem(),
+            RenderSystem(self.screen),
+            AI_system(),
             self.collisionSystem,
             self.inventorySystem,
             self.renderSystem,
             self.particles,
-            SoundSystem()
+            SoundSystem(),
+            self.damagesystem
         ])
 
         if self.net.is_hosting():
             # If we're hosting, we need to register that we joined our own game
             self.on_player_join(self.net.get_id())
+            
+            # Spawn zombies
+            for i in range(4):
+                spawnx = random.randint(-4000, 4000)
+                spawny = random.randint(-4000, 4000)
+                self.add_entity(create_zombie(self, (spawnx, spawny)))
+
+            # Spawn bounces
+            for i in range(4):
+                spawnx = random.randint(-4000, 4000)
+                spawny = random.randint(-4000, 4000)
+                self.add_entity(create_bounce((spawnx, spawny)))
 
             # We need to make all other entities at the start of the game here
             self.add_entity(create_background_music())

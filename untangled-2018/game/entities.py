@@ -103,6 +103,45 @@ def create_bounce(position):
         ChasePlayer(speed = 2)
     ]
 
+def create_sheep(position):
+    return [
+        SpriteSheet(
+            path='./assets/sprites/sheep.png',
+            tile_size=100,
+            tiles={
+                'default' : [0],
+                'left' : [3, 4, 4],
+                'right' : [0, 1, 2],
+                'up' : [8, 9, 10],
+                'down' : [5, 6, 7],
+            },
+            moving=False
+        ),
+        IngameObject(position=position, size=(64,64)),
+        Directioned(direction='default'),
+        MoveRandom()
+    ]
+
+def create_chicken(position):
+    return [
+        SpriteSheet(
+            path='./assets/sprites/chick5.png',
+            tile_size=50,
+            tiles={
+                'default': [0],
+                'left': [3, 3, 3],
+                'right': [0, 0, 0],
+                'up': [0, 0, 0],
+                'down': [0, 0, 0]
+            },
+            moving=False
+        ),
+        IngameObject(position=position, size=(64,64)),
+        Directioned(direction='default'),
+        MoveRandom()
+    ]
+
+
 def create_background_music():
     return [
         BackgroundMusic (

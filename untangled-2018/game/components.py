@@ -105,8 +105,14 @@ class PlayerControl:
     player_id: str
 
 @component()
+class MoveRandom:
+    direction: str = 'default'
+    lastmove: float = 0
+
+@component()
 class ChasePlayer:
     speed: int
+
 @component(networked=True)
 class ParticleEmitter:
     # square / circle / ring / star
@@ -169,8 +175,6 @@ class ParticleEmitter:
                 return part
         return None
 
-        
-
 @component(networked=False)
 class Collidable:
     """Lets an entity collide with another collidable"""
@@ -194,3 +198,4 @@ class Collidable:
             entity[IngameObject].size[0],
             entity[IngameObject].size[1]
         )
+

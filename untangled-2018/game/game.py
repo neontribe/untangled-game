@@ -1,19 +1,26 @@
 import uuid
+
+import random
+from random import randint
+
 import time
 import random
 from random import randint
+
 
 from game.components import *
 from game.entities import *
 from game.systems.rendersystem import RenderSystem
 from game.systems.userinputsystem import UserInputSystem
 from game.systems.profilesystem import ProfileSystem
+from game.systems.animalsystem import AnimalSystem
 from game.systems.AI_system import AI_system
 from game.systems.collisionsystem import CollisionSystem, CollisionCall
 from game.systems.particlesystem import ParticleSystem
 from game.systems.soundsystem import SoundSystem
 from game.systems.damagesystem import DamageSystem
 from game.systems.inventorysystem import *
+
 
 class GameState:
     """Our core code.
@@ -50,8 +57,8 @@ class GameState:
         self.systems.extend([
             ProfileSystem(name, gender),
             UserInputSystem(),
-            RenderSystem(self.screen),
             AI_system(),
+            AnimalSystem(),
             self.collisionSystem,
             self.inventorySystem,
             self.renderSystem,
@@ -75,6 +82,18 @@ class GameState:
                 spawnx = random.randint(-4000, 4000)
                 spawny = random.randint(-4000, 4000)
                 self.add_entity(create_bounce((spawnx, spawny)))
+
+            # Spawn sheep
+            for i in range(30):
+                spawnx = random.randint(-4000, 4000)
+                spawny = random.randint(-4000, 4000)
+                self.add_entity(create_sheep((spawnx, spawny)))
+
+            # Spawn chicken
+            for i in range(30):
+                spawnx = random.randint(-4000, 4000)
+                spawny = random.randint(-4000, 4000)
+                self.add_entity(create_chicken((spawnx, spawny)))
 
             # We need to make all other entities at the start of the game here
             self.add_entity(create_background_music())

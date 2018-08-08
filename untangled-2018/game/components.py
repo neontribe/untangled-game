@@ -24,8 +24,8 @@ class Health:
 class Damager:
     damagemin: int
     damagemax: int
-    lasthit: float = 0.0
     cooldown: float
+    lasthit: float = 0.0
     exclude = []
 
 @component(networked=True)

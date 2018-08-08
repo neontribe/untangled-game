@@ -38,3 +38,18 @@ class Profile:
 class PlayerControl:
     """Lets an entity be controlled by specific player's arrow keys."""
     player_id: str
+
+@component(networked=True)
+class Clock:
+    minute:int = 3
+    cycle: int = 1
+    year:  int = 1
+
+@component(networked=False)
+class Timed:
+    time: float = 0
+
+@component(networked=True)
+class Npc:
+    NotPlayer: int = 1
+

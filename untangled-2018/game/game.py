@@ -2,9 +2,9 @@ import uuid
 
 from game.components import *
 from game.systems.rendersystem import RenderSystem
-from game.systems.userinputsystem import UserInputSystem
 from game.systems.profilesystem import ProfileSystem
-
+from game.systems.userinputsystem import UserInputSystem
+from game.systems.timemagic import TimeSystem
 class GameState:
     """Our core code.
     
@@ -29,21 +29,43 @@ class GameState:
         self.framework = framework
         self.screen = framework.screen
         self.net = framework.net
-
-        # Add all systems we want to run
+               # Add all systems we want to run
         self.systems.extend([
             ProfileSystem(name, gender),
             UserInputSystem(),
+            TimeSystem(),
             RenderSystem(self.screen)
+        ])
+        self.add_entity([
+            # They should have a position and size in game
+            IngameObject(position=(70, -40), size=(64, 64)),
+
+            # They should be facing a certain direction
+            Directioned(direction='default'),
+
+            # We know what they may look like
+            SpriteSheet(
+                path='./assets/sprites/nuns.png',
+                tile_size=48,
+                default=[1],
+                left=[14, 15, 13],
+                right=[26, 27, 25],
+                up=[1, 2, 0],
+                down=[38, 39, 37],
+                moving=True
+            )
         ])
 
         # If we're hosting, we need to register that we joined our own game
         if self.net.is_hosting():
             self.on_player_join(self.net.get_id())
+            self.add_entity([Clock(), Timed()])
+        
 
     def update(self, dt: float, events):
         """This code gets run 60fps. All of our game logic stems from updating
         our systems on our entities."""
+
 
         # Update ourselves from the network
         self.net.pull_game(self)
@@ -51,14 +73,14 @@ class GameState:
         # Update our systems
         for system in self.systems:
             system.update(self, dt, events)
-
+        
         # Send our changes to everyone else
         self.net.push_game(self)
-
     def on_player_join(self, player_id):
         """This code gets run whenever a new player joins the game."""
         # Let's give them an entity that they can control
         self.add_entity([
+            
             # They should have a position and size in game
             IngameObject(position=(0, 0), size=(64, 64)),
 

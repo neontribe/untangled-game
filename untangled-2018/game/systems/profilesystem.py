@@ -7,7 +7,7 @@ PROFILE_SPRITES = {
         'path': './assets/sprites/player.png',
         'tile_size': 48,
         'default': [58],
-        'left': [70, 71, 69],
+        'left': [69, 70, 68],
         'right': [82, 83, 81],
         'up': [94, 95, 93],
         'down': [58, 59, 57]
@@ -15,11 +15,11 @@ PROFILE_SPRITES = {
     'Boy': {
         'path': './assets/sprites/player.png',
         'tile_size': 48,
-        'default': [10],
-        'left': [22, 23, 21],
-        'right': [34, 35, 33],
-        'up': [46, 47, 45],
-        'down': [10, 11, 9],
+        'default': [3],
+        'left': [16, 17, 15],
+        'right': [28, 29, 27],
+        'up': [40, 41, 39],
+        'down': [4, 5, 3],
         'moving': False
     }
 }
@@ -65,3 +65,4 @@ class ProfileSystem(System):
                             entity[SpriteSheet].right = gender_sheet['right']
                             entity[SpriteSheet].up = gender_sheet['up']
                             entity[SpriteSheet].down = gender_sheet['down']
+      

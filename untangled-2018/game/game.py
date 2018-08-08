@@ -56,20 +56,6 @@ class GameState:
                     path="assets/sounds/overworld.wav"
                 )
             ])
-            self.add_entity([
-                IngameObject(position=(0,0), size=(128,128)),
-                SpriteSheet(
-                    path='./assets/sprites/test.png',
-                    tile_size=8,
-                    moving=False,
-                    tiles={
-                        'default':[0]
-                    }
-                ),
-                Collidable(
-                    call = CollisionCall()
-                )
-            ])
 
     def update(self, dt: float, events):
         """This code gets run 60fps. All of our game logic stems from updating
@@ -119,11 +105,7 @@ class GameState:
             PlayerControl(player_id=player_id),
 
             Collidable(
-                call = CollisionCall(
-                    start = lambda event: print("Player Collision Start"),
-                    #update = lambda event: print("Player Collision Update"),
-                    end = lambda event: print("Player Collision End")
-                )
+                call = CollisionCall()
             ),
             ParticleEmitter(
                 particleTypes = ["ring","star"],

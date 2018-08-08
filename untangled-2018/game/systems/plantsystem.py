@@ -4,11 +4,13 @@ import pygame
 import time
 
 class PlantSystem(System):
-    colplants = {}
+    last_plant = 0
+    colplants = []
     def enablePlant(self, key):
-        self.colplants[key] = True
+        self.colplants.append(key)
     def disablePlant(self, key):
-        self.colplants[key] = False
+        if key in self.colplants:
+            self.colplants.remove(key)
     def oncollidestart(self, game, event):
         crop = None
         player = None
@@ -63,13 +65,16 @@ class PlantSystem(System):
             if GameAction in entity and IngameObject in entity:
                 if game.net.is_hosting():
                     action = entity[GameAction]
-                    if action.action == 'plant':
+                    if action.action == 'plant' and self.last_plant + 2 < time.time():
                         io = entity[IngameObject]
                         game.NewPlant(io.position)
                         action.action = ''
+                        self.last_plant = time.time()
                     if action.action == 'water':
-                        health.value = health.value + 3
-                        action.action = ''
+                        for k in self.colplants:
+                            health = game.entities[k][Health]
+                            health.value = health.value + 3
+                            action.action = ''
 
                         # Get the health component
                         # Add to the health.value when watered

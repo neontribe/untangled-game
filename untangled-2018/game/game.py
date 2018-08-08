@@ -55,6 +55,8 @@ class GameState:
                     path="assets/sounds/overworld.wav"
                 )
             ])
+            
+            # Test item
             self.add_entity([
                 IngameObject(position=(100,100), size=(49,49)),
                 SpriteSheet(
@@ -71,14 +73,15 @@ class GameState:
                 # Every item has this component
                 CanPickUp(quantity=2)
             ])
-            """ Animated item example
+
+            # Water bucket
             self.add_entity([
                 IngameObject(position=(200,100), size=(49,49)),
                 SpriteSheet(
-                    path='./assets/sprites/BOUNCE_enemy.png',
-                    tile_size=32,
+                    path='./assets/sprites/water_bucket.png',
+                    tile_size=49,
                     tiles={
-                        'default': [3, 4, 5],
+                        'default': [0, 1, 2],
                     },
                     moving=True
                 ),
@@ -89,7 +92,6 @@ class GameState:
                 CanPickUp(quantity=1),
                 Directioned(direction='default')
             ])
-            """
 
     def update(self, dt: float, events):
         """This code gets run 60fps. All of our game logic stems from updating

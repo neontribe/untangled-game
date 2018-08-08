@@ -146,6 +146,10 @@ class Network:
 
     def push_game(self, game, initial=False):
         """Tell others how we've changed the game state."""
+        if len(self.node.peers_by_group(self.get_our_group())) == 0:
+            # Nobody else to talk to
+            return
+
         entities = {
             'components': {}
         }

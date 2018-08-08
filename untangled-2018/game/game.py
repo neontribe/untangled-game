@@ -14,7 +14,6 @@ from game.systems.profilesystem import ProfileSystem
 from game.systems.animalsystem import AnimalSystem
 
 
-spawnp = random.randint(1, 200)
 
 from game.systems.collisionsystem import CollisionSystem, CollisionCall
 from game.systems.soundsystem import SoundSystem
@@ -84,6 +83,8 @@ class GameState:
             ])
 
             #Add Animal code
+            spawnx = random.randint(1, 1000)
+            spawny = random.randint(1, 1000)
             self.add_entity([
                 SpriteSheet(
                     path='./assets/sprites/chick5.png',
@@ -97,11 +98,13 @@ class GameState:
                     },
                     moving=False
                 ),
-                IngameObject(position=(spawnp,spawnp), size=(64,64)),
+                IngameObject(position=(spawnx,spawny), size=(64,64)),
                 Directioned(direction='default'),
                 MoveRandom()
             ])
             #Add Animal code
+            spawnx = random.randint(1, 1000)
+            spawny = random.randint(1, 1000)
             self.add_entity([
                 SpriteSheet(
                     path='./assets/sprites/sheep.png',
@@ -115,7 +118,7 @@ class GameState:
                     },
                     moving=False
                 ),
-                IngameObject(position=(spawnp,spawnp), size=(64,64)),
+                IngameObject(position=(spawnx,spawny), size=(64,64)),
                 Directioned(direction='default'),
                 MoveRandom()
             ])

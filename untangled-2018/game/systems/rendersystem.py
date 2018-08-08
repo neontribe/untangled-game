@@ -154,7 +154,7 @@ class RenderSystem(System):
         # Ideally, we cache so we only process a file once
         if spritesheet.path not in self.image_cache:
             # Load from file
-            sheet_img = pygame.image.load(spritesheet.path)
+            sheet_img = pygame.image.load(spritesheet.path).convert_alpha()
 
             # Check the file can be divided right
             if sheet_img.get_width() % spritesheet.tile_size != 0 or sheet_img.get_height() % spritesheet.tile_size != 0:

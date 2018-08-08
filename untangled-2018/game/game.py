@@ -48,7 +48,7 @@ class GameState:
                 )
             ])
             loaded_map_component = self.loadMap(Map(
-                path="assets/maps/map2.tmx",
+                path="assets/maps/testmap2.tmx",
                 width=1,
                 height=1,
                 grid=[]

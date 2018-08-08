@@ -48,10 +48,12 @@ class UserInputSystem(System):
                         direction = 'right'
                     elif keysdown[pygame.locals.K_p]:
                         if GameAction in entity:
+                            # TODO: Allow the player to plant specific plants from their inventory
                             action = entity[GameAction]
                             if action.last_plant + 2 < time.time():
                                 action.action = 'plant'
                     elif keysdown[pygame.locals.K_o]:
+                        # TODO: Only allow if player has a watering can in their inventory
                         if GameAction in entity:
                             action = entity[GameAction]
                             action.action = 'water'

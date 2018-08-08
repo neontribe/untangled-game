@@ -142,14 +142,15 @@ def create_chicken(position):
         MoveRandom()
     ]
 
-def create_plant(game, position):
+def create_plant(game, name, path, position):
     return [
         IngameObject(position=position,size=(64, 64)),
-            
-        Health(value=10), 
-        Crops(name="wheat", growth_rate=3,dehydration_rate=2, max_growth_stage=4,growth_stage=0),
-        SpriteSheet(path="assets/sprites/wheat.png",tile_size=16,tiles={
-            'default':[0,1, 2, 3]    
+        Health(value=10),
+        Energy(value=0),
+        WaterBar(value=50),
+        Crops(name=name, growth_rate=3,dehydration_rate=2, max_growth_stage=4,growth_stage=0),
+        SpriteSheet(path=path,tile_size=16,tiles={
+            'default': [0, 1, 2, 3]
         }),
         Collidable(
             call = CollisionCall(

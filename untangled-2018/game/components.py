@@ -67,7 +67,7 @@ class Inventory:
 class SpriteSheet:
     """Gives an entity an image and animations."""
     path: str
-    tile_size: int
+    tile_size: Union[int, Tuple[int, int]]
     tiles: dict
     moving: bool = False
 
@@ -116,7 +116,7 @@ class ChasePlayer:
 @component(networked=True)
 class ParticleEmitter:
     # square / circle / ring / star
-    # blank means random 
+    # blank means random
     particleTypes: list
     # offset from IngameObject
     offset: Tuple[int,int] = (0,0)

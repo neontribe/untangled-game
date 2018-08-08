@@ -1,10 +1,19 @@
 import uuid
+import time
+import random
+from random import randint
 
 from game.components import *
+from game.entities import *
 from game.systems.rendersystem import RenderSystem
 from game.systems.userinputsystem import UserInputSystem
 from game.systems.profilesystem import ProfileSystem
+from game.systems.AI_system import AI_system
+from game.systems.collisionsystem import CollisionSystem, CollisionCall
+from game.systems.particlesystem import ParticleSystem
 from game.systems.soundsystem import SoundSystem
+from game.systems.damagesystem import DamageSystem
+from game.systems.inventorysystem import *
 
 class GameState:
     """Our core code.
@@ -24,29 +33,52 @@ class GameState:
 
     entities = {}
     systems = []
+    collisionSystem = None
 
     def __init__(self, framework, name, gender):
         """Creates a GameState to fit our framework, with some information about ourselves."""
         self.framework = framework
         self.screen = framework.screen
         self.net = framework.net
+        self.renderSystem = RenderSystem(self.screen)
+        self.collisionSystem = CollisionSystem()
+        self.inventorySystem = InventorySystem()
+        self.particles = ParticleSystem(self.renderSystem)
+        self.damagesystem = DamageSystem()
 
         # Add all systems we want to run
         self.systems.extend([
             ProfileSystem(name, gender),
             UserInputSystem(),
             RenderSystem(self.screen),
-            SoundSystem()
+            AI_system(),
+            self.collisionSystem,
+            self.inventorySystem,
+            self.renderSystem,
+            self.particles,
+            SoundSystem(),
+            self.damagesystem
         ])
 
-        # If we're hosting, we need to register that we joined our own game
         if self.net.is_hosting():
+            # If we're hosting, we need to register that we joined our own game
             self.on_player_join(self.net.get_id())
-            self.add_entity([
-                BackgroundMusic (
-                    path="assets/sounds/overworld.wav"
-                )
-            ])
+            
+            # Spawn zombies
+            for i in range(4):
+                spawnx = random.randint(-4000, 4000)
+                spawny = random.randint(-4000, 4000)
+                self.add_entity(create_zombie(self, (spawnx, spawny)))
+
+            # Spawn bounces
+            for i in range(4):
+                spawnx = random.randint(-4000, 4000)
+                spawny = random.randint(-4000, 4000)
+                self.add_entity(create_bounce((spawnx, spawny)))
+
+            # We need to make all other entities at the start of the game here
+            self.add_entity(create_background_music())
+            self.add_entity(create_test_collision_object())
 
     def update(self, dt: float, events):
         """This code gets run 60fps. All of our game logic stems from updating
@@ -65,37 +97,7 @@ class GameState:
     def on_player_join(self, player_id):
         """This code gets run whenever a new player joins the game."""
         # Let's give them an entity that they can control
-        self.add_entity([
-            # They should have a position and size in game
-            IngameObject(position=(0, 0), size=(64, 64)),
-
-            # They should have a health component
-            Health(value=100),
-            # They should have an energy component
-            Energy(value=100),
-            # They should be facing a certain direction
-            Directioned(direction='default'),
-
-            # They will have a name and gender
-            Profile(),
-
-            # We know what they may look like
-            SpriteSheet(
-                path='./assets/sprites/player.png',
-                tile_size=48,
-                moving=False,
-                tiles={
-                    'default':[58],
-                    'left':[70,71,69],
-                    'right':[82,83,81],
-                    'up':[94,95,93],
-                    'down':[58,59,57]
-                }
-            ),
-
-            # The player who has connected con control them with the arrow keys
-            PlayerControl(player_id=player_id),
-        ])
+        self.add_entity(create_player(player_id))
 
     def on_player_quit(self, player_id):
         """This code gets run whever a player exits the game."""
@@ -110,4 +112,19 @@ class GameState:
         ID for the entity."""
         key = uuid.uuid4()
         self.entities[key] = {type(value): value for (value) in components}
+        if IngameObject in self.entities[key]:
+            self.entities[key][IngameObject].id = key
+        if Collidable in self.entities[key]:
+            self.registerCollisionCalls(key, self.entities[key])
+        if Inventory in self.entities[key]:
+            self.registerInventory(key)
         return key
+
+    def registerCollisionCalls(self, key, entity):
+        self.collisionSystem.COLLISIONCALLS[key] = entity[Collidable].call
+
+    def registerInventory(self, key):
+        self.entities[key][Collidable].call.onCollisionStart = lambda event: self.inventorySystem.itemPickedUp(self, event, key)
+
+    def itemPickedUp(self, event):
+        print(event.keys)

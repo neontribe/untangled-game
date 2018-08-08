@@ -8,7 +8,7 @@ class DamageSystem(System):
 
     def onDamage(self, game, event):
         target = None
-        other = None+
+        other = None
         
         for k in event.keys:
             entity = game.entities[k]

@@ -7,6 +7,7 @@ from game.systems.userinputsystem import UserInputSystem
 from game.systems.profilesystem import ProfileSystem
 from game.systems.collisionsystem import CollisionSystem, CollisionCall
 from game.systems.soundsystem import SoundSystem
+from game.systems.inventorysystem import *
 
 class GameState:
     """Our core code.
@@ -34,12 +35,14 @@ class GameState:
         self.screen = framework.screen
         self.net = framework.net
         self.collisionSystem = CollisionSystem()
+        self.inventorySystem = InventorySystem()
 
         # Add all systems we want to run
         self.systems.extend([
             ProfileSystem(name, gender),
             UserInputSystem(),
             self.collisionSystem,
+            self.inventorySystem,
             RenderSystem(self.screen),
             SoundSystem()
         ])
@@ -64,7 +67,9 @@ class GameState:
                 ),
                 Collidable(
                     call = CollisionCall()
-                )
+                ),
+                # Every item has this component
+                CanPickUp()
             ])
 
     def update(self, dt: float, events):
@@ -120,9 +125,9 @@ class GameState:
 
             Collidable(
                 call = CollisionCall(
-                    start = lambda event: self.itemPickedUp(event),
+                    #start = ,
                     #update = lambda event: print("Player Collision Update"),
-                    end = lambda event: print("Player Collision End")
+                    end = lambda event: print("Item no longer exists")
                 )
             )
         ])
@@ -142,10 +147,15 @@ class GameState:
         self.entities[key] = {type(value): value for (value) in components}
         if Collidable in self.entities[key]:
             self.registerCollisionCalls(key, self.entities[key])
+        if Inventory in self.entities[key]:
+            self.registerInventory(self.entities[key])
         return key
 
     def registerCollisionCalls(self, key, entity):
         self.collisionSystem.COLLISIONCALLS[key] = entity[Collidable].call
+
+    def registerInventory(self, entity):
+        entity[Collidable].call.onCollisionStart = lambda event: self.inventorySystem.itemPickedUp(self, entity)
 
     def itemPickedUp(self, event):
         print(event.keys)

@@ -19,6 +19,10 @@ class Health:
     value: int
 
 @component(networked=True)
+class CanPickUp:
+    pickedUp: bool = False
+
+@component(networked=True)
 class WaterBar:
     """Gives the entity a water bar"""
     value: int

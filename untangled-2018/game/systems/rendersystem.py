@@ -7,6 +7,8 @@ from game.components import *
 class RenderSystem(System):
     """This system draws any entity with a SpriteSheet component."""
 
+    debugPoints = []
+
     def __init__(self, screen):
         self.screen = screen
         self.image_cache = {}
@@ -35,24 +37,23 @@ class RenderSystem(System):
                 spritesheet = entity[SpriteSheet]
                 map = entity[Map]
                 for y, row in enumerate(map.grid):
+                    rel_y = ((y-1) * spritesheet.tile_size) - our_center[1]
+                    screen_y = rel_y + game.framework.dimensions[1]/2
+                    if screen_y > self.screen.get_height() or screen_y + spritesheet.tile_size < 0:
+                        continue
                     for x, tile in enumerate(row):
+                        rel_x = ((x-1) * spritesheet.tile_size) - our_center[0]
+                        screen_x = rel_x + game.framework.dimensions[0]/2
+                        if screen_x > self.screen.get_width() or screen_x + spritesheet.tile_size < 0:
+                            continue
                         img_indexes = spritesheet.tiles[tile-1]
                         if spritesheet.moving:
                             img_index = img_indexes[frame % len(img_indexes)]
                         else:
                             img_index = img_indexes[0]
                         image = self.get_image(spritesheet, img_index)
-                        rel_pos = (
-                            x * spritesheet.tile_size - our_center[0],
-                            y * spritesheet.tile_size - our_center[1]
-                        )
 
-                        screen_pos = (
-                            rel_pos[0] + game.framework.dimensions[0]/2,
-                            rel_pos[1] + game.framework.dimensions[1]/2
-                        )
-
-                        self.screen.blit(image, screen_pos)
+                        self.screen.blit(image, [screen_x,screen_y])
 
         # Render everything we can
         for key, entity in game.entities.items():
@@ -120,6 +121,15 @@ class RenderSystem(System):
 
                     # Draw this rendered text we've made to the screen
                     self.screen.blit(rendered_text_surface, rect)
+
+        for d in self.debugPoints:
+            rel_pos = (d[0][0] - our_center[0], d[0][1] - our_center[1])
+            screen_pos = (
+                int(round(rel_pos[0] + game.framework.dimensions[0]/2) - 32),
+                int(round(rel_pos[1] + game.framework.dimensions[1]/2) - 32)
+            )
+            pygame.draw.circle(game.screen,d[1],screen_pos,2)
+        self.debugPoints = []
 
     def get_image(self, spritesheet, index):
         # Ideally, we cache so we only process a file once

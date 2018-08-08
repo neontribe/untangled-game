@@ -30,12 +30,13 @@ class GameState:
         self.framework = framework
         self.screen = framework.screen
         self.net = framework.net
+        self.rendersystem = RenderSystem(self.screen)
 
         # Add all systems we want to run
         self.systems.extend([
             ProfileSystem(name, gender),
             UserInputSystem(),
-            RenderSystem(self.screen),
+            self.rendersystem,
             SoundSystem()
         ])
 
@@ -51,7 +52,7 @@ class GameState:
                 path="assets/maps/map2.tmx",
                 width=1,
                 height=1,
-                grid=[],
+                grid=[]
             ))
             self.add_entity([
                 loaded_map_component,

@@ -71,6 +71,22 @@ class GameState:
                 # Every item has this component
                 CanPickUp()
             ])
+            self.add_entity([
+                IngameObject(position=(-100,100), size=(70,70)),
+                SpriteSheet(
+                    path='./assets/sprites/wand.png',
+                    tile_size=8,
+                    moving=False,
+                    tiles={
+                        'default':[2]
+                    }
+                ),
+                Collidable(
+                    call = CollisionCall()
+                ),
+                # Every item has this component
+                CanPickUp()
+            ])
 
     def update(self, dt: float, events):
         """This code gets run 60fps. All of our game logic stems from updating

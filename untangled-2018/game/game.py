@@ -1,4 +1,6 @@
 import uuid
+import random
+from random import randint
 
 from game.components import *
 from game.systems.rendersystem import RenderSystem
@@ -47,6 +49,8 @@ class GameState:
             self.on_player_join(self.net.get_id())
 
             #Add monster code
+            spawnx = random.randint(1, 1000)
+            spawny = random.randint(1, 1000)
             self.add_entity([
                 SpriteSheet(
                     path='./assets/sprites/ZOM_enemy.png',
@@ -60,10 +64,12 @@ class GameState:
                     },
                     moving=False
                 ),
-                IngameObject(position=(0, 0), size=(64, 64)),
+                IngameObject(position=(spawnx, spawny), size=(64, 64)),
                 Directioned(direction='default'),
                 ChasePlayer(speed = 1)
             ])
+            spawnx = random.randint(1, 1000)
+            spawny = random.randint(1, 1000)
             self.add_entity([
                 SpriteSheet(
                     path='./assets/sprites/BOUNCE_enemy.png',
@@ -77,7 +83,7 @@ class GameState:
                     },
                     moving=False
                 ),
-                IngameObject(position=(0, 0), size=(64, 64)),
+                IngameObject(position=(spawnx, spawny), size=(64, 64)),
                 Directioned(direction='default'),
                 ChasePlayer(speed = 2)
             ])

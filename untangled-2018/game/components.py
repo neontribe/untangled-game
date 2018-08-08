@@ -33,16 +33,17 @@ class WaterBar:
 class Inventory:
     """Gives a player items"""
     items: List[Tuple[str, int]]
-    maxSlots: int = 6 # it represents the last index, not the number of slots
+    maxSlots: int = 6
     activeSlot: int = 0
     hoverSlot: int = None
+    activeItem: Tuple[str, int] = ()
 
     itemSlotOffset: int = 6
     slotOffset: int = 10
     slotSize: int = 55
 
     height: float = slotOffset*2 + slotSize
-    width: float = slotSize * maxSlots + (slotOffset+1) * maxSlots * 2
+    width: float = slotSize * maxSlots + slotOffset * maxSlots + slotOffset
 
     x: float = Framework.dimensions[0] / 2 - width / 2
     y: float = Framework.dimensions[1] - height - slotOffset

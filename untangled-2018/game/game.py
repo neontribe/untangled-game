@@ -69,7 +69,7 @@ class GameState:
                     call = CollisionCall()
                 ),
                 # Every item has this component
-                CanPickUp()
+                CanPickUp(quantity=2)
             ])
 
     def update(self, dt: float, events):

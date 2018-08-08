@@ -79,6 +79,17 @@ class RenderSystem(System):
                 # Draw the image
                 self.screen.blit(img, rect)
 
+                # If it is an item show the amount of items there are
+                if CanPickUp in entity:
+                    if entity[CanPickUp].quantity > 1:
+                        rendered_text_qitem = self.font.render(str(entity[CanPickUp].quantity), False, (0, 0, 0))
+                        
+                        # Draw the text to the right
+                        textItemOffset = entity[IngameObject].size[0] / 1.5
+                        rect.x += textItemOffset
+                        self.screen.blit(rendered_text_qitem, rect)
+                        rect.x -= textItemOffset
+
                 # Center health bar and nametag
                 rect.x -= 30
 
@@ -112,7 +123,6 @@ class RenderSystem(System):
 
                     # Draw our name with our font in white
                     rendered_text_surface = self.font.render(name, False, (0, 255, 25))
-
 
                     # Move the nametag above the player
                     rect.y -= 85 # 60px for the bars
@@ -149,7 +159,7 @@ class RenderSystem(System):
 
                                 pygame.draw.rect(self.screen, colour, (x, inv.y+inv.slotOffset, inv.slotSize, inv.slotSize))
                                 
-                                # Check if item exists in Inventory
+                                # Check if item exists in inventory
                                 if slotIndex * 2 < len(entity[Inventory].items):
                                     item = game.entities[entity[Inventory].items[slotIndex * 2]]
 
@@ -168,8 +178,8 @@ class RenderSystem(System):
                                     lItemRect[1] += inv.slotOffset
                                     itemRect = tuple(lItemRect)
 
-                                    rendered_quantity = self.font.render(str(entity[Inventory].items[slotIndex * 2 + 1]), False, (0, 0, 0))
-                                    self.screen.blit(rendered_quantity, itemRect)
+                                    rendered_text_qslot = self.font.render(str(entity[Inventory].items[slotIndex * 2 + 1]), False, (0, 0, 0))
+                                    self.screen.blit(rendered_text_qslot, itemRect)
 
                                 slotIndex += 1
 

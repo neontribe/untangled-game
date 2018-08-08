@@ -70,9 +70,18 @@ class UserInputSystem(System):
                                     # If the mouse is pressed, it changes the active slot
                                     if mousedown[0]:
                                         entity[Inventory].activeSlot = activeSlot
+
+                                        # Get active item, if there is one
+                                        if activeSlot * 2 < len(inv.items):
+                                            activeItemKey = inv.items[activeSlot * 2]
+                                            activeItemQuantity = inv.items[activeSlot * 2 + 1]
+
+                                            entity[Inventory].activeItem = (activeItemKey, activeItemQuantity)
+
+                                        # No hovering anymore
                                         entity[Inventory].hoverSlot = None
                                     
-                                    # If the mouse only hovers, change the hover slot
+                                    # If the mouse only hovers, and does not click, change the hover slot
                                     else:
                                         entity[Inventory].hoverSlot = activeSlot
                                         

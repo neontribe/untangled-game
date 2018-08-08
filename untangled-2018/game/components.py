@@ -55,3 +55,4 @@ class PlayerControl:
 @component(networked=True)
 class GameAction:
     action: str = ''
+

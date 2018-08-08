@@ -2,7 +2,40 @@ from lib.system import System
 from game.components import *
 import pygame
 import time
+
 class PlantSystem(System):
+    colplants = {}
+    def enablePlant(self, key):
+        self.colplants[key] = True
+    def disablePlant(self, key):
+        self.colplants[key] = False
+    def oncollidestart(self, game, event):
+        crop = None
+        player = None
+        for k in event.keys:
+            if Crops in game.entities[k]:
+                crop = game.entities[k]
+                continue
+            if PlayerControl in game.entities[k]:
+                player = game.entities[k]
+                continue
+        if crop != None and player != None:
+            if game.net.is_me(player[PlayerControl].player_id):
+                self.enablePlant(crop[IngameObject].id)
+    def oncollideend(self, game, event):
+        crop = None
+        player = None
+        for k in event.keys:
+            if Crops in game.entities[k]:
+                crop = game.entities[k]
+                continue
+            if PlayerControl in game.entities[k]:
+                player = game.entities[k]
+                continue
+        if crop != None and player != None:
+            if game.net.is_me(player[PlayerControl].player_id):
+                self.disablePlant(crop[IngameObject].id)
+
     def update(self, game, dt, events):
         for key,entity in game.entities.items():
             if Crops in entity:

@@ -48,7 +48,7 @@ class RenderSystem(System):
                 map = entity[Map]
                 for y, row in enumerate(map.grid):
                     for x, tile in enumerate(row):
-                        img_indexes = spritesheet.tiles[tile-1]
+                        img_indexes = spritesheet.tiles[str(tile-1)]
                         if spritesheet.moving:
                             img_index = img_indexes[frame % len(img_indexes)]
                         else:

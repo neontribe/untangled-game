@@ -221,15 +221,23 @@ class RenderSystem(System):
             # Load from file
             sheet_img = pygame.image.load(spritesheet.path)
 
+            if isinstance(spritesheet.tile_size, tuple):
+                tile_width = spritesheet.tile_size[0]
+                tile_height = spritesheet.tile_size[1]
+            else:
+                tile_width = spritesheet.tile_size
+                tile_height = spritesheet.tile_size
+
+
             # Check the file can be divided right
-            if sheet_img.get_width() % spritesheet.tile_size != 0 or sheet_img.get_height() % spritesheet.tile_size != 0:
+            if sheet_img.get_width() % tile_width != 0 or sheet_img.get_height() % tile_height != 0:
                 raise ValueError('Spritesheet width and height are not a multiple of its tile size')
             
             # Partition into sub-images
             images = []
-            for y in range(0, sheet_img.get_height(), spritesheet.tile_size):
-                for x in range(0, sheet_img.get_width(), spritesheet.tile_size):
-                    bounds = pygame.Rect(x, y, spritesheet.tile_size, spritesheet.tile_size)
+            for y in range(0, sheet_img.get_height(), tile_height):
+                for x in range(0, sheet_img.get_width(), tile_width):
+                    bounds = pygame.Rect(x, y, tile_width, tile_height)
                     images.append(sheet_img.subsurface(bounds))
             self.image_cache[spritesheet.path] = images
 

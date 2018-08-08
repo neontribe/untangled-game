@@ -1,9 +1,13 @@
-import uuid, tmx
+import uuid
+import time
 
 from game.components import *
+from game.entities import *
 from game.systems.rendersystem import RenderSystem
 from game.systems.userinputsystem import UserInputSystem
 from game.systems.profilesystem import ProfileSystem
+from game.systems.collisionsystem import CollisionSystem, CollisionCall
+from game.systems.particlesystem import ParticleSystem
 from game.systems.soundsystem import SoundSystem
 
 class GameState:
@@ -24,78 +28,48 @@ class GameState:
 
     entities = {}
     systems = []
+    collisionSystem = None
 
     def __init__(self, framework, name, gender):
         """Creates a GameState to fit our framework, with some information about ourselves."""
         self.framework = framework
         self.screen = framework.screen
         self.net = framework.net
+        self.renderSystem = RenderSystem(self.screen)
+        self.collisionSystem = CollisionSystem()
+        self.particles = ParticleSystem(self.renderSystem)
 
         # Add all systems we want to run
         self.systems.extend([
             ProfileSystem(name, gender),
             UserInputSystem(),
-            RenderSystem(self.screen),
+            self.collisionSystem,
+            self.renderSystem,
+            self.particles,
             SoundSystem()
         ])
 
-        # If we're hosting, we need to register that we joined our own game
         if self.net.is_hosting():
+            # If we're hosting, we need to register that we joined our own game
             self.on_player_join(self.net.get_id())
-            self.add_entity([
-                BackgroundMusic (
-                    path="assets/sounds/overworld.wav"
-                )
-            ])
-            loaded_map_component = self.loadMap(Map(
-                path="assets/maps/testmap2.tmx",
-                width=1,
-                height=1,
-                grid=[]
-            ))
-            self.add_entity([
-                loaded_map_component,
-                SpriteSheet(
-                    tile_size=32,
-                    path="assets/tilesets/map.png",
-                    tiles={
-                        'default':[0],
-                        0:[0],
-                        1:[1],
-                        2:[2],
-                        3:[3],
-                        4:[4],
-                        5:[5],
-                        6:[6],
-                        7:[7],
-                        8:[8],
-                        9:[9],
-                        10:[10],
-                        11:[11],
-                        12:[12],
-                        13:[13],
-                        14:[14],
-                        15:[15]
-                    },
-                    moving=True
-                )
-            ])
 
-    def loadMap(self,map):
-        tile_map = tmx.TileMap.load(map.path)
-        map.width = tile_map.width
-        map.height = tile_map.height
-        map.grid = [
-            [None for x in range(map.width)] for y in range(map.height)
-        ]
-        for layer in tile_map.layers:
-            if isinstance(layer,  tmx.Layer):
-                for index, tile in enumerate(layer.tiles):
-                    x = index % map.width
-                    y = index // map.width
-                    map.grid[y][x] = tile.gid or 0
-        return map
+            # We need to make all other entities at the start of the game here
+            self.add_entity(create_background_music())
+            self.add_entity(create_test_collision_object())
+            self.add_entity(create_map('assets/maps/testmap2.tmx'))
 
+    def on_player_join(self, player_id):
+        """This code gets run whenever a new player joins the game."""
+        # Let's give them an entity that they can control
+        self.add_entity(create_player(player_id))
+
+    def on_player_quit(self, player_id):
+        """This code gets run whever a player exits the game."""
+        # Remove any entities tied to them - e.g. the player they control
+        tied = []
+        for key, entity in list(self.entities.items()):
+            if PlayerControl in entity and entity[PlayerControl].player_id == player_id:
+                del self.entities[key]
 
     def update(self, dt: float, events):
         """This code gets run 60fps. All of our game logic stems from updating
@@ -111,51 +85,17 @@ class GameState:
         # Send our changes to everyone else
         self.net.push_game(self)
 
-    def on_player_join(self, player_id):
-        """This code gets run whenever a new player joins the game."""
-        # Let's give them an entity that they can control
-        self.add_entity([
-            # They should have a position and size in game
-            IngameObject(position=(0, 0), size=(64, 64)),
-
-            # They should have a health
-            Health(value=100),
-
-            # They should be facing a certain direction
-            Directioned(direction='default'),
-
-            # They will have a name and gender
-            Profile(),
-
-            # We know what they may look like
-            SpriteSheet(
-                path='./assets/sprites/player.png',
-                tile_size=48,
-                moving=False,
-                tiles={
-                    'default':[58],
-                    'left':[70,71,69],
-                    'right':[82,83,81],
-                    'up':[94,95,93],
-                    'down':[58,59,57]
-                }
-            ),
-
-            # The player who has connected con control them with the arrow keys
-            PlayerControl(player_id=player_id),
-        ])
-
-    def on_player_quit(self, player_id):
-        """This code gets run whever a player exits the game."""
-        # Remove any entities tied to them - e.g. the player they control
-        tied = []
-        for key, entity in list(self.entities.items()):
-            if PlayerControl in entity and entity[PlayerControl].player_id == player_id:
-                del self.entities[key]
-
     def add_entity(self, components):
         """Add an entity to the game, from a set of components. Returns a unique
         ID for the entity."""
         key = uuid.uuid4()
         self.entities[key] = {type(value): value for (value) in components}
+        if IngameObject in self.entities[key]:
+            self.entities[key][IngameObject].id = key
+        if Collidable in self.entities[key]:
+            self.registerCollisionCalls(key, self.entities[key])
         return key
+
+    def registerCollisionCalls(self, key, entity):
+        self.collisionSystem.COLLISIONCALLS[key] = entity[Collidable].call
+

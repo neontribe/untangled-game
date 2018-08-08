@@ -5,6 +5,7 @@ from game.systems.mapsystem import MapSystem
 from game.components import *
 import math
 import time
+from game.systems.particlesystem import Particle
 
 SPEED = 150
 
@@ -28,6 +29,8 @@ class UserInputSystem(System):
                 if game.net.is_me(entity[PlayerControl].player_id):
                     # Our ingane position and size
                     io = entity[IngameObject]
+
+                    prePos = io.position
 
                     # Store whether we've moved this frame
                     moved = False
@@ -72,9 +75,9 @@ class UserInputSystem(System):
                     )
 
 
-                    game.rendersystem.debugPoints.append(([player_center[0] - vel.x, player_center[1] - vel.y],(0,255,0)))
-                    game.rendersystem.debugPoints.append((player_center,(0,0,255)))
-                    game.rendersystem.debugPoints.append((pos_applied_vel,(255,255,255)))
+                    game.renderSystem.debugPoints.append(([player_center[0] - vel.x, player_center[1] - vel.y],(0,255,0)))
+                    game.renderSystem.debugPoints.append((player_center,(0,0,255)))
+                    game.renderSystem.debugPoints.append((pos_applied_vel,(255,255,255)))
 
                     
                     points = [
@@ -107,7 +110,7 @@ class UserInputSystem(System):
                             if x <= point[0] and point[0] <= x + tile_width:
                                 if y <= point[1] and point[1] <= y + tile_width:
                                     #SHOULD COLLIDE
-                                    game.rendersystem.debugPoints.append((point,(255,0,0)))
+                                    game.renderSystem.debugPoints.append((point,(255,0,0)))
                                     if vel.x > 0 and i in right: # right
                                         if pos_applied_vel.x + player_width > tile_center[0]:
                                             pos_applied_vel.x = tile_center[0] - player_width + 1

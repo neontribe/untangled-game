@@ -1,9 +1,11 @@
-import uuid, tmx
+import uuid, tmx, time
 
 from game.components import *
 from game.systems.rendersystem import RenderSystem
 from game.systems.userinputsystem import UserInputSystem
 from game.systems.profilesystem import ProfileSystem
+from game.systems.collisionsystem import CollisionSystem, CollisionCall
+from game.systems.particlesystem import ParticleSystem
 from game.systems.soundsystem import SoundSystem
 
 class GameState:
@@ -24,19 +26,24 @@ class GameState:
 
     entities = {}
     systems = []
+    collisionSystem = None
 
     def __init__(self, framework, name, gender):
         """Creates a GameState to fit our framework, with some information about ourselves."""
         self.framework = framework
         self.screen = framework.screen
         self.net = framework.net
-        self.rendersystem = RenderSystem(self.screen)
+        self.renderSystem = RenderSystem(self.screen)
+        self.collisionSystem = CollisionSystem()
+        self.particles = ParticleSystem(self.renderSystem)
 
         # Add all systems we want to run
         self.systems.extend([
             ProfileSystem(name, gender),
             UserInputSystem(),
-            self.rendersystem,
+            self.collisionSystem,
+            self.renderSystem,
+            self.particles,
             SoundSystem()
         ])
 
@@ -46,6 +53,20 @@ class GameState:
             self.add_entity([
                 BackgroundMusic (
                     path="assets/sounds/overworld.wav"
+                )
+            ])
+            self.add_entity([
+                IngameObject(position=(0,0), size=(128,128)),
+                SpriteSheet(
+                    path='./assets/sprites/test.png',
+                    tile_size=8,
+                    moving=False,
+                    tiles={
+                        'default':[0]
+                    }
+                ),
+                Collidable(
+                    call = CollisionCall()
                 )
             ])
             loaded_map_component = self.loadMap(Map(
@@ -97,7 +118,6 @@ class GameState:
                     map.grid[y][x] = tile.gid or 0
         return map
 
-
     def update(self, dt: float, events):
         """This code gets run 60fps. All of our game logic stems from updating
         our systems on our entities."""
@@ -144,6 +164,23 @@ class GameState:
 
             # The player who has connected con control them with the arrow keys
             PlayerControl(player_id=player_id),
+
+            Collidable(
+                call = CollisionCall(
+                    start = lambda event: print("Player Collision Start"),
+                    #update = lambda event: print("Player Collision Update"),
+                    end = lambda event: print("Player Collision End")
+                )
+            ),
+            ParticleEmitter(
+                particleTypes = ["ring","star"],
+                offset = (0,32),
+                velocity = (1,1),
+                directionMode = 2,
+                colour = (137, 63, 69),
+                onlyWhenMoving = True,
+                randomness = (3,3)
+            )
         ])
 
     def on_player_quit(self, player_id):
@@ -159,4 +196,12 @@ class GameState:
         ID for the entity."""
         key = uuid.uuid4()
         self.entities[key] = {type(value): value for (value) in components}
+        if IngameObject in self.entities[key]:
+            self.entities[key][IngameObject].id = key
+        if Collidable in self.entities[key]:
+            self.registerCollisionCalls(key, self.entities[key])
         return key
+
+    def registerCollisionCalls(self, key, entity):
+        self.collisionSystem.COLLISIONCALLS[key] = entity[Collidable].call
+

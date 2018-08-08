@@ -9,6 +9,7 @@ from game.systems.profilesystem import ProfileSystem
 from game.systems.collisionsystem import CollisionSystem, CollisionCall
 from game.systems.particlesystem import ParticleSystem
 from game.systems.soundsystem import SoundSystem
+from game.systems.inventorysystem import *
 
 class GameState:
     """Our core code.
@@ -37,6 +38,7 @@ class GameState:
         self.net = framework.net
         self.renderSystem = RenderSystem(self.screen)
         self.collisionSystem = CollisionSystem()
+        self.inventorySystem = InventorySystem()
         self.particles = ParticleSystem(self.renderSystem)
 
         # Add all systems we want to run
@@ -44,6 +46,7 @@ class GameState:
             ProfileSystem(name, gender),
             UserInputSystem(),
             self.collisionSystem,
+            self.inventorySystem,
             self.renderSystem,
             self.particles,
             SoundSystem()
@@ -93,8 +96,15 @@ class GameState:
             self.entities[key][IngameObject].id = key
         if Collidable in self.entities[key]:
             self.registerCollisionCalls(key, self.entities[key])
+        if Inventory in self.entities[key]:
+            self.registerInventory(key)
         return key
 
     def registerCollisionCalls(self, key, entity):
         self.collisionSystem.COLLISIONCALLS[key] = entity[Collidable].call
 
+    def registerInventory(self, key):
+        self.entities[key][Collidable].call.onCollisionStart = lambda event: self.inventorySystem.itemPickedUp(self, event, key)
+
+    def itemPickedUp(self, event):
+        print(event.keys)

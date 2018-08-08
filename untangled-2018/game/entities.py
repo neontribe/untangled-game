@@ -9,8 +9,12 @@ def create_player(player_id):
         # They should have a health
         Health(value=100),
 
+        # They should have an inventory
+        Inventory([]),
+
         # They should be facing a certain direction
         Directioned(direction='default'),
+        WaterBar(value=100),
 
         # They will have a name and gender
         Profile(),
@@ -33,11 +37,7 @@ def create_player(player_id):
         PlayerControl(player_id=player_id),
 
         Collidable(
-            call = CollisionCall(
-                start = lambda event: print("Player Collision Start"),
-                #update = lambda event: print("Player Collision Update"),
-                end = lambda event: print("Player Collision End")
-            )
+            call = CollisionCall()
         ),
 
         ParticleEmitter(
@@ -73,3 +73,40 @@ def create_test_collision_object():
             call = CollisionCall()
         )
     ]
+
+def create_test_item_object(animated=False):
+    if animated:
+        return [
+            IngameObject(position=(200,100), size=(49,49)),
+            SpriteSheet(
+                path='./assets/sprites/BOUNCE_enemy.png',
+                tile_size=32,
+                tiles={
+                    'default': [3, 4, 5],
+                },
+                moving=True
+            ),
+            Collidable(
+                call = CollisionCall()
+            ),
+            # Every item has this component
+            CanPickUp(quantity=1),
+            Directioned(direction='default')
+        ]
+    else:
+        return [
+            IngameObject(position=(100,100), size=(49,49)),
+            SpriteSheet(
+                path='./assets/sprites/test.png',
+                tile_size=8,
+                moving=False,
+                tiles={
+                    'default':[0]
+                }
+            ),
+            Collidable(
+                call = CollisionCall()
+            ),
+            # Every item has this component
+            CanPickUp(quantity=2)
+        ]

@@ -97,7 +97,6 @@ class GameState:
 
             # We need to make all other entities at the start of the game here
             self.add_entity(create_background_music())
-            self.add_entity(create_test_collision_object())
 
     def update(self, dt: float, events):
         """This code gets run 60fps. All of our game logic stems from updating
@@ -115,7 +114,6 @@ class GameState:
 
     def on_player_join(self, player_id):
         """This code gets run whenever a new player joins the game."""
-        # Let's give them an entity that they can control
         self.add_entity(create_player(player_id))
 
     def on_player_quit(self, player_id):

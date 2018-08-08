@@ -69,6 +69,7 @@ class GameState:
 
         if self.net.is_hosting():
             # If we're hosting, we need to register that we joined our own game
+            self.add_entity(create_map('assets/maps/testmap2.tmx'))
             self.on_player_join(self.net.get_id())
             
             # Spawn zombies
@@ -98,6 +99,19 @@ class GameState:
             # We need to make all other entities at the start of the game here
             self.add_entity(create_background_music())
 
+    def on_player_join(self, player_id):
+        """This code gets run whenever a new player joins the game."""
+        # Let's give them an entity that they can control
+        self.add_entity(create_player(player_id))
+
+    def on_player_quit(self, player_id):
+        """This code gets run whever a player exits the game."""
+        # Remove any entities tied to them - e.g. the player they control
+        tied = []
+        for key, entity in list(self.entities.items()):
+            if PlayerControl in entity and entity[PlayerControl].player_id == player_id:
+                del self.entities[key]
+
     def update(self, dt: float, events):
         """This code gets run 60fps. All of our game logic stems from updating
         our systems on our entities."""
@@ -111,18 +125,6 @@ class GameState:
 
         # Send our changes to everyone else
         self.net.push_game(self)
-
-    def on_player_join(self, player_id):
-        """This code gets run whenever a new player joins the game."""
-        self.add_entity(create_player(player_id))
-
-    def on_player_quit(self, player_id):
-        """This code gets run whever a player exits the game."""
-        # Remove any entities tied to them - e.g. the player they control
-        tied = []
-        for key, entity in list(self.entities.items()):
-            if PlayerControl in entity and entity[PlayerControl].player_id == player_id:
-                del self.entities[key]
 
     def add_entity(self, components):
         """Add an entity to the game, from a set of components. Returns a unique

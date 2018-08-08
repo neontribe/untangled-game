@@ -4,7 +4,7 @@ from lib.system import System
 from game.components import *
 from game.systems.particlesystem import Particle
 
-SPEED = 4
+SPEED = 10
 
 class UserInputSystem(System):
     """This system updates certain entities based on the arrow keys."""

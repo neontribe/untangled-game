@@ -1,3 +1,5 @@
+import tmx
+
 from game.components import *
 from game.systems.collisionsystem import CollisionCall
 
@@ -51,6 +53,55 @@ def create_player(player_id):
             colour = (137, 63, 69),
             onlyWhenMoving = True,
             randomness = (3,3)
+        )
+    ]
+
+def create_map(path):
+    # Load raw tilemap from TMX
+    tile_map = tmx.TileMap.load(path)
+
+    # Convert data to dumb python types
+    width = tile_map.width
+    height = tile_map.height
+    grid = [
+        [None for x in range(tile_map.width)] for y in range(tile_map.height)
+    ]
+
+    for layer in tile_map.layers:
+        if isinstance(layer,  tmx.Layer):
+            for index, tile in enumerate(layer.tiles):
+                x = index % width
+                y = index // width
+                grid[y][x] = tile.gid or 0
+
+    # Make our component from this
+    map_comp = Map(path=path, width=width, height=height, grid=grid)
+
+    return [
+        map_comp,
+        SpriteSheet(
+            tile_size=32,
+            path="assets/tilesets/map.png",
+            tiles={
+                'default':[0],
+                '0': [0],
+                '1': [1],
+                '2': [2],
+                '3': [3],
+                '4': [4],
+                '5': [5],
+                '6': [6],
+                '7': [7],
+                '8': [8],
+                '9': [9],
+                '10': [10],
+                '11': [11],
+                '12': [12],
+                '13': [13],
+                '14':[14],
+                '15':[15]
+            },
+            moving=True
         )
     ]
 

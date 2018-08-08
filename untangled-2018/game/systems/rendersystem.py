@@ -53,6 +53,11 @@ class RenderSystem(System):
                     game.collisionSystem.checkCollisions(game,key,entity[Collidable],previousCollidables)
                     previousCollidables.append((key,entity[Collidable]))
 
+            if IngameObject in entity and ParticleEmitter in entity:
+                new_part = entity[ParticleEmitter].getParticle(entity)
+                if new_part != None:
+                    game.particles.add_particle(new_part)
+
             # Is this an entity we should draw?
             if IngameObject in entity and SpriteSheet in entity:
                 spritesheet = entity[SpriteSheet]
@@ -140,10 +145,13 @@ class RenderSystem(System):
     def draw_particles(self, height: str, our_center):
         if height in self.particles.keys():
             for p in self.particles[height]:
-                pos = (round(p.position[0]), round(p.position[1]))
-                rel_pos = (pos[0] - our_center[0], pos[1] - our_center[1])
-                screen_pos = (rel_pos[0] + 512, rel_pos[1] + 512)
-                self.particleFunc[p.particleType](p, screen_pos)
+                self.draw_particle(p, our_center)
+
+    def draw_particle(self, particle, our_center):
+        pos = (round(particle.position[0]), round(particle.position[1]))
+        rel_pos = (pos[0] - our_center[0], pos[1] - our_center[1])
+        screen_pos = (rel_pos[0] + 512, rel_pos[1] + 512)
+        self.particleFunc[particle.particleType](particle, screen_pos)
 
     def particle_square(self, p, pos):
         rect = Rect(pos[0],pos[1],8,8)

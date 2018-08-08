@@ -50,10 +50,3 @@ class UserInputSystem(System):
                         entity[SpriteSheet].moving = moved
                     if Directioned in entity:
                         entity[Directioned].direction = direction
-
-                    if moved:
-                        partPos = ((prePos[0] - io.position[0]),(prePos[1] - io.position[1]))
-                        partVel = (partPos[0]/8,partPos[1]/8)
-                        randVel = (partPos[1]/2,partPos[0]/2)
-                        part = Particle("star",(io.position[0],io.position[1]+32),20,colour=(137, 63, 69),velocity=partVel,below=True,randomness=randVel)
-                        game.particles.add_particle(part)

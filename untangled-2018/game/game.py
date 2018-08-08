@@ -124,6 +124,15 @@ class GameState:
                     #update = lambda event: print("Player Collision Update"),
                     end = lambda event: print("Player Collision End")
                 )
+            ),
+            ParticleEmitter(
+                particleTypes = ["ring","star"],
+                offset = (0,32),
+                velocity = (1,1),
+                directionMode = 2,
+                colour = (137, 63, 69),
+                onlyWhenMoving = True,
+                randomness = (3,3)
             )
         ])
 

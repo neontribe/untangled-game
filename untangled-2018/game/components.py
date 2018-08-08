@@ -13,6 +13,7 @@ class IngameObject:
     """Gives an entity a place and size in game."""
     position: Tuple[int, int]
     size: Tuple[int, int]
+    id = None
 
 @component(networked=True)
 class Health:

@@ -149,6 +149,8 @@ class GameState:
         ID for the entity."""
         key = uuid.uuid4()
         self.entities[key] = {type(value): value for (value) in components}
+        if IngameObject in self.entities[key]:
+            self.entities[key][IngameObject].id = key
         if Collidable in self.entities[key]:
             self.registerCollisionCalls(key, self.entities[key])
         return key

@@ -5,6 +5,7 @@ from pygame import Rect
 import random
 
 from lib.component import component
+from lib.framework import Framework
 from game.systems.collisionsystem import CollisionCall
 from game.systems.particlesystem import Particle
 
@@ -27,6 +28,36 @@ class Damager:
     cooldown: float
     lasthit: float = 0.0
     exclude = []
+
+@component(networked=True)
+class CanPickUp:
+    pickedUp: bool = False
+    quantity: int = 1
+
+@component(networked=True)
+class WaterBar:
+    """Gives the entity a water bar"""
+    value: int
+    disabled: bool = False
+
+@component(networked=True)
+class Inventory:
+    """Gives a player items"""
+    items: List[Tuple[str, int]]
+    maxSlots: int = 6
+    activeSlot: int = 0
+    hoverSlot: int = None
+    activeItem: Tuple[str, int] = ()
+
+    itemSlotOffset: int = 6
+    slotOffset: int = 10
+    slotSize: int = 55
+
+    height: float = slotOffset*2 + slotSize
+    width: float = slotSize * maxSlots + slotOffset * maxSlots + slotOffset
+
+    x: float = Framework.dimensions[0] / 2 - width / 2
+    y: float = Framework.dimensions[1] - height - slotOffset
 
 @component(networked=True)
 class SpriteSheet:

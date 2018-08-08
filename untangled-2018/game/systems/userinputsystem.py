@@ -1,3 +1,4 @@
+import math
 import pygame.locals
 
 from lib.system import System
@@ -12,6 +13,12 @@ class UserInputSystem(System):
     def update(self, game, dt: float, events):
         keysdown = pygame.key.get_pressed()
         mousedown = pygame.mouse.get_pressed()
+
+        # Look for the tilemap for collision queries
+        tmap = None
+        for key, entity in game.entities.items():
+            if Map in entity and SpriteSheet in entity:
+                tmap = entity
 
         for key, entity in game.entities.items():
             # Is the object player controllable and does it have a position on-screen?
@@ -29,22 +36,66 @@ class UserInputSystem(System):
                     # Store which direction we moved in
                     direction = entity[Directioned].direction if Directioned in entity else 'default'
 
+                    hoped_vel = (0, 0)
                     if keysdown[pygame.locals.K_DOWN]:
-                        io.position = (io.position[0], io.position[1] + SPEED)
-                        moved = True
+                        hoped_vel = (0, SPEED)
                         direction = 'down'
                     elif keysdown[pygame.locals.K_UP]:
-                        io.position = (io.position[0], io.position[1] - SPEED)
-                        moved = True
+                        hoped_vel = (0, -SPEED)
                         direction = 'up'
                     elif keysdown[pygame.locals.K_LEFT]:
-                        io.position = (io.position[0] - SPEED, io.position[1])
-                        moved = True
+                        hoped_vel = (-SPEED, 0)
                         direction = 'left'
                     elif keysdown[pygame.locals.K_RIGHT]:
-                        io.position = (io.position[0] + SPEED, io.position[1])
-                        moved = True
+                        hoped_vel = (SPEED, 0)
                         direction = 'right'
+
+                    if hoped_vel != (0, 0):
+                        hoped_pos = (io.position[0] + hoped_vel[0], io.position[1] + hoped_vel[1])
+
+                        # TODO if tmap = None
+                        # TODO if |vel| > 1
+                        # TODO if tile doesn't exist
+                        # TODO if in tile
+
+                        if abs(hoped_vel[0]) > 0:
+                            intrusive_x = hoped_pos[0] + math.copysign(io.size[0] / 2, hoped_vel[0])
+                            tcollision = False
+                            y = hoped_pos[1] - io.size[1] / 2
+                            while y < hoped_pos[1] + io.size[1] / 2:
+                                tile_x = int(intrusive_x / tmap[SpriteSheet].tile_size)
+                                tile_y = int(y / tmap[SpriteSheet].tile_size)
+                                if tmap[Map].grid[tile_y][tile_x] != 1:
+                                    tcollision = True
+                                    break
+                                if y != hoped_pos[1] + io.size[1] / 2 - 1 and y + tmap[SpriteSheet].tile_size >= hoped_pos[1] + io.size[1] / 2:
+                                    y = hoped_pos[1] + io.size[1] / 2 - 1
+                                else:
+                                    y += tmap[SpriteSheet].tile_size
+                            if tcollision:
+                                unintrusive_x = (int(intrusive_x / tmap[SpriteSheet].tile_size) - math.copysign(1, hoped_vel[0])) * tmap[SpriteSheet].tile_size
+                                hoped_pos = (unintrusive_x + (tmap[SpriteSheet].tile_size / 2) - math.copysign((io.size[0] - tmap[SpriteSheet].tile_size) / 2, hoped_vel[0]), hoped_pos[1])
+                        if abs(hoped_vel[1]) > 0:
+                            intrusive_y = hoped_pos[1] + math.copysign(io.size[1] / 2, hoped_vel[1])
+                            tcollision = False
+                            x = hoped_pos[0] - io.size[0] / 2
+                            while x < hoped_pos[0] + io.size[0] / 2:
+                                tile_y = int(intrusive_y / tmap[SpriteSheet].tile_size)
+                                tile_x = int(x / tmap[SpriteSheet].tile_size)
+                                if tmap[Map].grid[tile_y][tile_x] != 1:
+                                    tcollision = True
+                                    break
+                                if x != hoped_pos[0] + io.size[0] / 2 - 1 and x + tmap[SpriteSheet].tile_size >= hoped_pos[0] + io.size[0] / 2:
+                                    x = hoped_pos[0] + io.size[0] / 2 - 1
+                                else:
+                                    x += tmap[SpriteSheet].tile_size
+                            if tcollision:
+                                unintrusive_y = (int(intrusive_y / tmap[SpriteSheet].tile_size) - math.copysign(1, hoped_vel[1])) * tmap[SpriteSheet].tile_size
+                                hoped_pos = (hoped_pos[0], unintrusive_y + (tmap[SpriteSheet].tile_size / 2) - math.copysign((io.size[1] - tmap[SpriteSheet].tile_size) / 2, hoped_vel[1]))
+
+                        if io.position != hoped_pos:
+                            io.position = hoped_pos
+                            moved = True
 
                     # Trigger animation of this entity's sprite, if it has one
                     if SpriteSheet in entity:

@@ -2,6 +2,7 @@ import uuid
 import time
 
 from game.components import *
+from game.entities import *
 from game.systems.rendersystem import RenderSystem
 from game.systems.userinputsystem import UserInputSystem
 from game.systems.profilesystem import ProfileSystem
@@ -48,28 +49,13 @@ class GameState:
             SoundSystem()
         ])
 
-        # If we're hosting, we need to register that we joined our own game
         if self.net.is_hosting():
+            # If we're hosting, we need to register that we joined our own game
             self.on_player_join(self.net.get_id())
-            self.add_entity([
-                BackgroundMusic (
-                    path="assets/sounds/overworld.wav"
-                )
-            ])
-            self.add_entity([
-                IngameObject(position=(0,0), size=(128,128)),
-                SpriteSheet(
-                    path='./assets/sprites/test.png',
-                    tile_size=8,
-                    moving=False,
-                    tiles={
-                        'default':[0]
-                    }
-                ),
-                Collidable(
-                    call = CollisionCall()
-                )
-            ])
+
+            # We need to make all other entities at the start of the game here
+            self.add_entity(create_background_music())
+            self.add_entity(create_test_collision_object())
 
     def update(self, dt: float, events):
         """This code gets run 60fps. All of our game logic stems from updating
@@ -88,53 +74,7 @@ class GameState:
     def on_player_join(self, player_id):
         """This code gets run whenever a new player joins the game."""
         # Let's give them an entity that they can control
-        self.add_entity([
-            # They should have a position and size in game
-            IngameObject(position=(0, 0), size=(64, 64)),
-
-            # They should have a health
-            Health(value=100),
-
-            # They should be facing a certain direction
-            Directioned(direction='default'),
-
-            # They will have a name and gender
-            Profile(),
-
-            # We know what they may look like
-            SpriteSheet(
-                path='./assets/sprites/player.png',
-                tile_size=48,
-                moving=False,
-                tiles={
-                    'default':[58],
-                    'left':[70,71,69],
-                    'right':[82,83,81],
-                    'up':[94,95,93],
-                    'down':[58,59,57]
-                }
-            ),
-
-            # The player who has connected con control them with the arrow keys
-            PlayerControl(player_id=player_id),
-
-            Collidable(
-                call = CollisionCall(
-                    start = lambda event: print("Player Collision Start"),
-                    #update = lambda event: print("Player Collision Update"),
-                    end = lambda event: print("Player Collision End")
-                )
-            ),
-            ParticleEmitter(
-                particleTypes = ["ring","star"],
-                offset = (0,32),
-                velocity = (1,1),
-                directionMode = 2,
-                colour = (137, 63, 69),
-                onlyWhenMoving = True,
-                randomness = (3,3)
-            )
-        ])
+        self.add_entity(create_player(player_id))
 
     def on_player_quit(self, player_id):
         """This code gets run whever a player exits the game."""

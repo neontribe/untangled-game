@@ -21,6 +21,7 @@ class Health:
 @component(networked=True)
 class CanPickUp:
     pickedUp: bool = False
+    quantity: int = 1
 
 @component(networked=True)
 class WaterBar:

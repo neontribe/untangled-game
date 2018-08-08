@@ -9,16 +9,18 @@ class InventorySystem(System):
     
     def itemPickedUp(self, game, event, key):
         itemEntity, itemKey = self.getItemFromEvent(game, event, key)
-        playerEntity = game.entities[key]
-        
-        if itemKey not in playerEntity[Inventory].items:
-            playerEntity[Inventory].items.append(itemKey)
-            playerEntity[Inventory].items.append(1)
-        else:
-            itemIndexInList = playerEntity[Inventory].items.index(itemKey)
-            playerEntity[Inventory].items[itemIndexInList + 1] += 1
 
-        print(playerEntity[Inventory].items)
+        if not itemEntity[CanPickUp].pickedUp:
+            playerEntity = game.entities[key]
+            
+            if itemKey not in playerEntity[Inventory].items:
+                playerEntity[Inventory].items.append(itemKey)
+                playerEntity[Inventory].items.append(1)
+            else:
+                itemIndexInList = playerEntity[Inventory].items.index(itemKey)
+                playerEntity[Inventory].items[itemIndexInList + 1] += 1
+
+            itemEntity[CanPickUp].pickedUp = True
 
     def getItemFromEvent(self, game, event, playerkey):
         for k in event.keys:

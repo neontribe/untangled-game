@@ -43,6 +43,10 @@ class RenderSystem(System):
 
             # Is this an entity we should draw?
             if IngameObject in entity and SpriteSheet in entity:
+                if CanPickUp in entity:
+                    if entity[CanPickUp].pickedUp:
+                        continue
+
                 spritesheet = entity[SpriteSheet]
 
                 # Where are they relative to us?

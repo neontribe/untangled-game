@@ -9,6 +9,7 @@ from game.systems.AI_system import AI_system
 from game.systems.collisionsystem import CollisionSystem, CollisionCall
 from game.systems.particlesystem import ParticleSystem
 from game.systems.soundsystem import SoundSystem
+from game.systems.damagesystem import DamageSystem
 
 
 class GameState:
@@ -39,6 +40,7 @@ class GameState:
         self.renderSystem = RenderSystem(self.screen)
         self.collisionSystem = CollisionSystem()
         self.particles = ParticleSystem(self.renderSystem)
+        self.damagesystem = DamageSystem()
 
         # Add all systems we want to run
         self.systems.extend([
@@ -49,7 +51,8 @@ class GameState:
             self.collisionSystem,
             self.renderSystem,
             self.particles,
-            SoundSystem()
+            SoundSystem(),
+            self.damagesystem
         ])
 
         # If we're hosting, we need to register that we joined our own game
@@ -72,7 +75,17 @@ class GameState:
                 ),
                 IngameObject(position=(0, 0), size=(64, 64)),
                 Directioned(direction='default'),
-                ChasePlayer(speed = 1)
+                ChasePlayer(speed = 1),
+                Collidable(
+                    call = CollisionCall(
+                        update = lambda event: self.damagesystem.onDamage(self,event)
+                    )
+                ),
+                Damager(
+                    damagemin=10, # Someone change these, they're op.
+                    damagemax=20,
+                    cooldown=1.5
+                )
             ])
             self.add_entity([
                 SpriteSheet(

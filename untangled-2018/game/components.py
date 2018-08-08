@@ -21,6 +21,14 @@ class Health:
     value: int
 
 @component(networked=True)
+class Damager:
+    damagemin: int
+    damagemax: int
+    lasthit: float = 0.0
+    cooldown: float
+    exclude = []
+
+@component(networked=True)
 class SpriteSheet:
     """Gives an entity an image and animations."""
     path: str

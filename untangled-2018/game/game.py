@@ -71,6 +71,7 @@ class GameState:
                 # Every item has this component
                 CanPickUp(quantity=2)
             ])
+            """ Animated item example
             self.add_entity([
                 IngameObject(position=(200,100), size=(49,49)),
                 SpriteSheet(
@@ -88,6 +89,7 @@ class GameState:
                 CanPickUp(quantity=1),
                 Directioned(direction='default')
             ])
+            """
 
     def update(self, dt: float, events):
         """This code gets run 60fps. All of our game logic stems from updating

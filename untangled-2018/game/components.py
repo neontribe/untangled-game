@@ -52,3 +52,6 @@ class Profile:
 class PlayerControl:
     """Lets an entity be controlled by specific player's arrow keys."""
     player_id: str
+@component(networked=True)
+class GameAction:
+    action: str = ''

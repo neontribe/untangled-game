@@ -33,11 +33,11 @@ class GameState:
 
         # Add all systems we want to run
         self.systems.extend([
+            PlantSystem(),
             ProfileSystem(name, gender),
             UserInputSystem(),
             RenderSystem(self.screen),
             SoundSystem(),
-            PlantSystem()
         ])
 
         # If we're hosting, we need to register that we joined our own game
@@ -48,14 +48,16 @@ class GameState:
                     path="assets/sounds/overworld.wav"
                 )
             ])
-            self.add_entity([
-                IngameObject(position=(100,100),size=(64, 64)),
-                Health(value=10), 
-                Crops(name="wheat", growth_rate=3,dehydration_rate=2, max_growth_stage=4,growth_stage=0),
-                SpriteSheet(path="assets/sprites/wheat.png",tile_size=16,tiles={
-                    'default':[0,1, 2, 3]    
-                })
-            ])
+    def NewPlant(self, position):
+        self.add_entity([
+            IngameObject(position=position,size=(64, 64)),
+                
+            Health(value=10), 
+            Crops(name="wheat", growth_rate=3,dehydration_rate=2, max_growth_stage=4,growth_stage=0),
+            SpriteSheet(path="assets/sprites/wheat.png",tile_size=16,tiles={
+                'default':[0,1, 2, 3]    
+            })
+        ])
 
     def update(self, dt: float, events):
         """This code gets run 60fps. All of our game logic stems from updating
@@ -103,6 +105,7 @@ class GameState:
 
             # The player who has connected con control them with the arrow keys
             PlayerControl(player_id=player_id),
+            GameAction()
         ])
 
     def on_player_quit(self, player_id):

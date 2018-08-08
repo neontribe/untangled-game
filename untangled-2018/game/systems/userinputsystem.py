@@ -1,3 +1,4 @@
+import pygame
 import pygame.locals
 
 from lib.system import System
@@ -41,6 +42,15 @@ class UserInputSystem(System):
                         io.position = (io.position[0] + SPEED, io.position[1])
                         moved = True
                         direction = 'right'
+                    elif keysdown[pygame.locals.K_p]:
+                        if GameAction in entity:
+                            action = entity[GameAction]
+                            action.action = 'plant'
+                    elif keysdown[pygame.locals.K_o]:
+                        if GameAction in entity:
+                            action = entity[GameAction]
+                            action.action = 'water'
+                        
 
                     # Trigger animation of this entity's sprite, if it has one
                     if SpriteSheet in entity:

@@ -71,6 +71,23 @@ class GameState:
                 # Every item has this component
                 CanPickUp(quantity=2)
             ])
+            self.add_entity([
+                IngameObject(position=(200,100), size=(49,49)),
+                SpriteSheet(
+                    path='./assets/sprites/BOUNCE_enemy.png',
+                    tile_size=32,
+                    tiles={
+                        'default': [3, 4, 5],
+                    },
+                    moving=True
+                ),
+                Collidable(
+                    call = CollisionCall()
+                ),
+                # Every item has this component
+                CanPickUp(quantity=1),
+                Directioned(direction='default')
+            ])
 
     def update(self, dt: float, events):
         """This code gets run 60fps. All of our game logic stems from updating

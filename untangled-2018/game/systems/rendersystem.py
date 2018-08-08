@@ -35,6 +35,11 @@ class RenderSystem(System):
 
         # Render everything we can
         for key, entity in game.entities.items():
+            # Don't check for items being picked up
+            if CanPickUp in entity:
+                if entity[CanPickUp].pickedUp:
+                    continue
+
             #Check collisions for entity against all previously checked entities
             if IngameObject in entity and Collidable in entity:
                 if entity[Collidable].canCollide:
@@ -43,10 +48,6 @@ class RenderSystem(System):
 
             # Is this an entity we should draw?
             if IngameObject in entity and SpriteSheet in entity:
-                if CanPickUp in entity:
-                    if entity[CanPickUp].pickedUp:
-                        continue
-
                 spritesheet = entity[SpriteSheet]
 
                 # Where are they relative to us?
@@ -76,6 +77,10 @@ class RenderSystem(System):
                 rect = Rect(screen_pos, entity[IngameObject].size)
                 rect.center = screen_pos
                 
+                # Add a rectangle behind the item because the quantity is seen outside of the item
+                if CanPickUp in entity:
+                    pygame.draw.circle(self.screen, (0, 255, 0), (int(rect.x + rect.width / 2), int(rect.y + rect.height / 2)), int(rect.width/2))
+
                 # Draw the image
                 self.screen.blit(img, rect)
 
@@ -84,12 +89,8 @@ class RenderSystem(System):
                     if entity[CanPickUp].quantity > 1:
                         rendered_text_qitem = self.font.render(str(entity[CanPickUp].quantity), False, (0, 0, 0))
                         
-                        # Draw the text to the right
-                        textItemOffset = entity[IngameObject].size[0] / 1.5
-                        rect.x += textItemOffset
                         self.screen.blit(rendered_text_qitem, rect)
-                        rect.x -= textItemOffset
-
+                        
                 # Center health bar and nametag
                 rect.x -= 30
 
@@ -163,9 +164,12 @@ class RenderSystem(System):
                                 if slotIndex * 2 < len(entity[Inventory].items):
                                     item = game.entities[entity[Inventory].items[slotIndex * 2]]
 
+                                    itemImgIndexes = item[SpriteSheet].tiles['default']
+                                    itemImgIndex = itemImgIndexes[frame % len(itemImgIndexes)]
+
                                     # If it does, get its image
-                                    itemImg = self.get_image(item[SpriteSheet], 0)
-                                    itemW, itemH = (inv.slotSize-inv.itemSlotOffset * 2, inv.slotSize-inv.itemSlotOffset * 2)
+                                    itemImg = self.get_image(item[SpriteSheet], itemImgIndex)
+                                    itemW, itemH = (inv.slotSize-inv.slotOffset, inv.slotSize-inv.itemSlotOffset * 2)
                                     itemImg = pygame.transform.scale(itemImg, (itemW, itemH))
 
                                     # The item is placed in the slot with a 3px offset
@@ -174,11 +178,10 @@ class RenderSystem(System):
 
                                     # Drawing text that shows how many items of this kind there are
                                     lItemRect = list(itemRect)
-                                    lItemRect[0] += (inv.slotSize / 2 - inv.slotOffset / 2)
                                     lItemRect[1] += inv.slotOffset
                                     itemRect = tuple(lItemRect)
 
-                                    rendered_text_qslot = self.font.render(str(entity[Inventory].items[slotIndex * 2 + 1]), False, (0, 0, 0))
+                                    rendered_text_qslot = self.font.render(str(entity[Inventory].items[slotIndex * 2 + 1]), False, (255, 255, 255))
                                     self.screen.blit(rendered_text_qslot, itemRect)
 
                                 slotIndex += 1

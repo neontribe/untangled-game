@@ -36,6 +36,7 @@ class Inventory:
     activeSlot: int = 0
     hoverSlot: int = None
 
+    itemSlotOffset: int = 6
     slotOffset: int = 10
     slotSize: int = 55
 

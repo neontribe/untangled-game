@@ -144,6 +144,28 @@ class RenderSystem(System):
                                     colour = slotBackgroundColour
 
                                 pygame.draw.rect(self.screen, colour, (x, inv.y+inv.slotOffset, inv.slotSize, inv.slotSize))
+                                
+                                # Check if item exists in Inventory
+                                if slotIndex * 2 < len(entity[Inventory].items):
+                                    item = game.entities[entity[Inventory].items[slotIndex * 2]]
+
+                                    # If it does, get its image
+                                    itemImg = self.get_image(item[SpriteSheet], 0)
+                                    itemW, itemH = (inv.slotSize-inv.itemSlotOffset * 2, inv.slotSize-inv.itemSlotOffset * 2)
+                                    itemImg = pygame.transform.scale(itemImg, (itemW, itemH))
+
+                                    # The item is placed in the slot with a 3px offset
+                                    itemRect = (x + inv.itemSlotOffset, inv.y+inv.slotOffset + inv.itemSlotOffset, itemW, itemH)
+                                    self.screen.blit(itemImg, itemRect)
+
+                                    # Drawing text that shows how many items of this kind there are
+                                    lItemRect = list(itemRect)
+                                    lItemRect[0] += (inv.slotSize / 2 - inv.slotOffset / 2)
+                                    lItemRect[1] += inv.slotOffset
+                                    itemRect = tuple(lItemRect)
+
+                                    rendered_quantity = self.font.render(str(entity[Inventory].items[slotIndex * 2 + 1]), False, (0, 0, 0))
+                                    self.screen.blit(rendered_quantity, itemRect)
 
                                 slotIndex += 1
 

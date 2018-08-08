@@ -148,14 +148,14 @@ class GameState:
         if Collidable in self.entities[key]:
             self.registerCollisionCalls(key, self.entities[key])
         if Inventory in self.entities[key]:
-            self.registerInventory(self.entities[key])
+            self.registerInventory(key)
         return key
 
     def registerCollisionCalls(self, key, entity):
         self.collisionSystem.COLLISIONCALLS[key] = entity[Collidable].call
 
-    def registerInventory(self, entity):
-        entity[Collidable].call.onCollisionStart = lambda event: self.inventorySystem.itemPickedUp(self, entity)
+    def registerInventory(self, key):
+        self.entities[key][Collidable].call.onCollisionStart = lambda event: self.inventorySystem.itemPickedUp(self, event, key)
 
     def itemPickedUp(self, event):
         print(event.keys)

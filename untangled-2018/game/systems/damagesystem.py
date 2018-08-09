@@ -27,3 +27,6 @@ class DamageSystem(System):
                 target_HealthComponent.value -= damage
                 other_DamagerComponent.lasthit = time.time()
         
+            if target[Health].value<=0:
+               target[Health].value=100
+               target[IngameObject].position=(0,0)

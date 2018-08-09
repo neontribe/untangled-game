@@ -112,10 +112,18 @@ class GameState:
                 self.add_entity(create_sheep((spawnx, spawny)))
 
             # Spawn chicken
+
+            for i in range(60):
+                spawnx = random.randint(-2000, 2000)
+                spawny = random.randint(-2000, 2000)
+
             for i in range(30):
                 spawnx = random.randrange(map_ent[Map].width * map_ent[SpriteSheet].tile_size)
                 spawny = random.randrange(map_ent[Map].height * map_ent[SpriteSheet].tile_size)
+
                 self.add_entity(create_chicken((spawnx, spawny)))
+
+
 
             # We need to make all other entities at the start of the game here
             self.add_entity(create_background_music())
@@ -147,6 +155,45 @@ class GameState:
         # Send our changes to everyone else
         self.net.push_game(self)
 
+
+    def on_player_join(self, player_id):
+        """This code gets run whenever a new player joins the game."""
+        sword_id = self.add_entity([
+            SpriteSheet(
+            path='./assets/sprites/Sword2.png',
+            tile_size=49,
+            tiles={
+                'default': [0],
+                'left': [1, 5, 6],
+                'right': [3, 4, 7],
+                'up': [0, 5, 4],
+                'down': [2, 6, 7]
+                },
+                moving=False
+            ),
+            IngameObject(position=(0,0), size=(48, 48)),
+            SwingSword(swing=False),
+            Directioned(direction='default'),
+            Damager(
+                damagemin=10,
+                damagemax=20,
+                cooldown=1.5
+            ),
+            Wieldable(wielded = True)
+        ])
+        entity_id = self.add_entity(create_player(player_id, [sword_id,1]))
+        self.entities[sword_id][Wieldable].player_id = entity_id
+
+
+    def on_player_quit(self, player_id):
+        """This code gets run whever a player exits the game."""
+        # Remove any entities tied to them - e.g. the player they control
+        tied = []
+        for key, entity in list(self.entities.items()):
+            if PlayerControl in entity and entity[PlayerControl].player_id == player_id:
+                del self.entities[key]
+
+
     def add_entity(self, components):
         """Add an entity to the game, from a set of components. Returns a unique
         ID for the entity."""
@@ -157,7 +204,7 @@ class GameState:
         return key
         
     def itemPickedUp(self, event):
-        print(event.keys)
+        pass
 
     def get_collision_functions(self, entity):
         if Collidable in entity:

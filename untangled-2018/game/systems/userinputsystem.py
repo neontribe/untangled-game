@@ -68,6 +68,8 @@ class UserInputSystem(System):
                             gaComponent.action = 'harvest'
                         
 
+
+
                     if hoped_vel != (0, 0):
                         # Get us to the right speed
                         hoped_dist = math.sqrt(hoped_vel[0]**2 + hoped_vel[1]**2)
@@ -80,6 +82,7 @@ class UserInputSystem(System):
                         if io.position != hoped_pos:
                             io.position = hoped_pos
                             moved = True
+
 
                     # Trigger animation of this entity's sprite, if it has one
                     if SpriteSheet in entity:
@@ -129,6 +132,26 @@ class UserInputSystem(System):
                             # If the mouse is out of the inventory slots, the hovered slot should no longer be highlighted
                             else:
                                 entity[Inventory].hoverSlot = None
+
+                                
+            elif Wieldable in entity and SwingSword in entity and SpriteSheet in entity:
+                if entity[Wieldable].wielded:
+                    player_id = game.entities[entity[Wieldable].player_id][PlayerControl].player_id
+                    if game.net.is_me(player_id):
+                        if keysdown[pygame.locals.K_SPACE]:
+                            entity[SwingSword].swing = True
+                            entity[SpriteSheet].moving = True
+                            for key_col, entity_col in game.entities.items():
+                                wielding_player = game.entities[entity[Wieldable].player_id]
+                                if entity_col != wielding_player:
+                                    if Health in entity_col:
+                                        if entity[IngameObject].get_rect().colliderect(entity_col[IngameObject].get_rect()):
+                                            damage = 1
+                                            entity_col[Health].value = entity_col[Health].value - damage                     
+                        else:
+                            entity[SwingSword].swing = False
+                            entity[SpriteSheet].moving = False
+
 
 def get_position(io, hoped_vel, tmap):
     '''See if an ingame object can move its hoped distance, accounting for a tilemap; return as far as it can go'''
@@ -197,3 +220,4 @@ def get_position(io, hoped_vel, tmap):
                 hoped_pos = (hoped_pos[0], unintrusive_y + (tmap[SpriteSheet].tile_size / 2) - math.copysign((io.size[1] - tmap[SpriteSheet].tile_size) / 2, hoped_vel[1]))
 
     return hoped_pos
+

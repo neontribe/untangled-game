@@ -144,7 +144,13 @@ class MoveRandom:
 @component()
 class ChasePlayer:
     speed: int
-
+@component(networked=True)
+class Wieldable:
+    wielded: bool
+    player_id: Union[str, None] = None
+@component(networked=True)
+class SwingSword:
+    swing: bool
 @component(networked=True)
 class ParticleEmitter:
     # square / circle / ring / star

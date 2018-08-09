@@ -11,7 +11,7 @@ class Class_Collisions:
             start = lambda game, event: game.inventorySystem.itemPickedUp(event)
         ),
         'zombie': CollisionCall(
-            update = lambda game, event: game.damagesystem.onDamage(event)
+            update = lambda game, event: game.damagesystem.onDamage(game, event)
         ),
         'test': CollisionCall(
 

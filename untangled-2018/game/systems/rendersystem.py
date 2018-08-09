@@ -82,7 +82,10 @@ class RenderSystem(System):
             # Don't check for items being picked up
             if CanPickUp in entity:
                 if entity[CanPickUp].pickedUp:
-                    continue
+                    if Wieldable in entity:
+                        wieldable = entity[Wieldable]
+                        if not wieldable.wielded:
+                            continue
 
             #Check collisions for entity against all previously checked entities
             if IngameObject in entity and Collidable in entity:
@@ -98,6 +101,28 @@ class RenderSystem(System):
             # Is this an entity we should draw?
             if IngameObject in entity and SpriteSheet in entity:
                 spritesheet = entity[SpriteSheet]
+                if Wieldable in entity:
+                    wieldable = entity[Wieldable]
+                    wielding_player = game.entities[wieldable.player_id]
+                    if wieldable.wielded:
+                        io = wielding_player[IngameObject]
+                        entity[IngameObject].position = (io.position[0]+25,io.position[1])
+                        dire = wielding_player[Directioned].direction
+                        direction = Directioned(direction='default')
+                        if dire ==  'left':
+                            entity[IngameObject].position = (io.position[0]-25,io.position[1])
+                            direction = Directioned(direction='left')
+                        elif dire == 'right':
+                            entity[IngameObject].position = (io.position[0]+25,io.position[1])
+                            direction = Directioned(direction='right')
+                        elif dire == 'up':
+                            entity[IngameObject].position = (io.position[0]+25,io.position[1]-10)
+                            direction = Directioned(direction='up')
+                        elif dire == 'down':
+                            entity[IngameObject].position = (io.position[0]-25,io.position[1]+25)
+                            direction = Directioned(direction='down')
+                        if Directioned in entity:
+                            entity[Directioned] = direction
 
                 # Where are they relative to us?
                 pos = entity[IngameObject].position
@@ -109,11 +134,15 @@ class RenderSystem(System):
 
                 img_indexes = spritesheet.tiles["default"]
 
+
                 # Will they be facing a certain direction?
                 if Directioned in entity:
                     alts = spritesheet.tiles[entity[Directioned].direction]
                     if alts != None:
                         img_indexes = alts
+               
+
+                        
 
                 # Get the image relevent to how far through the animation we are
                 if spritesheet.moving:
@@ -224,8 +253,8 @@ class RenderSystem(System):
                                 pygame.draw.rect(self.screen, colour, (x, inv.y+inv.slotOffset, inv.slotSize, inv.slotSize))
                                 
                                 # Check if item exists in inventory
-                                if slotIndex * 2 < len(entity[Inventory].items):
-                                    item = game.entities[entity[Inventory].items[slotIndex * 2]]
+                                if slotIndex * 3 < len(entity[Inventory].items):
+                                    item = game.entities[entity[Inventory].items[slotIndex * 3]]
 
                                     itemImgIndexes = item[SpriteSheet].tiles['default']
                                     itemImgIndex = itemImgIndexes[frame % len(itemImgIndexes)]

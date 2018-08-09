@@ -3,7 +3,7 @@ import tmx
 from game.components import *
 from game.systems.collisionsystem import CollisionCall
 
-def create_player(player_id):
+def create_player(player_id, initial_inventory=[]):
     return [
         # They should have a position and size in game
         IngameObject(position=(100, 100), size=(64, 64)),
@@ -15,7 +15,7 @@ def create_player(player_id):
         Energy(value=100),
 
         # They should have an inventory
-        Inventory([]),
+        Inventory(items = initial_inventory),
 
         # They should be facing a certain direction
         Directioned(direction='default'),
@@ -123,6 +123,7 @@ def create_zombie(game, position):
         ),
         IngameObject(position=position, size=(64, 64)),
         Directioned(direction='default'),
+        Health(value=100),
         ChasePlayer(speed = 1),
         Collidable(
             call_name = "zombie"
@@ -162,7 +163,8 @@ def create_bounce(position):
         ),
         IngameObject(position=position, size=(64, 64)),
         Directioned(direction='default'),
-        ChasePlayer(speed = 2)
+        ChasePlayer(speed = 2),
+        Health(value=100)
     ]
 
 def create_sheep(position):
@@ -181,7 +183,8 @@ def create_sheep(position):
         ),
         IngameObject(position=position, size=(64,64)),
         Directioned(direction='default'),
-        MoveRandom()
+        MoveRandom(),
+        Health(value=100)
     ]
 
 def create_chicken(position):
@@ -196,12 +199,20 @@ def create_chicken(position):
             },
             moving=False
         ),
+
+        Health(value=100),
+        IngameObject(position=position, size=(64,64)),
+        Directioned(direction='default'),
+        MoveRandom(),
+        Health(value=100),
+
         IngameObject(position=position, size=(50,50)),
         Directioned(
             direction='default',
             isOnlyLR=True
         ),
         MoveRandom()
+
     ]
 
 def create_plant(game, name, path, position):

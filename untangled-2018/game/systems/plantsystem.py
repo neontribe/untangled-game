@@ -14,31 +14,17 @@ class PlantSystem(System):
     def disablePlant(self, key):
         if key in self.colplants:
             self.colplants.remove(key)
-    def oncollidestart(self, game, event):
-        crop = None
-        player = None
-        for k in event.keys:
-            if Crops in game.entities[k]:
-                crop = game.entities[k]
-                continue
-            if PlayerControl in game.entities[k]:
-                player = game.entities[k]
-                continue
+    def oncollidestart(self, event):
+        cropKey, crop = event.get_entity_with_component(Crops)
+        playerKey, player = event.get_entity_with_component(PlayerControl)
         if crop != None and player != None:
-            if game.net.is_me(player[PlayerControl].player_id):
+            if event.game.net.is_me(player[PlayerControl].player_id):
                 self.enablePlant(crop[IngameObject].id)
-    def oncollideend(self, game, event):
-        crop = None
-        player = None
-        for k in event.keys:
-            if Crops in game.entities[k]:
-                crop = game.entities[k]
-                continue
-            if PlayerControl in game.entities[k]:
-                player = game.entities[k]
-                continue
+    def oncollideend(self, event):
+        cropKey, crop = event.get_entity_with_component(Crops)
+        playerKey, player = event.get_entity_with_component(PlayerControl)
         if crop != None and player != None:
-            if game.net.is_me(player[PlayerControl].player_id):
+            if event.game.net.is_me(player[PlayerControl].player_id):
                 self.disablePlant(crop[IngameObject].id)
 
     def update(self, game, dt, events):
@@ -74,6 +60,6 @@ class PlantSystem(System):
                     if action.action == 'water':
                         for k in self.colplants:
                             water_bar = game.entities[k][WaterBar]
-                            water_bar.value = min(water_bar.value + 0.2, 100)
-                            action.action = ''
+                            water_bar.value = min(water_bar.value + 2, 100)
+                        action.action = ''
 

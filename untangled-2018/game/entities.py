@@ -227,10 +227,7 @@ def create_plant(game, name, path, position):
             'default': [0, 1, 2, 3]
         }),
         Collidable(
-            call = CollisionCall(
-                start = lambda event: game.plantsystem.oncollidestart(game,event),
-                end = lambda event: game.plantsystem.oncollideend(game,event)
-            )
+            call_name = 'plant'
         )
     ]
 

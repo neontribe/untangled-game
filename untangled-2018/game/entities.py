@@ -42,7 +42,7 @@ def create_player(player_id):
         PlayerControl(player_id=player_id),
 
         Collidable(
-            call = CollisionCall()
+            call_name = "player"
         ),
 
         ParticleEmitter(
@@ -124,9 +124,7 @@ def create_zombie(game, position):
         Directioned(direction='default'),
         ChasePlayer(speed = 1),
         Collidable(
-            call = CollisionCall(
-                update = lambda event: game.damagesystem.onDamage(game,event)
-            )
+            call_name = "zombie"
         ),
         Damager(
             damagemin=10, # Someone change these, they're op.
@@ -212,7 +210,7 @@ def create_test_collision_object():
             }
         ),
         Collidable(
-            call = CollisionCall()
+            call_name = 'test'
         )
     ]
 
@@ -229,7 +227,7 @@ def create_test_item_object(animated=False):
                 moving=True
             ),
             Collidable(
-                call = CollisionCall()
+                call_name = 'bounce'
             ),
             # Every item has this component
             CanPickUp(quantity=1),
@@ -247,7 +245,7 @@ def create_test_item_object(animated=False):
                 }
             ),
             Collidable(
-                call = CollisionCall()
+                call_name = 'test'
             ),
             # Every item has this component
             CanPickUp(quantity=2)

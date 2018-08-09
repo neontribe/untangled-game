@@ -188,10 +188,10 @@ class ParticleEmitter:
                 return part
         return None
 
-@component(networked=False)
+@component(networked=True)
 class Collidable:
     """Lets an entity collide with another collidable"""
-    call: CollisionCall
+    call_name: str
     canCollide: bool = True
     #rect to override
     customCollisionBox = None

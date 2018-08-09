@@ -232,7 +232,7 @@ def create_test_collision_object():
 def create_test_item_object(itemID, numItems):
     if itemID == "test-item-bounce":
         return [
-            IngameObject(position=(200,100), size=(49,49)),
+            IngameObject(position=(200,300), size=(49,49)),
             SpriteSheet(
                 path='./assets/sprites/BOUNCE_enemy.png',
                 tile_size=32,
@@ -251,7 +251,7 @@ def create_test_item_object(itemID, numItems):
         ]
     else:
         return [
-            IngameObject(position=(100,100), size=(49,49)),
+            IngameObject(position=(200,300), size=(49,49)),
             SpriteSheet(
                 path='./assets/sprites/test.png',
                 tile_size=8,

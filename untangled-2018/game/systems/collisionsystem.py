@@ -113,15 +113,8 @@ class CollisionEvent:
                 c.onCollisionStart(self.game, self)
 
     def update(self):
-<<<<<<< HEAD
-        for key in self.keys:
-            if key not in self.game.entities:
-                self.doKill = True
-                return
-=======
         if not self.isValid():
             return
->>>>>>> master
         for c in self.get_calls():
             if c.onCollisionUpdate != None:
                 c.onCollisionUpdate(self.game, self)
@@ -138,6 +131,7 @@ class CollisionEvent:
             if k not in self.game.entities:
                 self.doKill = True
                 return False
+        return True
 
 class CollisionCall:
     def __init__(self, start=None, update=None, end=None):

@@ -234,8 +234,6 @@ class RenderSystem(System):
                             
 
                             for itemKey, data in entity[Inventory].items.items():
-                                print(data)
-
                                 itemImgIndexes = data[1].tiles['default']
                                 itemImgIndex = itemImgIndexes[frame % len(itemImgIndexes)]
 

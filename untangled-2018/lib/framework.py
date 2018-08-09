@@ -62,9 +62,8 @@ class Framework:
 
         # We've stopped, quit the network, close pygame, kill everything
         self.net.node.leave(self.net.get_our_group() or '')
+        pygame.display.quit()
         self.net.close()
-        pygame.quit()
-        sys.exit()
 
     def enter_game(self, char_name, char_gender):
         # To be called from the menu, puts us into the game

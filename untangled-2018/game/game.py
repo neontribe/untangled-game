@@ -87,14 +87,11 @@ class GameState:
             # If we're hosting, we need to register that we joined our own game
             self.add_entity(create_map('assets/maps/testmap2.tmx'))
             self.on_player_join(self.net.get_id())
-<<<<<<< HEAD
 
             # We need to make all other entities at the start of the game here
             self.add_entity(create_background_music())
             self.add_entity(create_test_collision_object())
-=======
             self.add_entity(create_test_item_object(animated=True))
->>>>>>> master
             
             # Spawn zombies
             for i in range(4):
@@ -120,8 +117,6 @@ class GameState:
                 spawny = random.randint(-4000, 4000)
                 self.add_entity(create_chicken((spawnx, spawny)))
 
-<<<<<<< HEAD
-=======
             # We need to make all other entities at the start of the game here
             self.add_entity(create_background_music())
 
@@ -138,7 +133,6 @@ class GameState:
             if PlayerControl in entity and entity[PlayerControl].player_id == player_id:
                 del self.entities[key]
 
->>>>>>> master
     def update(self, dt: float, events):
         """This code gets run 60fps. All of our game logic stems from updating
         our systems on our entities."""

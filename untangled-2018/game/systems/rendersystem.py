@@ -1,3 +1,4 @@
+import math
 import pygame
 from pygame import Rect
 
@@ -41,6 +42,37 @@ class RenderSystem(System):
                     our_center = entity[IngameObject].position
                     break
 
+        # Draw tilemap
+        for key, entity in game.entities.items():
+            if Map in entity and SpriteSheet in entity:
+                spritesheet = entity[SpriteSheet]
+                map = entity[Map]
+                # minimum and maximum tile indexes coordinates possible
+                min_x = int((our_center[0] - game.framework.dimensions[0]/2) / spritesheet.tile_size)
+                min_y = int((our_center[1] - game.framework.dimensions[1]/2) / spritesheet.tile_size)
+                max_x = int((our_center[0] + game.framework.dimensions[0]/2) / spritesheet.tile_size)
+                max_y = int((our_center[1] + game.framework.dimensions[1]/2) / spritesheet.tile_size)
+                for y in range(max(min_y, 0), min(max_y + 1, len(map.grid))):
+                    for x in range(max(min_x, 0), min(max_x + 1, len(map.grid[y]))):
+                        tile = map.grid[y][x]
+                        img_indexes = spritesheet.tiles[str(tile-1)]
+                        if spritesheet.moving:
+                            img_index = img_indexes[frame % len(img_indexes)]
+                        else:
+                            img_index = img_indexes[0]
+                        image = self.get_image(spritesheet, img_index)
+                        rel_pos = (
+                            x * spritesheet.tile_size - our_center[0],
+                            y * spritesheet.tile_size - our_center[1]
+                        )
+
+                        screen_pos = (
+                            rel_pos[0] + game.framework.dimensions[0]/2,
+                            rel_pos[1] + game.framework.dimensions[1]/2
+                        )
+
+                        self.screen.blit(image, screen_pos)
+
         self.draw_particles(game, "below", our_center)
 
         previousCollidables = []
@@ -59,8 +91,8 @@ class RenderSystem(System):
                     previousCollidables.append((key,entity[Collidable]))
 
             if IngameObject in entity and ParticleEmitter in entity:
-                new_part = entity[ParticleEmitter].getParticle(entity)
-                if new_part != None:
+                new_particles = entity[ParticleEmitter].getParticles(entity)
+                for new_part in new_particles:
                     game.particles.add_particle(new_part)
 
             # Is this an entity we should draw?
@@ -70,7 +102,10 @@ class RenderSystem(System):
                 # Where are they relative to us?
                 pos = entity[IngameObject].position
                 rel_pos = (pos[0] - our_center[0], pos[1] - our_center[1])
-                screen_pos = (rel_pos[0] + game.framework.dimensions[0] / 2, rel_pos[1] + game.framework.dimensions[1] / 2)
+                screen_pos = (
+                    rel_pos[0] + game.framework.dimensions[0]/2,
+                    rel_pos[1] + game.framework.dimensions[1]/2
+                )
 
                 img_indexes = spritesheet.tiles["default"]
 
@@ -218,17 +253,25 @@ class RenderSystem(System):
         # Ideally, we cache so we only process a file once
         if spritesheet.path not in self.image_cache:
             # Load from file
-            sheet_img = pygame.image.load(spritesheet.path)
+            sheet_img = pygame.image.load(spritesheet.path).convert_alpha()
+
+            if isinstance(spritesheet.tile_size, tuple):
+                tile_width = spritesheet.tile_size[0]
+                tile_height = spritesheet.tile_size[1]
+            else:
+                tile_width = spritesheet.tile_size
+                tile_height = spritesheet.tile_size
+
 
             # Check the file can be divided right
-            if sheet_img.get_width() % spritesheet.tile_size != 0 or sheet_img.get_height() % spritesheet.tile_size != 0:
+            if sheet_img.get_width() % tile_width != 0 or sheet_img.get_height() % tile_height != 0:
                 raise ValueError('Spritesheet width and height are not a multiple of its tile size')
             
             # Partition into sub-images
             images = []
-            for y in range(0, sheet_img.get_height(), spritesheet.tile_size):
-                for x in range(0, sheet_img.get_width(), spritesheet.tile_size):
-                    bounds = pygame.Rect(x, y, spritesheet.tile_size, spritesheet.tile_size)
+            for y in range(0, sheet_img.get_height(), tile_height):
+                for x in range(0, sheet_img.get_width(), tile_width):
+                    bounds = pygame.Rect(x, y, tile_width, tile_height)
                     images.append(sheet_img.subsurface(bounds))
             self.image_cache[spritesheet.path] = images
 
@@ -246,23 +289,24 @@ class RenderSystem(System):
         self.particleFunc[particle.particleType](particle, screen_pos)
 
     def particle_square(self, p, pos):
-        rect = Rect(pos[0],pos[1],8,8)
+        rect = Rect(pos[0],pos[1],p.size,p.size)
         pygame.draw.rect(self.screen,p.colour,rect)
 
     def particle_circle(self, p, pos):
-        pygame.draw.circle(self.screen,p.colour,pos,4)
+        pygame.draw.circle(self.screen,p.colour,pos,int(round(p.size/2)))
         
     def particle_ring(self, p, pos):
-        pygame.draw.circle(self.screen,p.colour,pos,4,2)
+        pygame.draw.circle(self.screen,p.colour,pos,int(round(p.size/2)), int(math.ceil(p.size ** (1/3))))
 
     def particle_star(self, p, pos):
         hor = (
-            [pos[0] - 4, pos[1]],
-            [pos[0] + 4, pos[1]]
+            [pos[0] - (p.size/2), pos[1]],
+            [pos[0] + (p.size/2), pos[1]]
         )
         ver = (
-            [pos[0], pos[1] - 4],
-            [pos[0], pos[1] + 4]
+            [pos[0], pos[1] - (p.size/2)],
+            [pos[0], pos[1] + (p.size/2)]
         )
         pygame.draw.line(self.screen,p.colour,hor[0],hor[1],2)
         pygame.draw.line(self.screen,p.colour,ver[0],ver[1],2)
+

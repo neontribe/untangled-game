@@ -6,7 +6,12 @@ from lib.system import System
 from game.components import *
 from game.systems.particlesystem import Particle
 
+<<<<<<< HEAD
 SPEED = 4
+=======
+SPEED = 10
+
+>>>>>>> master
 class UserInputSystem(System):
     """This system updates certain entities based on the arrow keys."""
 
@@ -64,6 +69,9 @@ class UserInputSystem(System):
                         entity[SpriteSheet].moving = moved
                     if Directioned in entity:
                         entity[Directioned].direction = direction
+                    if ParticleEmitter in entity:
+                        if entity[ParticleEmitter].onlyWhenMoving:
+                            entity[ParticleEmitter].doCreateParticles = moved
 
                     # Checks if mouse is pressed
                     if mousedown:

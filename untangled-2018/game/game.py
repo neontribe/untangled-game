@@ -23,6 +23,7 @@ from game.systems.plantsystem import PlantSystem
 
 from game.systems.damagesystem import DamageSystem
 from game.systems.inventorysystem import *
+from game.collisions import Class_Collisions
 
 
 
@@ -59,6 +60,7 @@ class GameState:
         self.plantsystem = PlantSystem()
 
         self.damagesystem = DamageSystem()
+        self.collisions = Class_Collisions(self)
 
 
         # Add all systems we want to run
@@ -83,11 +85,16 @@ class GameState:
 
         if self.net.is_hosting():
             # If we're hosting, we need to register that we joined our own game
+            self.add_entity(create_map('assets/maps/testmap2.tmx'))
             self.on_player_join(self.net.get_id())
+<<<<<<< HEAD
 
             # We need to make all other entities at the start of the game here
             self.add_entity(create_background_music())
             self.add_entity(create_test_collision_object())
+=======
+            self.add_entity(create_test_item_object(animated=True))
+>>>>>>> master
             
             # Spawn zombies
             for i in range(4):
@@ -113,19 +120,10 @@ class GameState:
                 spawny = random.randint(-4000, 4000)
                 self.add_entity(create_chicken((spawnx, spawny)))
 
-    def update(self, dt: float, events):
-        """This code gets run 60fps. All of our game logic stems from updating
-        our systems on our entities."""
-
-        # Update ourselves from the network
-        self.net.pull_game(self)
-
-        # Update our systems
-        for system in self.systems:
-            system.update(self, dt, events)
-
-        # Send our changes to everyone else
-        self.net.push_game(self)
+<<<<<<< HEAD
+=======
+            # We need to make all other entities at the start of the game here
+            self.add_entity(create_background_music())
 
     def on_player_join(self, player_id):
         """This code gets run whenever a new player joins the game."""
@@ -140,6 +138,21 @@ class GameState:
             if PlayerControl in entity and entity[PlayerControl].player_id == player_id:
                 del self.entities[key]
 
+>>>>>>> master
+    def update(self, dt: float, events):
+        """This code gets run 60fps. All of our game logic stems from updating
+        our systems on our entities."""
+
+        # Update ourselves from the network
+        self.net.pull_game(self)
+
+        # Update our systems
+        for system in self.systems:
+            system.update(self, dt, events)
+
+        # Send our changes to everyone else
+        self.net.push_game(self)
+
     def add_entity(self, components):
         """Add an entity to the game, from a set of components. Returns a unique
         ID for the entity."""
@@ -147,17 +160,13 @@ class GameState:
         self.entities[key] = {type(value): value for (value) in components}
         if IngameObject in self.entities[key]:
             self.entities[key][IngameObject].id = key
-        if Collidable in self.entities[key]:
-            self.registerCollisionCalls(key, self.entities[key])
-        if Inventory in self.entities[key]:
-            self.registerInventory(key)
         return key
-
-    def registerCollisionCalls(self, key, entity):
-        self.collisionSystem.COLLISIONCALLS[key] = entity[Collidable].call
-
-    def registerInventory(self, key):
-        self.entities[key][Collidable].call.onCollisionStart = lambda event: self.inventorySystem.itemPickedUp(self, event, key)
 
     def itemPickedUp(self, event):
         print(event.keys)
+
+    def get_collision_functions(self, entity):
+        if Collidable in entity:
+            return self.collisions.get_functions(entity[Collidable].call_name)
+        else:
+            return None

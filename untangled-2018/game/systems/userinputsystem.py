@@ -42,6 +42,10 @@ class UserInputSystem(System):
                         io.position = (io.position[0] + SPEED, io.position[1])
                         moved = True
                         direction = 'right'
+                    # Dropping items
+                    elif keysdown[pygame.locals.K_d] and not entity[GameAction].dropping:
+                        entity[GameAction].action = "drop"
+                        entity[GameAction].dropping = True
 
                     # Trigger animation of this entity's sprite, if it has one
                     if SpriteSheet in entity:
@@ -72,11 +76,12 @@ class UserInputSystem(System):
                                         entity[Inventory].activeSlot = activeSlot
 
                                         # Get active item, if there is one
-                                        if activeSlot * 2 < len(inv.items):
-                                            activeItemKey = inv.items[activeSlot * 2]
-                                            activeItemQuantity = inv.items[activeSlot * 2 + 1]
+                                        if activeSlot * 3 < len(inv.items):
+                                            activeItemKey = inv.items[activeSlot * 3]
+                                            activeItemID = inv.items[activeSlot * 3 + 1]
+                                            activeItemQuantity = inv.items[activeSlot * 3 + 2]
 
-                                            entity[Inventory].activeItem = (activeItemKey, activeItemQuantity)
+                                            entity[Inventory].activeItem = (activeItemKey, activeItemID, activeItemQuantity)
 
                                         # No hovering anymore
                                         entity[Inventory].hoverSlot = None

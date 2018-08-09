@@ -7,7 +7,8 @@ from game.systems.userinputsystem import UserInputSystem
 from game.systems.profilesystem import ProfileSystem
 from game.systems.collisionsystem import CollisionSystem, CollisionCall
 from game.systems.soundsystem import SoundSystem
-from game.systems.inventorysystem import *
+from game.systems.inventorysystem import InventorySystem
+from game.systems.actionsystem import ActionSystem
 
 class GameState:
     """Our core code.
@@ -44,7 +45,8 @@ class GameState:
             self.collisionSystem,
             self.inventorySystem,
             RenderSystem(self.screen),
-            SoundSystem()
+            SoundSystem(),
+            ActionSystem()
         ])
 
         # If we're hosting, we need to register that we joined our own game
@@ -71,7 +73,7 @@ class GameState:
                     call = CollisionCall()
                 ),
                 # Every item has this component
-                CanPickUp(quantity=2)
+                CanPickUp(itemID="test")
             ])
 
             # Water bucket
@@ -81,7 +83,7 @@ class GameState:
                     path='./assets/sprites/water_bucket.png',
                     tile_size=49,
                     tiles={
-                        'default': [0, 1, 2],
+                        'default': [0, 1, 2, 3],
                     },
                     moving=True
                 ),
@@ -89,7 +91,7 @@ class GameState:
                     call = CollisionCall()
                 ),
                 # Every item has this component
-                CanPickUp(quantity=1),
+                CanPickUp(itemID="water_bucket"),
                 Directioned(direction='default')
             ])
 
@@ -122,6 +124,8 @@ class GameState:
 
             # They should be facing a certain direction
             Directioned(direction='default'),
+
+            # Every monster, player or NPC has this
             WaterBar(value=100),
 
             # They will have a name and gender
@@ -143,6 +147,9 @@ class GameState:
 
             # The player who has connected con control them with the arrow keys
             PlayerControl(player_id=player_id),
+
+            # Set action to player
+            GameAction(),
 
             Collidable(
                 call = CollisionCall(

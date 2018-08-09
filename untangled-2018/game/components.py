@@ -20,6 +20,7 @@ class Health:
 
 @component(networked=True)
 class CanPickUp:
+    itemID: str
     pickedUp: bool = False
     quantity: int = 1
 
@@ -32,11 +33,13 @@ class WaterBar:
 @component(networked=True)
 class Inventory:
     """Gives a player items"""
-    items: List[Tuple[str, int]]
+    items: List[Tuple[str, str, int]]
     maxSlots: int = 6
     activeSlot: int = 0
     hoverSlot: int = None
-    activeItem: Tuple[str, int] = ()
+    activeItem: Tuple[str, str, int] = ()
+
+    distanceToDrop: int = 20
 
     itemSlotOffset: int = 6
     slotOffset: int = 10
@@ -76,6 +79,12 @@ class Profile:
 class PlayerControl:
     """Lets an entity be controlled by specific player's arrow keys."""
     player_id: str
+
+@component(networked=True)
+class GameAction:
+    """Allows entities to have different actions"""
+    action: str = ""
+    dropping: bool = False
 
 @component(networked=False)
 class Collidable:

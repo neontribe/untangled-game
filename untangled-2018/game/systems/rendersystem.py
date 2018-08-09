@@ -161,8 +161,8 @@ class RenderSystem(System):
                                 pygame.draw.rect(self.screen, colour, (x, inv.y+inv.slotOffset, inv.slotSize, inv.slotSize))
                                 
                                 # Check if item exists in inventory
-                                if slotIndex * 2 < len(entity[Inventory].items):
-                                    item = game.entities[entity[Inventory].items[slotIndex * 2]]
+                                if slotIndex * 3 < len(entity[Inventory].items):
+                                    item = game.entities[entity[Inventory].items[slotIndex * 3]]
 
                                     itemImgIndexes = item[SpriteSheet].tiles['default']
                                     itemImgIndex = itemImgIndexes[frame % len(itemImgIndexes)]
@@ -181,7 +181,7 @@ class RenderSystem(System):
                                     lItemRect[1] += inv.slotOffset
                                     itemRect = tuple(lItemRect)
 
-                                    rendered_text_qslot = self.font.render(str(entity[Inventory].items[slotIndex * 2 + 1]), False, (255, 255, 255))
+                                    rendered_text_qslot = self.font.render(str(entity[Inventory].items[slotIndex * 3 + 2]), False, (255, 255, 255))
                                     self.screen.blit(rendered_text_qslot, itemRect)
 
                                 slotIndex += 1

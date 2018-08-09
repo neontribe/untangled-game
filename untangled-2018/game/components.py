@@ -84,12 +84,6 @@ directionVelocity = {
 }
 
 @component(networked=True)
-class Tileset:
-    tile_size: int
-    path: str
-
-
-@component(networked=True)
 class Map:
     path: str
     width: int

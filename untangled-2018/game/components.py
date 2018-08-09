@@ -16,6 +16,9 @@ class IngameObject:
     size: Tuple[int, int]
     id = None
 
+    def get_rect(self):
+        return Rect(self.position,self.size)
+
 @component(networked=True)
 class Health:
     """Gives the entity health"""
@@ -112,7 +115,13 @@ class MoveRandom:
 @component()
 class ChasePlayer:
     speed: int
-
+@component(networked=True)
+class Wieldable:
+    wielded: bool
+    player_id: Union[str, None] = None
+@component(networked=True)
+class SwingSword:
+    swing: bool
 @component(networked=True)
 class ParticleEmitter:
     # square / circle / ring / star

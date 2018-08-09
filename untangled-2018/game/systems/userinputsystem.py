@@ -46,6 +46,7 @@ class UserInputSystem(System):
                         moved = True
                         direction = 'right'
 
+
                     # Trigger animation of this entity's sprite, if it has one
                     if SpriteSheet in entity:
                         entity[SpriteSheet].moving = moved
@@ -91,3 +92,18 @@ class UserInputSystem(System):
                             # If the mouse is out of the inventory slots, the hovered slot should no longer be highlighted
                             else:
                                 entity[Inventory].hoverSlot = None
+                                
+            elif Wieldable in entity and SwingSword in entity and SpriteSheet in entity:
+                if entity[Wieldable].wielded and keysdown[pygame.locals.K_SPACE]:
+                    entity[SwingSword].swing = True
+                    entity[SpriteSheet].moving = True
+                    for key_col, entity_col in game.entities.items():
+                        wielding_player = game.entities[entity[Wieldable].player_id]
+                        if entity_col != wielding_player:
+                            if Health in entity_col:
+                                if entity[IngameObject].get_rect().colliderect(entity_col[IngameObject].get_rect()):
+                                    damage = 1
+                                    entity_col[Health].value = entity_col[Health].value - damage                     
+                else:
+                    entity[SwingSword].swing = False
+                    entity[SpriteSheet].moving = False

@@ -5,16 +5,23 @@ from random import randint
 import math, time
 
 class DamageSystem(System):
+    def update(self, game, dt, events):
+        for key, entity in dict(game.entities).items():
+            if Health in entity and PlayerControl not in entity:
+                if entity[Health].value <= 0:
+                    del game.entities[key]
 
     def onDamage(self, game, event):
         target = None
         other = None
         
         for k in event.keys:
+            if k not in game.entities:
+                continue
             entity = game.entities[k]
             if Damager in entity:
                 other = entity
-            if PlayerControl in entity:
+            if PlayerControl in entity or ChasePlayer in entity:
                 target = entity
 
         if target != None and other != None:
@@ -26,4 +33,4 @@ class DamageSystem(System):
                 target_HealthComponent = target[Health]
                 target_HealthComponent.value -= damage
                 other_DamagerComponent.lasthit = time.time()
-        
+                

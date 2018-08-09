@@ -90,10 +90,12 @@ class GameState:
                 self.add_entity(create_sheep((spawnx, spawny)))
 
             # Spawn chicken
-            for i in range(30):
-                spawnx = random.randint(-4000, 4000)
-                spawny = random.randint(-4000, 4000)
+            for i in range(60):
+                spawnx = random.randint(-2000, 2000)
+                spawny = random.randint(-2000, 2000)
                 self.add_entity(create_chicken((spawnx, spawny)))
+
+
 
             # We need to make all other entities at the start of the game here
             self.add_entity(create_background_music())
@@ -114,7 +116,33 @@ class GameState:
 
     def on_player_join(self, player_id):
         """This code gets run whenever a new player joins the game."""
-        self.add_entity(create_player(player_id))
+        sword_id = self.add_entity([
+            SpriteSheet(
+            path='./assets/sprites/Sword2.png',
+            tile_size=49,
+            tiles={
+                'default': [0],
+                'left': [1, 5, 6],
+                'right': [3, 4, 7],
+                'up': [0, 5, 4],
+                'down': [2, 6, 7]
+                },
+                moving=False
+            ),
+            IngameObject(position=(0,0), size=(48, 48)),
+            SwingSword(swing=False),
+            Directioned(direction='default'),
+            Damager(
+                damagemin=10,
+                damagemax=20,
+                cooldown=1.5
+            ),
+            Wieldable(wielded = True)
+        ])
+        entity_id = self.add_entity(create_player(player_id, [sword_id,1]))
+        self.entities[sword_id][Wieldable].player_id = entity_id
+        print(type(entity_id))
+        
 
     def on_player_quit(self, player_id):
         """This code gets run whever a player exits the game."""

@@ -1,7 +1,7 @@
 from game.components import *
 from game.systems.collisionsystem import CollisionCall
 
-def create_player(player_id):
+def create_player(player_id, initial_inventory=[]):
     return [
         # They should have a position and size in game
         IngameObject(position=(0, 0), size=(64, 64)),
@@ -13,7 +13,7 @@ def create_player(player_id):
         Energy(value=100),
 
         # They should have an inventory
-        Inventory([]),
+        Inventory(items = initial_inventory),
 
         # They should be facing a certain direction
         Directioned(direction='default'),
@@ -71,6 +71,7 @@ def create_zombie(game, position):
         ),
         IngameObject(position=position, size=(64, 64)),
         Directioned(direction='default'),
+        Health(value=100),
         ChasePlayer(speed = 1),
         Collidable(
             call = CollisionCall(
@@ -136,6 +137,7 @@ def create_chicken(position):
             },
             moving=False
         ),
+        Health(value=100),
         IngameObject(position=position, size=(64,64)),
         Directioned(direction='default'),
         MoveRandom()

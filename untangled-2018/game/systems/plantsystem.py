@@ -14,32 +14,6 @@ class PlantSystem(System):
     def disablePlant(self, key):
         if key in self.colplants:
             self.colplants.remove(key)
-    def oncollidestart(self, game, event):
-        crop = None
-        player = None
-        for k in event.keys:
-            if Crops in game.entities[k]:
-                crop = game.entities[k]
-                continue
-            if PlayerControl in game.entities[k]:
-                player = game.entities[k]
-                continue
-        if crop != None and player != None:
-            if game.net.is_me(player[PlayerControl].player_id):
-                self.enablePlant(crop[IngameObject].id)
-    def oncollideend(self, game, event):
-        crop = None
-        player = None
-        for k in event.keys:
-            if Crops in game.entities[k]:
-                crop = game.entities[k]
-                continue
-            if PlayerControl in game.entities[k]:
-                player = game.entities[k]
-                continue
-        if crop != None and player != None:
-            if game.net.is_me(player[PlayerControl].player_id):
-                self.disablePlant(crop[IngameObject].id)
 
     def update(self, game, dt, events):
         if game.net.is_hosting():
@@ -72,25 +46,28 @@ class PlantSystem(System):
                         action.action = ''
                         action.last_plant = time.time()
                     if action.action == 'water':
-                        for k in self.colplants:
-                            water_bar = game.entities[k][WaterBar]
-                            water_bar.value = min(water_bar.value + 0.2, 100)
-                            action.action = ''
+                        for k,e in dict(game.entities).items():
+                            if Crops in e:
+                                if entity[IngameObject].get_rect().colliderect(e[IngameObject].get_rect()):
+                                    water_bar = e[WaterBar]
+                                    water_bar.value = min(water_bar.value + 0.2, 100)
+                                    action.action = ''
                     if action.action == 'harvest':
                         for k,e in dict(game.entities).items():
                             if Crops in e:
-                                # Are the entity and the player touching?
-                                if entity[IngameObject].get_rect().colliderect(e[IngameObject].get_rect()):
-                                    item_igo = IngameObject(position=entity[IngameObject].get_rect().topleft,size=(64,64))
-                                    item_ss = SpriteSheet(
-                                        path = 'assets/sprites/debug.png',
-                                        tile_size = 64,
-                                        tiles={
-                                            'default':[0]
-                                        },
-                                        moving=False
-                                    )
-                                    game.add_entity(create_item(item_igo,item_ss))
-                                    action.action = ''
+                                if e[Crops].growth_stage >= e[Crops].max_growth_stage:
+                                    # Are the entity and the player touching?
+                                    if entity[IngameObject].get_rect().colliderect(e[IngameObject].get_rect()):
+                                        item_igo = IngameObject(position=entity[IngameObject].get_rect().topleft,size=(64,64))
+                                        item_ss = SpriteSheet(
+                                            path = 'assets/sprites/debug.png',
+                                            tile_size = 64,
+                                            tiles={
+                                                'default':[0]
+                                            },
+                                            moving=False
+                                        )
+                                        game.add_entity(create_item(item_igo,item_ss))
+                                        action.action = ''
 
 

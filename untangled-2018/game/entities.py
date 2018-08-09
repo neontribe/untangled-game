@@ -225,13 +225,7 @@ def create_plant(game, name, path, position):
         Crops(name=name, growth_rate=3,dehydration_rate=2, max_growth_stage=4,growth_stage=0),
         SpriteSheet(path=path,tile_size=16,tiles={
             'default': [0, 1, 2, 3]
-        }),
-        Collidable(
-            call = CollisionCall(
-                start = lambda event: game.plantsystem.oncollidestart(game,event),
-                end = lambda event: game.plantsystem.oncollideend(game,event)
-            )
-        )
+        })
     ]
 
 
@@ -246,7 +240,7 @@ def create_test_collision_object():
     return [
         IngameObject(position=(0,0), size=(128,128)),
         SpriteSheet(
-            path='./assets/sprites/test.png',
+            path='./assets/sprites/debug.png',
             tile_size=8,
             moving=False,
             tiles={
@@ -281,7 +275,7 @@ def create_test_item_object(animated=False):
         return [
             IngameObject(position=(100,100), size=(49,49)),
             SpriteSheet(
-                path='./assets/sprites/test.png',
+                path='./assets/sprites/debug.png',
                 tile_size=8,
                 moving=False,
                 tiles={
@@ -300,7 +294,7 @@ def create_item(ingameobject,spritesheet,quantity=1):
         ingameobject,
         spritesheet,
         Collidable(
-            call = CollisionCall()
+            call_name = 'test'
         ),
         # Every item has this component
         CanPickUp(quantity=quantity)

@@ -14,8 +14,6 @@ class PlantSystem(System):
     def disablePlant(self, key):
         if key in self.colplants:
             self.colplants.remove(key)
-<<<<<<< HEAD
-=======
     def oncollidestart(self, event):
         cropKey, crop = event.get_entity_with_component(Crops)
         playerKey, player = event.get_entity_with_component(PlayerControl)
@@ -28,7 +26,6 @@ class PlantSystem(System):
         if crop != None and player != None:
             if event.game.net.is_me(player[PlayerControl].player_id):
                 self.disablePlant(crop[IngameObject].id)
->>>>>>> 11bd5ca6649d9846f25e34dcf2ea1cde36cbe27c
 
     def update(self, game, dt, events):
         if game.net.is_hosting():
@@ -47,9 +44,12 @@ class PlantSystem(System):
                     if timeDifference > (1/(water_bar.value))*60*60*crops.growth_stage:
                         crops.growth_stage = min(crops.growth_stage+1, crops.max_growth_stage)
 
-                    growth_bar.value = (timeDifference / (1 / water_bar.value * 60 * 60 * (crops.growth_stage or 1))) * 100
+                    if crops.growth_stage == crops.max_growth_stage:
+                        growth_bar.value = 100
+                    else:
+                        growth_bar.value = (timeDifference / (1 / water_bar.value * 60 * 60 * (crops.growth_stage or 1))) * 100
 
-                    spritesheet.default_tile = crops.growth_stage
+                    spritesheet.tiles['default'] = [crops.growth_stage]
 
             # Handle game actions
             for key,entity in dict(game.entities).items():
@@ -75,8 +75,8 @@ class PlantSystem(System):
                                     if entity[IngameObject].get_rect().colliderect(e[IngameObject].get_rect()):
                                         item_igo = IngameObject(position=entity[IngameObject].get_rect().topleft,size=(64,64))
                                         item_ss = SpriteSheet(
-                                            path = 'assets/sprites/debug.png',
-                                            tile_size = 64,
+                                            path = 'assets/sprites/wheat.png',
+                                            tile_size = 32,
                                             tiles={
                                                 'default':[0]
                                             },
@@ -84,5 +84,4 @@ class PlantSystem(System):
                                         )
                                         game.add_entity(create_item(item_igo,item_ss))
                                         action.action = ''
-
-
+                                        del game.entities[k]

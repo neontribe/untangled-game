@@ -90,8 +90,6 @@ class GameState:
 
             # We need to make all other entities at the start of the game here
             self.add_entity(create_background_music())
-            self.add_entity(create_test_collision_object())
-            self.add_entity(create_test_item_object(animated=True))
             
             # Spawn zombies
             for i in range(4):

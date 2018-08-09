@@ -35,15 +35,8 @@ class AnimalSystem(System):
                     entity[SpriteSheet].moving = True
                 entity[MoveRandom].lastmove = time.time()
                 if Directioned in entity:
-                    if dire == 'left':
-                        direction = Directioned(direction='left')
-                    elif dire == 'right':
-                        direction = Directioned(direction='right')
-                    elif dire == 'up':
-                        direction = Directioned(direction='up')
-                    elif dire == 'down':
-                        direction = Directioned(direction='down')
-                    entity[Directioned] = direction
-        
-
-                    
+                    if not entity[Directioned].isOnlyLR:
+                        entity[Directioned].direction = dire
+                    else:
+                        if dire != 'up' and dire != 'down':
+                            entity[Directioned].direction = dire

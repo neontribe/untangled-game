@@ -102,19 +102,32 @@ class CollisionEvent:
         return calls
 
     def start(self):
+        if not self.isValid():
+            return
         for c in self.get_calls():
             if c.onCollisionStart != None:
                 c.onCollisionStart(self.game, self)
 
     def update(self):
+        if not self.isValid():
+            return
         for c in self.get_calls():
             if c.onCollisionUpdate != None:
                 c.onCollisionUpdate(self.game, self)
 
     def end(self):
+        if not self.isValid():
+            return
         for c in self.get_calls():
             if c.onCollisionEnd != None:
                 c.onCollisionEnd(self.game, self)
+
+    def isValid(self):
+        for k in self.keys:
+            if k not in self.game.entities:
+                self.doKill = True
+                return False
+        return True
 
 class CollisionCall:
     def __init__(self, start=None, update=None, end=None):

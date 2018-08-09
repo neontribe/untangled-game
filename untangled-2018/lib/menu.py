@@ -1,5 +1,5 @@
 import pygame, pygame.locals
-import time
+import time, math
 from string import printable
 
 from enum import Enum
@@ -236,9 +236,12 @@ class CharSetupMenuItem(MenuItem):
                     hex_colour[i] = 0
                 else:
                     hex_colour[i] = v
+        hex_display_string = "#" + self.hex
+        if self.ticker < 50 and self.selected_option == 2:
+            for i in range(0, 7 - len(hex_display_string)):
+                hex_display_string += "_"
         self.render_text(self.font, hex_string, self.get_screen_centre() - (150, -90))
-        self.render_text(self.font, '#' + self.hex, self.get_screen_centre() - (150, -130), hex_colour)
-        
+        self.render_text(self.font, hex_display_string, self.get_screen_centre() - (150, -130), hex_colour)
 
         for index, value in enumerate(self.options.keys()):
             if self.options[value] is None:

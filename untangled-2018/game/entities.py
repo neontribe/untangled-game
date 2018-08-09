@@ -186,19 +186,20 @@ def create_sheep(position):
 def create_chicken(position):
     return [
         SpriteSheet(
-            path='./assets/sprites/chick5.png',
+            path='./assets/sprites/chicken.png',
             tile_size=50,
             tiles={
                 'default': [0],
-                'left': [3, 3, 3],
-                'right': [0, 0, 0],
-                'up': [0, 0, 0],
-                'down': [0, 0, 0]
+                'left': [1],
+                'right': [0]
             },
             moving=False
         ),
-        IngameObject(position=position, size=(64,64)),
-        Directioned(direction='default'),
+        IngameObject(position=position, size=(50,50)),
+        Directioned(
+            direction='default',
+            isOnlyLR=True
+        ),
         MoveRandom()
     ]
 

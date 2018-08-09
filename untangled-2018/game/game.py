@@ -139,7 +139,7 @@ class GameState:
         if IngameObject in self.entities[key]:
             self.entities[key][IngameObject].id = key
         return key
-
+        
     def itemPickedUp(self, event):
         print(event.keys)
 

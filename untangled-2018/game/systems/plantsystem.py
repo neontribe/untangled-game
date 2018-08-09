@@ -14,6 +14,21 @@ class PlantSystem(System):
     def disablePlant(self, key):
         if key in self.colplants:
             self.colplants.remove(key)
+<<<<<<< HEAD
+=======
+    def oncollidestart(self, event):
+        cropKey, crop = event.get_entity_with_component(Crops)
+        playerKey, player = event.get_entity_with_component(PlayerControl)
+        if crop != None and player != None:
+            if event.game.net.is_me(player[PlayerControl].player_id):
+                self.enablePlant(crop[IngameObject].id)
+    def oncollideend(self, event):
+        cropKey, crop = event.get_entity_with_component(Crops)
+        playerKey, player = event.get_entity_with_component(PlayerControl)
+        if crop != None and player != None:
+            if event.game.net.is_me(player[PlayerControl].player_id):
+                self.disablePlant(crop[IngameObject].id)
+>>>>>>> 11bd5ca6649d9846f25e34dcf2ea1cde36cbe27c
 
     def update(self, game, dt, events):
         if game.net.is_hosting():
@@ -42,7 +57,7 @@ class PlantSystem(System):
                     action = entity[GameAction]
                     if action.action == 'plant' and action.last_plant + 2 < time.time():
                         io = entity[IngameObject]
-                        game.add_entity(create_plant(game, "wheat", "assets/sprites/wheat.png", io.position))
+                        game.add_entity(create_plant(game, "wheat", "./assets/sprites/wheat.png", io.position))
                         action.action = ''
                         action.last_plant = time.time()
                     if action.action == 'water':

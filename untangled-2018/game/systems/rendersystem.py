@@ -121,7 +121,7 @@ class RenderSystem(System):
                 else:
                     img_index = img_indexes[0]
                 img = self.get_image(spritesheet, img_index)
-                
+
                 #Scale the image
                 if img.get_size() != entity[IngameObject].size:
                     img = pygame.transform.scale(img, entity[IngameObject].size)

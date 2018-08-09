@@ -185,7 +185,7 @@ class RenderSystem(System):
                     name = entity[Profile].name
 
                     # Draw our name with our font in white
-                    rendered_text_surface = self.font.render(name, False, (0, 255, 25))
+                    rendered_text_surface = self.font.render(name, False, entity[Profile].colour)
 
                     # Move the nametag above the player
                     rect.y -= 100

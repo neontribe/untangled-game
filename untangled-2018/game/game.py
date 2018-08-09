@@ -43,7 +43,7 @@ class GameState:
     systems = []
     collisionSystem = None
 
-    def __init__(self, framework, name, gender):
+    def __init__(self, framework, name, gender, colour):
         """Creates a GameState to fit our framework, with some information about ourselves."""
         self.framework = framework
         self.screen = framework.screen
@@ -57,7 +57,7 @@ class GameState:
 
         # Add all systems we want to run
         self.systems.extend([
-            ProfileSystem(name, gender),
+            ProfileSystem(name, gender, colour),
             UserInputSystem(),
             AI_system(),
             AnimalSystem(),

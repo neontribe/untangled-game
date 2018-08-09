@@ -41,6 +41,7 @@ class MenuState:
             MenuStates.CHAR_SETUP: CharSetupMenuItem(self, {
                 "Name": None,
                 "Gender": None,
+                "Colour": None,
                 "Find Game": MenuStates.GAME_LOBBY,
                 "Back": MenuStates.MAIN_MENU,
             }),
@@ -65,7 +66,7 @@ class MenuState:
 
         if self.current_state == MenuStates.PLAY:
             char_data = self.get_screen_data(MenuStates.CHAR_SETUP)
-            self.framework.enter_game(char_data.char_name, char_data.gender_options[char_data.gender_choice])
+            self.framework.enter_game(char_data.char_name, char_data.gender_options[char_data.gender_choice],char_data.hexToRGB(char_data.hex))
             return
         elif self.current_state == MenuStates.QUIT:
             pygame.event.post(pygame.event.Event(pygame.QUIT, {}))
@@ -134,6 +135,7 @@ class CharSetupMenuItem(MenuItem):
         self.char_name_max = 15
         self.gender_options = ("Boy", "Girl")
         self.gender_choice = 0
+        self.hex = "00FF19"
 
     def update(self, dt, events) -> None:
         """Update values for the character setup menu page"""
@@ -165,6 +167,13 @@ class CharSetupMenuItem(MenuItem):
                         self.gender_choice += 1
                     elif event.key == pygame.locals.K_LEFT:
                         self.gender_choice -= 1
+                elif option_keys[self.selected_option] == "Colour":
+                    if event.key == pygame.locals.K_BACKSPACE:
+                        self.hex = self.hex[:-1]
+                    elif event.key < 123 and event.key != 13 and len(self.hex) < 6:
+                        char_new = chr(event.key)
+                        if char_new in "0123456789abcdefABCDEF-":
+                            self.hex += char_new.lower()
             self.gender_choice %= len(self.gender_options)
 
         self.ticker += 2
@@ -186,6 +195,18 @@ class CharSetupMenuItem(MenuItem):
         self.render_text(self.font, gender_string, self.get_screen_centre() - (150, -40))
         self.render_text(self.font, self.gender_options[self.gender_choice], self.get_screen_centre() - (130, -40))
 
+        hex_string = ('>' if self.selected_option == 2 else '') + 'Colour: (Hexadecimal)'
+        hex_colour = [255,255,255]
+        temp_hex_colour = self.hexToRGB(self.hex)
+        if temp_hex_colour is not None:
+            for i, v in enumerate(temp_hex_colour):
+                if v not in range(0,256):
+                    hex_colour[i] = 0
+                else:
+                    hex_colour[i] = v
+        self.render_text(self.font, hex_string, self.get_screen_centre() - (150, -90))
+        self.render_text(self.font, '#' + self.hex, self.get_screen_centre() - (150, -130), hex_colour)
+
         for index, value in enumerate(self.options.keys()):
             if self.options[value] is None:
                 continue
@@ -195,6 +216,11 @@ class CharSetupMenuItem(MenuItem):
                 text = ">{0}".format(text)
 
             self.render_text(font, text, (index + offset[0], index * 55 + offset[1]))
+
+    def hexToRGB(self,hexa):
+        if len(hexa) == 6:
+            return tuple(int(hexa[i:i+2], 16) for i in (0, 2 ,4))
+        return None
 
 
 class LobbyMenuItem(MenuItem):

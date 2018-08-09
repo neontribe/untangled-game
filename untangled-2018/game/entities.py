@@ -132,7 +132,7 @@ def create_zombie(game, position):
             cooldown=1.5
         ),
         ParticleEmitter(
-            particleTypes = ["square"],
+            particleTypes = ["circle"],
             lifespan = 120,
             colour = (0, 0, 0),
             onlyWhenMoving = True,
@@ -141,7 +141,7 @@ def create_zombie(game, position):
             randomness = (5,5),
             size = 4,
             height = "above",
-            cooldown = 0.5
+            cooldown = 1
         )
     ]
 
@@ -161,20 +161,7 @@ def create_bounce(position):
         ),
         IngameObject(position=position, size=(64, 64)),
         Directioned(direction='default'),
-        ChasePlayer(speed = 2),
-        ParticleEmitter(
-            particleTypes = ["circle"],
-            lifespan = 60,
-            offset = (0,16),
-            colour = (255, 128, 0),
-            velocity = (0,0),
-            randomness = (0.5,0.2),
-            size = 8,
-            height = "below",
-            cooldown = 0.5,
-            particleAmount = 5,
-            initialRandomOnly = True
-        )
+        ChasePlayer(speed = 2)
     ]
 
 def create_sheep(position):

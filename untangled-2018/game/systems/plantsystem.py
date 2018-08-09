@@ -68,7 +68,7 @@ class PlantSystem(System):
                     action = entity[GameAction]
                     if action.action == 'plant' and action.last_plant + 2 < time.time():
                         io = entity[IngameObject]
-                        game.add_entity(create_plant(game, "wheat", "assets/sprites/wheat.png", io.position))
+                        game.add_entity(create_plant(game, "wheat", "./assets/sprites/wheat.png", io.position))
                         action.action = ''
                         action.last_plant = time.time()
                     if action.action == 'water':

@@ -88,6 +88,8 @@ class MenuItem:
         self.info_font = self.menu_state.fonts['small']
         self.header_font = self.menu_state.fonts['heading']
 
+        self.logosurf = pygame.image.load('assets/sprites/logo.png')
+
     def update(self, dt, events) -> None:
         for event in events:
             if event.type == pygame.KEYDOWN:
@@ -107,11 +109,41 @@ class MenuItem:
             self.menu_state.framework.dimensions[1] / 2
         )
 
+    def aspect_scale(self,img,bx,by):
+        """ Scales 'img' to fit into box bx/by.
+        This method will retain the original image's aspect ratio """
+        ix,iy = img.get_size()
+        if ix > iy:
+            # fit to width
+            scale_factor = bx/float(ix)
+            sy = scale_factor * iy
+            if sy > by:
+                scale_factor = by/float(iy)
+                sx = scale_factor * ix
+                sy = by
+            else:
+                sx = bx
+        else:
+            # fit to height
+            scale_factor = by/float(iy)
+            sx = scale_factor * ix
+            if sx > bx:
+                scale_factor = bx/float(ix)
+                sx = bx
+                sy = scale_factor * iy
+            else:
+                sy = by
+
+        return pygame.transform.smoothscale(img, (int(sx),int(sy)))
+
     def render(self) -> None:
         self.render_options(self.font, (
             self.get_screen_centre()[0] - self.options_shift[0],
             self.get_screen_centre()[1] - self.options_shift[1]
         ))
+        logo = self.aspect_scale(self.logosurf,int(self.screen.get_rect().width/2),self.screen.get_rect().height)
+        self.screen.blit(logo,(self.screen.get_rect().width/2 - logo.get_rect().width/2,self.screen.get_rect().height/4 - logo.get_rect().height/2))
+
 
     def render_text(self, font, text, pos=(0, 0), colour=(255, 255, 255)):
         rendered_text_surface = font.render(text, False, colour)
@@ -206,6 +238,7 @@ class CharSetupMenuItem(MenuItem):
                     hex_colour[i] = v
         self.render_text(self.font, hex_string, self.get_screen_centre() - (150, -90))
         self.render_text(self.font, '#' + self.hex, self.get_screen_centre() - (150, -130), hex_colour)
+        
 
         for index, value in enumerate(self.options.keys()):
             if self.options[value] is None:
@@ -216,12 +249,17 @@ class CharSetupMenuItem(MenuItem):
                 text = ">{0}".format(text)
 
             self.render_text(font, text, (index + offset[0], index * 55 + offset[1]))
+        logo = self.aspect_scale(self.logosurf,int(self.screen.get_rect().width/2),self.screen.get_rect().height)
+        self.screen.blit(logo,(self.screen.get_rect().width/2 - logo.get_rect().width/2,self.screen.get_rect().height/4 - logo.get_rect().height/2))
+
 
     def hexToRGB(self,hexa):
         if len(hexa) == 6:
             if hexa[1] != "-" and hexa[3] != "-" and hexa[5] != "-":
                 return tuple(int(hexa[i:i+2], 16) for i in (0, 2 ,4))
         return None
+
+        
 
 
 class LobbyMenuItem(MenuItem):

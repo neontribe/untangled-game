@@ -3,9 +3,19 @@ from pygame import Rect
 import math
 from lib.system import System
 from game.components import *
+from game.systems.userinputsystem import get_position
+
 class AI_system(System):
     def update(self, game, dt: float, events: list):
         ZOM_center = (0, 0)
+
+        # Find and get the tilemap, if it exists
+        tmap = None
+        for key, entity in game.entities.items():
+            if Map in entity and SpriteSheet in entity:
+                tmap = entity
+                break
+
         for key, entity in game.entities.items():
             #We find all AI entities
             if ChasePlayer in entity and IngameObject in entity:
@@ -49,10 +59,18 @@ class AI_system(System):
                     if abs(x_diff) > 15 or abs(y_diff) > 15:
                         distance = math.sqrt(x_diff**2+y_diff**2)
                         speed = entity[ChasePlayer].speed
-                        place = (place[0]-x_diff/distance*speed,place[1]-y_diff/distance*speed)
-                        entity[IngameObject].position = place
+                        velo = (-x_diff/distance*speed, -y_diff/distance*speed)
+                        if tmap == None:
+                            position = (entity[IngameObject].position[0] + velo[0], entity[IngameObject].position[1] + velo[1])
+                        else:
+                            position = get_position(entity[IngameObject], velo, tmap)
+
+                        entity[IngameObject].position = position
                         if SpriteSheet in entity:
                             entity[SpriteSheet].moving = True
+                        if ParticleEmitter in entity:
+                            if entity[ParticleEmitter].onlyWhenMoving:
+                                entity[ParticleEmitter].doCreateParticles = True
 
                         #Changes the direction of the monster
                         if abs(x_diff) > abs(y_diff):
@@ -70,5 +88,3 @@ class AI_system(System):
                     else:
                         if SpriteSheet in entity:
                             entity[SpriteSheet].moving = False
-
-                    

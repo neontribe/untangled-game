@@ -91,8 +91,8 @@ class RenderSystem(System):
                     previousCollidables.append((key,entity[Collidable]))
 
             if IngameObject in entity and ParticleEmitter in entity:
-                new_part = entity[ParticleEmitter].getParticle(entity)
-                if new_part != None:
+                new_particles = entity[ParticleEmitter].getParticles(entity)
+                for new_part in new_particles:
                     game.particles.add_particle(new_part)
 
             # Is this an entity we should draw?
@@ -166,6 +166,7 @@ class RenderSystem(System):
                     if entity[Health].value > 0:
                         currentHealthPos = (rect.x+healthBarThickness, rect.y-30+healthBarThickness, entity[Health].value, 10-healthBarThickness*2)
                         pygame.draw.rect(self.screen, (255, 0, 0), currentHealthPos)
+                
 
                 if WaterBar in entity:
                     if not entity[WaterBar].disabled:
@@ -185,7 +186,7 @@ class RenderSystem(System):
                     name = entity[Profile].name
 
                     # Draw our name with our font in white
-                    rendered_text_surface = self.font.render(name, False, (0, 255, 25))
+                    rendered_text_surface = self.font.render(name, False, entity[Profile].colour)
 
                     # Move the nametag above the player
                     rect.y -= 100
@@ -283,29 +284,29 @@ class RenderSystem(System):
                 self.draw_particle(game, p, our_center)
 
     def draw_particle(self, game, particle, our_center):
-        pos = (round(particle.position[0]), round(particle.position[1]))
+        pos = (particle.position[0], particle.position[1])
         rel_pos = (pos[0] - our_center[0], pos[1] - our_center[1])
-        screen_pos = (rel_pos[0] + game.framework.dimensions[0] // 2, rel_pos[1] + game.framework.dimensions[1] // 2)
+        screen_pos = (round(rel_pos[0] + game.framework.dimensions[0] // 2), round(rel_pos[1] + game.framework.dimensions[1] // 2))
         self.particleFunc[particle.particleType](particle, screen_pos)
 
     def particle_square(self, p, pos):
-        rect = Rect(pos[0],pos[1],8,8)
+        rect = Rect(pos[0],pos[1],p.size,p.size)
         pygame.draw.rect(self.screen,p.colour,rect)
 
     def particle_circle(self, p, pos):
-        pygame.draw.circle(self.screen,p.colour,pos,4)
+        pygame.draw.circle(self.screen,p.colour,pos,int(round(p.size/2)))
         
     def particle_ring(self, p, pos):
-        pygame.draw.circle(self.screen,p.colour,pos,4,2)
+        pygame.draw.circle(self.screen,p.colour,pos,int(round(p.size/2)), int(math.ceil(p.size ** (1/3))))
 
     def particle_star(self, p, pos):
         hor = (
-            [pos[0] - 4, pos[1]],
-            [pos[0] + 4, pos[1]]
+            [pos[0] - (p.size/2), pos[1]],
+            [pos[0] + (p.size/2), pos[1]]
         )
         ver = (
-            [pos[0], pos[1] - 4],
-            [pos[0], pos[1] + 4]
+            [pos[0], pos[1] - (p.size/2)],
+            [pos[0], pos[1] + (p.size/2)]
         )
         pygame.draw.line(self.screen,p.colour,hor[0],hor[1],2)
         pygame.draw.line(self.screen,p.colour,ver[0],ver[1],2)

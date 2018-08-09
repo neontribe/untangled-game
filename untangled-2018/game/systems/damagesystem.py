@@ -6,12 +6,12 @@ import math, time
 
 class DamageSystem(System):
 
-    def onDamage(self, game, event):
+    def onDamage(self, event):
         target = None
         other = None
         
         for k in event.keys:
-            entity = game.entities[k]
+            entity = event.game.entities[k]
             if Damager in entity:
                 other = entity
             if PlayerControl in entity:
@@ -27,3 +27,6 @@ class DamageSystem(System):
                 target_HealthComponent.value -= damage
                 other_DamagerComponent.lasthit = time.time()
         
+            if target[Health].value<=0:
+               target[Health].value=100
+               target[IngameObject].position=(0,0)

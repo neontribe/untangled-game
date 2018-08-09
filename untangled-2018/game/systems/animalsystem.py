@@ -5,34 +5,34 @@ import random
 import time
 from lib.system import System
 from game.components import *
+from game.systems.userinputsystem import get_position
 
 class AnimalSystem(System):
     def update(self, game, dt: float, events: list):
+        # Find and get the tilemap, if it exists
+        tmap = None
+        for key, entity in game.entities.items():
+            if Map in entity and SpriteSheet in entity:
+                tmap = entity
+                break
+
         for key, entity in game.entities.items():
             if MoveRandom in entity and time.time() - entity[MoveRandom].lastmove > 0.25:
-                animal_center = entity[IngameObject].position
                 direct = ['left', 'right', 'up', 'down']
                 dire = random.choice(direct)
-                if dire == 'left':
-                    animal_center = (animal_center[0]-10,animal_center[1])
-                    entity[IngameObject].position = animal_center
-                    if SpriteSheet in entity:
-                        entity[SpriteSheet].moving = True
-                elif dire == 'right':
-                    animal_center = (animal_center[0]+10,animal_center[1])
-                    entity[IngameObject].position = animal_center
-                    if SpriteSheet in entity:
-                        entity[SpriteSheet].moving = True
-                elif dire == 'up':
-                    animal_center = (animal_center[0],animal_center[1]-10)
-                    entity[IngameObject].position = animal_center
-                    if SpriteSheet in entity:
-                        entity[SpriteSheet].moving = True
-                elif dire == 'down':
-                    animal_center = (animal_center[0],animal_center[1]+10)
-                    entity[IngameObject].position = animal_center
-                    if SpriteSheet in entity:
-                        entity[SpriteSheet].moving = True
+                velo = {
+                    'left': (-10, 0),
+                    'right': (10, 0),
+                    'up': (0, 10),
+                    'down': (0, -10)
+                }[dire]
+
+
+                animal_center = get_position(entity[IngameObject], velo, tmap)
+                entity[IngameObject].position = animal_center
+
+                if SpriteSheet in entity:
+                    entity[SpriteSheet].moving = True
                 entity[MoveRandom].lastmove = time.time()
                 if Directioned in entity:
                     if not entity[Directioned].isOnlyLR:
@@ -40,6 +40,3 @@ class AnimalSystem(System):
                     else:
                         if dire != 'up' and dire != 'down':
                             entity[Directioned].direction = dire
-        
-
-                    

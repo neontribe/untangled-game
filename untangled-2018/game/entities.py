@@ -6,7 +6,7 @@ from game.systems.collisionsystem import CollisionCall
 def create_player(player_id):
     return [
         # They should have a position and size in game
-        IngameObject(position=(0, 0), size=(64, 64)),
+        IngameObject(position=(100, 100), size=(64, 64)),
 
         # They should have a health component
         Health(value=100),
@@ -42,7 +42,7 @@ def create_player(player_id):
         PlayerControl(player_id=player_id),
 
         Collidable(
-            call = CollisionCall()
+            call_name = "player"
         ),
 
         ParticleEmitter(
@@ -124,14 +124,24 @@ def create_zombie(game, position):
         Directioned(direction='default'),
         ChasePlayer(speed = 1),
         Collidable(
-            call = CollisionCall(
-                update = lambda event: game.damagesystem.onDamage(game,event)
-            )
+            call_name = "zombie"
         ),
         Damager(
             damagemin=10, # Someone change these, they're op.
             damagemax=20,
             cooldown=1.5
+        ),
+        ParticleEmitter(
+            particleTypes = ["circle"],
+            lifespan = 120,
+            colour = (0, 0, 0),
+            onlyWhenMoving = True,
+            velocity = (0.5,0.5),
+            directionMode = 1,
+            randomness = (5,5),
+            size = 4,
+            height = "above",
+            cooldown = 1
         )
     ]
 
@@ -213,7 +223,7 @@ def create_test_collision_object():
             }
         ),
         Collidable(
-            call = CollisionCall()
+            call_name = 'test'
         )
     ]
 
@@ -230,7 +240,7 @@ def create_test_item_object(animated=False):
                 moving=True
             ),
             Collidable(
-                call = CollisionCall()
+                call_name = 'bounce'
             ),
             # Every item has this component
             CanPickUp(quantity=1),
@@ -248,7 +258,7 @@ def create_test_item_object(animated=False):
                 }
             ),
             Collidable(
-                call = CollisionCall()
+                call_name = 'test'
             ),
             # Every item has this component
             CanPickUp(quantity=2)

@@ -119,7 +119,7 @@ class RenderSystem(System):
                 if spritesheet.moving:
                     img_index = img_indexes[frame % len(img_indexes)]
                 else:
-                    img_index = img_indexes[0]
+                    img_index = img_indexes[spritesheet.default_tile]
                 img = self.get_image(spritesheet, img_index)
 
                 #Scale the image

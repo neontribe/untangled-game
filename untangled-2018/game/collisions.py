@@ -18,6 +18,10 @@ class Class_Collisions:
         ),
         'bounce': CollisionCall(
 
+        ),
+        'plant': CollisionCall(
+            start = lambda game, event: game.plantsystem.oncollidestart(event),
+            end = lambda game, event: game.plantsystem.oncollideend(event)
         )
     }
 

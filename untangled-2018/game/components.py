@@ -1,6 +1,7 @@
 from typing import List
 from typing import Tuple
 from typing import Union
+import time
 from pygame import Rect
 import random, time
 
@@ -16,10 +17,24 @@ class IngameObject:
     size: Tuple[int, int]
     id = None
 
+    def get_rect(self):
+        return Rect(self.position,self.size)
+
 @component(networked=True)
 class Health:
     """Gives the entity health"""
     value: int
+
+@component(networked=True)
+class Crops:
+    """Stores infomation about crops"""
+    name: str
+    growth_rate: int
+    dehydration_rate: int
+    growth_stage:int
+    max_growth_stage:int
+    plantage_time:float = time.time()
+
 @component(networked=True)
 class Energy:
     """"Gives the entity energy"""
@@ -37,6 +52,7 @@ class Damager:
 class CanPickUp:
     pickedUp: bool = False
     quantity: int = 1
+
 
 @component(networked=True)
 class WaterBar:
@@ -63,12 +79,14 @@ class Inventory:
     x: float = Framework.dimensions[0] / 2 - width / 2
     y: float = Framework.dimensions[1] - height - slotOffset
 
+
 @component(networked=True)
 class SpriteSheet:
     """Gives an entity an image and animations."""
     path: str
     tile_size: Union[int, Tuple[int, int]]
     tiles: dict
+    default_tile: int = 0
     moving: bool = False
 
 @component(networked=True)
@@ -112,6 +130,11 @@ class Profile:
 class PlayerControl:
     """Lets an entity be controlled by specific player's arrow keys."""
     player_id: str
+
+@component(networked=True)
+class GameAction:
+    action: str = ''
+    last_plant: float = 0.0
 
 @component()
 class MoveRandom:

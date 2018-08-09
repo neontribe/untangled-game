@@ -40,6 +40,7 @@ def create_player(player_id):
 
         # The player who has connected con control them with the arrow keys
         PlayerControl(player_id=player_id),
+        GameAction(),
 
         Collidable(
             call_name = "player"
@@ -203,6 +204,18 @@ def create_chicken(position):
         MoveRandom()
     ]
 
+def create_plant(game, name, path, position):
+    return [
+        IngameObject(position=position,size=(64, 64)),
+        Health(value=100),
+        Energy(value=0),
+        WaterBar(value=50),
+        Crops(name=name, growth_rate=3,dehydration_rate=2, max_growth_stage=3,growth_stage=0),
+        SpriteSheet(path=path,tile_size=16,tiles={
+            'default': [0, 1, 2, 3]
+        })
+    ]
+
 
 def create_background_music():
     return [
@@ -215,7 +228,7 @@ def create_test_collision_object():
     return [
         IngameObject(position=(0,0), size=(128,128)),
         SpriteSheet(
-            path='./assets/sprites/test.png',
+            path='./assets/sprites/debug.png',
             tile_size=8,
             moving=False,
             tiles={
@@ -250,7 +263,7 @@ def create_test_item_object(animated=False):
         return [
             IngameObject(position=(100,100), size=(49,49)),
             SpriteSheet(
-                path='./assets/sprites/test.png',
+                path='./assets/sprites/debug.png',
                 tile_size=8,
                 moving=False,
                 tiles={
@@ -263,3 +276,14 @@ def create_test_item_object(animated=False):
             # Every item has this component
             CanPickUp(quantity=2)
         ]
+
+def create_item(ingameobject,spritesheet,quantity=1):
+    return [
+        ingameobject,
+        spritesheet,
+        Collidable(
+            call_name = 'test'
+        ),
+        # Every item has this component
+        CanPickUp(quantity=quantity)
+    ]

@@ -1,3 +1,5 @@
+import time
+import pygame
 import math
 import pygame.locals
 
@@ -49,6 +51,22 @@ class UserInputSystem(System):
                     if keysdown[pygame.locals.K_RIGHT]:
                         hoped_vel = (hoped_vel[0] + 1, hoped_vel[1])
                         direction = 'right'
+                    if keysdown[pygame.locals.K_p]:
+                        if GameAction in entity:
+                            # TODO: Allow the player to plant specific plants from their inventory
+                            action = entity[GameAction]
+                            if action.last_plant + 2 < time.time():
+                                action.action = 'plant'
+                    if keysdown[pygame.locals.K_o]:
+                        # TODO: Only allow if player has a watering can in their inventory
+                        if GameAction in entity:
+                            action = entity[GameAction]
+                            action.action = 'water'
+                    if keysdown[pygame.locals.K_h]:
+                        if GameAction in entity:
+                            gaComponent = entity[GameAction]
+                            gaComponent.action = 'harvest'
+                        
 
                     if hoped_vel != (0, 0):
                         # Get us to the right speed

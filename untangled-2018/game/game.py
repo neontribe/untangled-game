@@ -18,9 +18,13 @@ from game.systems.AI_system import AI_system
 from game.systems.collisionsystem import CollisionSystem, CollisionCall
 from game.systems.particlesystem import ParticleSystem
 from game.systems.soundsystem import SoundSystem
+
+from game.systems.plantsystem import PlantSystem
+
 from game.systems.damagesystem import DamageSystem
 from game.systems.inventorysystem import *
 from game.collisions import Class_Collisions
+
 
 
 class GameState:
@@ -52,15 +56,25 @@ class GameState:
         self.collisionSystem = CollisionSystem()
         self.inventorySystem = InventorySystem()
         self.particles = ParticleSystem(self.renderSystem)
+
+        self.plantsystem = PlantSystem()
+
         self.damagesystem = DamageSystem()
         self.collisions = Class_Collisions(self)
 
+
         # Add all systems we want to run
         self.systems.extend([
+            self.plantsystem,
             ProfileSystem(name, gender, colour),
             UserInputSystem(),
+
+            RenderSystem(self.screen),
+            SoundSystem(),
+
             AI_system(),
             AnimalSystem(),
+
             self.collisionSystem,
             self.inventorySystem,
             self.renderSystem,
@@ -74,7 +88,9 @@ class GameState:
 
             # If we're hosting, we need to register that we joined our own game
             self.on_player_join(self.net.get_id())
-            self.add_entity(create_test_item_object(animated=True))
+
+            # We need to make all other entities at the start of the game here
+            self.add_entity(create_background_music())
             
             # TODO check we don't spawn in tiles
             # Spawn zombies

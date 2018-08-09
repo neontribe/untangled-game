@@ -17,6 +17,9 @@ class IngameObject:
     size: Tuple[int, int]
     id = None
 
+    def get_rect(self):
+        return Rect(self.position,self.size)
+
 @component(networked=True)
 class Health:
     """Gives the entity health"""
@@ -49,6 +52,7 @@ class Damager:
 class CanPickUp:
     pickedUp: bool = False
     quantity: int = 1
+
 
 @component(networked=True)
 class WaterBar:

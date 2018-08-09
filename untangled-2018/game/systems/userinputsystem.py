@@ -46,17 +46,21 @@ class UserInputSystem(System):
                         io.position = (io.position[0] + SPEED, io.position[1])
                         moved = True
                         direction = 'right'
-                    elif keysdown[pygame.locals.K_p]:
+                    if keysdown[pygame.locals.K_p]:
                         if GameAction in entity:
                             # TODO: Allow the player to plant specific plants from their inventory
                             action = entity[GameAction]
                             if action.last_plant + 2 < time.time():
                                 action.action = 'plant'
-                    elif keysdown[pygame.locals.K_o]:
+                    if keysdown[pygame.locals.K_o]:
                         # TODO: Only allow if player has a watering can in their inventory
                         if GameAction in entity:
                             action = entity[GameAction]
                             action.action = 'water'
+                    if keysdown[pygame.locals.K_h]:
+                        if GameAction in entity:
+                            gaComponent = entity[GameAction]
+                            gaComponent.action = 'harvest'
                         
 
                     # Trigger animation of this entity's sprite, if it has one

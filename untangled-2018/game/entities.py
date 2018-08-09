@@ -220,3 +220,14 @@ def create_test_item_object(animated=False):
             # Every item has this component
             CanPickUp(quantity=2)
         ]
+
+def create_item(ingameobject,spritesheet,quantity=1):
+    return [
+        ingameobject,
+        spritesheet,
+        Collidable(
+            call = CollisionCall()
+        ),
+        # Every item has this component
+        CanPickUp(quantity=quantity)
+    ]

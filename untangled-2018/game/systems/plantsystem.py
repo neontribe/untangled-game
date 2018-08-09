@@ -76,4 +76,21 @@ class PlantSystem(System):
                             water_bar = game.entities[k][WaterBar]
                             water_bar.value = min(water_bar.value + 0.2, 100)
                             action.action = ''
+                    if action.action == 'harvest':
+                        for k,e in dict(game.entities).items():
+                            if Crops in e:
+                                # Are the entity and the player touching?
+                                if entity[IngameObject].get_rect().colliderect(e[IngameObject].get_rect()):
+                                    item_igo = IngameObject(position=entity[IngameObject].get_rect().topleft,size=(8,8))
+                                    item_ss = SpriteSheet(
+                                        path = 'assets/sprites/test.png',
+                                        tile_size = 8,
+                                        tiles={
+                                            'default':[0]
+                                        },
+                                        moving=False
+                                    )
+                                    game.add_entity(create_item(item_igo,item_ss))
+                                    action.action = ''
+
 

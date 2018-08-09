@@ -1,5 +1,4 @@
-import pygame
-import sys
+import pygame, sys, platform, os
 
 from lib.network import Network
 from lib.menu import MenuState
@@ -64,6 +63,12 @@ class Framework:
         self.net.node.leave(self.net.get_our_group() or '')
         pygame.display.quit()
         self.net.close()
+        if platform.system() == "Windows":
+            os.system("taskkill /f /pid "+str(os.getpid()))
+        elif platform.system() == "Linux":
+            pygame.quit()
+            sys.exit()
+        
 
     def enter_game(self, char_name, char_gender):
         # To be called from the menu, puts us into the game

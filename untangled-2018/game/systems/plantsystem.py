@@ -81,10 +81,10 @@ class PlantSystem(System):
                             if Crops in e:
                                 # Are the entity and the player touching?
                                 if entity[IngameObject].get_rect().colliderect(e[IngameObject].get_rect()):
-                                    item_igo = IngameObject(position=entity[IngameObject].get_rect().topleft,size=(8,8))
+                                    item_igo = IngameObject(position=entity[IngameObject].get_rect().topleft,size=(64,64))
                                     item_ss = SpriteSheet(
-                                        path = 'assets/sprites/test.png',
-                                        tile_size = 8,
+                                        path = 'assets/sprites/debug.png',
+                                        tile_size = 64,
                                         tiles={
                                             'default':[0]
                                         },

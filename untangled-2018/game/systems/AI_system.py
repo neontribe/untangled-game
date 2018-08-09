@@ -53,6 +53,9 @@ class AI_system(System):
                         entity[IngameObject].position = place
                         if SpriteSheet in entity:
                             entity[SpriteSheet].moving = True
+                        if ParticleEmitter in entity:
+                            if entity[ParticleEmitter].onlyWhenMoving:
+                                entity[ParticleEmitter].doCreateParticles = True
 
                         #Changes the direction of the monster
                         if abs(x_diff) > abs(y_diff):

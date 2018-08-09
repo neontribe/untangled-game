@@ -31,7 +31,6 @@ class InventorySystem(System):
                 # Make items disappear
                 itemEntity[CanPickUp].pickedUp = True
                 inventoryEntity[Inventory].activeItem = (itemID, inventoryEntity[Inventory].items[itemID][0], itemEntity[SpriteSheet], inventoryEntity[Inventory].numItems + 1)
-                print("Item picked up")
 
     def itemDroppedOff(self, game, entity, direction, typeOfDrop):
         # Get the item uuid, item id and quantity
@@ -76,9 +75,4 @@ class InventorySystem(System):
             newItemEntity[IngameObject].position = (entityPos[0]+offsetX, entityPos[1]+offsetY)
             newItemEntity[CanPickUp].pickedUp = False
             
-            print("I have been dropped")
             entity[GameAction].action = ""
-            # Set game action to drop the uuid
-            # On server side look up uuid
-            # COpy components 
-            # Drop on floor"""

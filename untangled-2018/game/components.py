@@ -101,6 +101,7 @@ class Directioned:
     """States that an entity will be pointing in a certain direction.
     e.g. if walking"""
     direction: str = 'default'
+    isOnlyLR: bool = False
 
     def toVelocity(self):
         return directionVelocity[self.direction]

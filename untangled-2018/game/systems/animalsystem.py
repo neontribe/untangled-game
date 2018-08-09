@@ -14,32 +14,32 @@ class AnimalSystem(System):
                 direct = ['left', 'right', 'up', 'down']
                 dire = random.choice(direct)
                 if dire == 'left':
-                    direction = Directioned(direction='left')
                     animal_center = (animal_center[0]-10,animal_center[1])
                     entity[IngameObject].position = animal_center
                     if SpriteSheet in entity:
                         entity[SpriteSheet].moving = True
                 elif dire == 'right':
-                    direction = Directioned(direction='right')
                     animal_center = (animal_center[0]+10,animal_center[1])
                     entity[IngameObject].position = animal_center
                     if SpriteSheet in entity:
                         entity[SpriteSheet].moving = True
                 elif dire == 'up':
-                    direction = Directioned(direction='up')
                     animal_center = (animal_center[0],animal_center[1]-10)
                     entity[IngameObject].position = animal_center
                     if SpriteSheet in entity:
                         entity[SpriteSheet].moving = True
                 elif dire == 'down':
-                    direction = Directioned(direction='down')
                     animal_center = (animal_center[0],animal_center[1]+10)
                     entity[IngameObject].position = animal_center
                     if SpriteSheet in entity:
                         entity[SpriteSheet].moving = True
                 entity[MoveRandom].lastmove = time.time()
                 if Directioned in entity:
-                    entity[Directioned] = direction
+                    if not entity[Directioned].isOnlyLR:
+                        entity[Directioned].direction = dire
+                    else:
+                        if dire != 'up' and dire != 'down':
+                            entity[Directioned].direction = dire
         
 
                     

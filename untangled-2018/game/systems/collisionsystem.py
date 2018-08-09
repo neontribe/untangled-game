@@ -127,6 +127,7 @@ class CollisionEvent:
             if k not in self.game.entities:
                 self.doKill = True
                 return False
+        return True
 
 class CollisionCall:
     def __init__(self, start=None, update=None, end=None):

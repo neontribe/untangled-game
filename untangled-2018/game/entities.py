@@ -101,7 +101,8 @@ def create_bounce(position):
         ),
         IngameObject(position=position, size=(64, 64)),
         Directioned(direction='default'),
-        ChasePlayer(speed = 2)
+        ChasePlayer(speed = 2),
+        Health(value=100)
     ]
 
 def create_sheep(position):
@@ -120,7 +121,8 @@ def create_sheep(position):
         ),
         IngameObject(position=position, size=(64,64)),
         Directioned(direction='default'),
-        MoveRandom()
+        MoveRandom(),
+        Health(value=100)
     ]
 
 def create_chicken(position):
@@ -140,7 +142,8 @@ def create_chicken(position):
         Health(value=100),
         IngameObject(position=position, size=(64,64)),
         Directioned(direction='default'),
-        MoveRandom()
+        MoveRandom(),
+        Health(value=100)
     ]
 
 

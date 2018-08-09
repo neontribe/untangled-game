@@ -6,6 +6,7 @@ from game.systems.rendersystem import RenderSystem
 from game.systems.userinputsystem import UserInputSystem
 from game.systems.profilesystem import ProfileSystem
 from game.systems.collisionsystem import CollisionSystem, CollisionCall
+from game.systems.particlesystem import ParticleSystem
 from game.systems.soundsystem import SoundSystem
 from game.systems.inventorysystem import *
 
@@ -34,8 +35,10 @@ class GameState:
         self.framework = framework
         self.screen = framework.screen
         self.net = framework.net
+        self.renderSystem = RenderSystem(self.screen)
         self.collisionSystem = CollisionSystem()
         self.inventorySystem = InventorySystem()
+        self.particles = ParticleSystem(self.renderSystem)
 
         # Add all systems we want to run
         self.systems.extend([
@@ -44,6 +47,8 @@ class GameState:
             self.collisionSystem,
             self.inventorySystem,
             RenderSystem(self.screen),
+            self.renderSystem,
+            self.particles,
             SoundSystem()
         ])
 
@@ -85,7 +90,16 @@ class GameState:
                     call = CollisionCall()
                 ),
                 # Every item has this component
-                CanPickUp()
+                CanPickUp(),
+            ParticleEmitter(
+                particleTypes = ["star"],
+                offset = (0,0),
+                velocity = (0,-1),
+                acceleration = (0,0.1),
+                colour = (255, 255, 69),
+                randomness = (5,0),
+                lifespan = 20
+            )
             ])
 
     def update(self, dt: float, events):
@@ -145,6 +159,15 @@ class GameState:
                     #update = lambda event: print("Player Collision Update"),
                     end = lambda event: print("Item no longer exists")
                 )
+            ),
+            ParticleEmitter(
+                particleTypes = ["ring","star"],
+                offset = (0,0),
+                velocity = (1,1),
+                directionMode = 2,
+                colour = (137, 63, 69),
+                onlyWhenMoving = True,
+                randomness = (3,3)
             )
         ])
 
@@ -161,6 +184,8 @@ class GameState:
         ID for the entity."""
         key = uuid.uuid4()
         self.entities[key] = {type(value): value for (value) in components}
+        if IngameObject in self.entities[key]:
+            self.entities[key][IngameObject].id = key
         if Collidable in self.entities[key]:
             self.registerCollisionCalls(key, self.entities[key])
         if Inventory in self.entities[key]:

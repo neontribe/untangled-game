@@ -121,7 +121,7 @@ class RenderSystem(System):
                 else:
                     img_index = img_indexes[spritesheet.default_tile]
                 img = self.get_image(spritesheet, img_index)
-                
+
                 #Scale the image
                 if img.get_size() != entity[IngameObject].size:
                     img = pygame.transform.scale(img, entity[IngameObject].size)
@@ -166,6 +166,7 @@ class RenderSystem(System):
                     if entity[Health].value > 0:
                         currentHealthPos = (rect.x+healthBarThickness, rect.y-30+healthBarThickness, entity[Health].value, 10-healthBarThickness*2)
                         pygame.draw.rect(self.screen, (255, 0, 0), currentHealthPos)
+                
 
                 if WaterBar in entity:
                     if not entity[WaterBar].disabled:
@@ -185,7 +186,7 @@ class RenderSystem(System):
                     name = entity[Profile].name
 
                     # Draw our name with our font in white
-                    rendered_text_surface = self.font.render(name, False, (0, 255, 25))
+                    rendered_text_surface = self.font.render(name, False, entity[Profile].colour)
 
                     # Move the nametag above the player
                     rect.y -= 100
@@ -283,9 +284,9 @@ class RenderSystem(System):
                 self.draw_particle(game, p, our_center)
 
     def draw_particle(self, game, particle, our_center):
-        pos = (round(particle.position[0]), round(particle.position[1]))
+        pos = (particle.position[0], particle.position[1])
         rel_pos = (pos[0] - our_center[0], pos[1] - our_center[1])
-        screen_pos = (rel_pos[0] + game.framework.dimensions[0] // 2, rel_pos[1] + game.framework.dimensions[1] // 2)
+        screen_pos = (round(rel_pos[0] + game.framework.dimensions[0] // 2), round(rel_pos[1] + game.framework.dimensions[1] // 2))
         self.particleFunc[particle.particleType](particle, screen_pos)
 
     def particle_square(self, p, pos):

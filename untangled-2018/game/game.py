@@ -47,7 +47,7 @@ class GameState:
     systems = []
     collisionSystem = None
 
-    def __init__(self, framework, name, gender):
+    def __init__(self, framework, name, gender, colour):
         """Creates a GameState to fit our framework, with some information about ourselves."""
         self.framework = framework
         self.screen = framework.screen
@@ -66,7 +66,7 @@ class GameState:
         # Add all systems we want to run
         self.systems.extend([
             self.plantsystem,
-            ProfileSystem(name, gender),
+            ProfileSystem(name, gender, colour),
             UserInputSystem(),
 
             RenderSystem(self.screen),
@@ -84,35 +84,37 @@ class GameState:
         ])
 
         if self.net.is_hosting():
+            map_ent = self.entities[self.add_entity(create_map('assets/maps/testmap2.tmx'))]
+
             # If we're hosting, we need to register that we joined our own game
-            self.add_entity(create_map('assets/maps/testmap2.tmx'))
             self.on_player_join(self.net.get_id())
 
             # We need to make all other entities at the start of the game here
             self.add_entity(create_background_music())
             
+            # TODO check we don't spawn in tiles
             # Spawn zombies
             for i in range(4):
-                spawnx = random.randint(-4000, 4000)
-                spawny = random.randint(-4000, 4000)
+                spawnx = random.randrange(map_ent[Map].width * map_ent[SpriteSheet].tile_size)
+                spawny = random.randrange(map_ent[Map].height * map_ent[SpriteSheet].tile_size)
                 self.add_entity(create_zombie(self, (spawnx, spawny)))
 
             # Spawn bounces
             for i in range(4):
-                spawnx = random.randint(-4000, 4000)
-                spawny = random.randint(-4000, 4000)
+                spawnx = random.randrange(map_ent[Map].width * map_ent[SpriteSheet].tile_size)
+                spawny = random.randrange(map_ent[Map].height * map_ent[SpriteSheet].tile_size)
                 self.add_entity(create_bounce((spawnx, spawny)))
 
             # Spawn sheep
             for i in range(30):
-                spawnx = random.randint(-4000, 4000)
-                spawny = random.randint(-4000, 4000)
+                spawnx = random.randrange(map_ent[Map].width * map_ent[SpriteSheet].tile_size)
+                spawny = random.randrange(map_ent[Map].height * map_ent[SpriteSheet].tile_size)
                 self.add_entity(create_sheep((spawnx, spawny)))
 
             # Spawn chicken
             for i in range(30):
-                spawnx = random.randint(-4000, 4000)
-                spawny = random.randint(-4000, 4000)
+                spawnx = random.randrange(map_ent[Map].width * map_ent[SpriteSheet].tile_size)
+                spawny = random.randrange(map_ent[Map].height * map_ent[SpriteSheet].tile_size)
                 self.add_entity(create_chicken((spawnx, spawny)))
 
             # We need to make all other entities at the start of the game here

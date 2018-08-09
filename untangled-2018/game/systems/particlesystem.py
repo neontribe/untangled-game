@@ -20,6 +20,7 @@ class ParticleSystem(System):
                     p.updatePos()
             for k in kill:
                 v.remove(k)
+                del(k)
 
     def add_particle(self, p):
         if p.particleType in self.renderSystem.particleFunc.keys():

@@ -102,12 +102,6 @@ directionVelocity = {
 }
 
 @component(networked=True)
-class Tileset:
-    tile_size: int
-    path: str
-
-
-@component(networked=True)
 class Map:
     path: str
     width: int
@@ -119,6 +113,7 @@ class Directioned:
     """States that an entity will be pointing in a certain direction.
     e.g. if walking"""
     direction: str = 'default'
+    isOnlyLR: bool = False
 
     def toVelocity(self):
         return directionVelocity[self.direction]
@@ -129,6 +124,7 @@ class Profile:
     """Gives an entity a name and gender."""
     name: str = 'Player'
     gender: str = 'Unknown'
+    colour: Tuple[int,int,int] = (0, 255, 25)
 
 @component(networked=True)
 class PlayerControl:
@@ -203,6 +199,9 @@ class ParticleEmitter:
                     if self.initialRandomOnly:
                         vel = (vel[0] + ((random.uniform(-10.0,10) * rand[0])/10), vel[1] + ((random.uniform(-10.0,10) * rand[1])/10))
                         rand = (0,0)
+                    col = self.colour
+                    if col == (-1,-1,-1):
+                        col = random.choice([(255,0,0),(255,255,0),(0,255,0),(0,255,255),(0,0,255),(255,0,255)])
                     if self.directionMode > 0 and Directioned in entity:
                         dire = entity[Directioned].toVelocity()
                         modi = 1
@@ -215,7 +214,7 @@ class ParticleEmitter:
                         self.lifespan,
                         velocity = vel,
                         acceleration = self.acceleration,
-                        colour = self.colour,
+                        colour = col,
                         below = (self.height == "below"),
                         randomness = rand,
                         size = self.size

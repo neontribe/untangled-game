@@ -33,9 +33,10 @@ class ProfileSystem(System):
     """Updates an entities profile and appearance based on ours and others'
     name and gdner."""
 
-    def __init__(self, name, gender):
+    def __init__(self, name, gender, colour):
         self.ourName = name
         self.ourGender = gender
+        self.ourColour = colour
 
     def update(self, game, dt, events):
         for key, entity in game.entities.items():
@@ -47,6 +48,13 @@ class ProfileSystem(System):
                         entity[Profile].name = self.ourName
                     if entity[Profile].gender != self.ourGender:
                         entity[Profile].gender = self.ourGender
+                    if entity[Profile].colour != self.ourColour:
+                        if self.ourColour == (-1,-1,-1):
+                            entity[Profile].colour = (00,255,29)
+                        else:
+                            entity[Profile].colour = self.ourColour
+                        if ParticleEmitter in entity:
+                            entity[ParticleEmitter].colour = self.ourColour
 
                 if SpriteSheet in entity:
                     # This entity should change appearance based on gender, let's do that

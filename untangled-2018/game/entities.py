@@ -6,7 +6,7 @@ from game.systems.collisionsystem import CollisionCall
 def create_player(player_id):
     return [
         # They should have a position and size in game
-        IngameObject(position=(0, 0), size=(64, 64)),
+        IngameObject(position=(100, 100), size=(64, 64)),
 
         # They should have a health component
         Health(value=100),
@@ -133,7 +133,7 @@ def create_zombie(game, position):
             cooldown=1.5
         ),
         ParticleEmitter(
-            particleTypes = ["square"],
+            particleTypes = ["circle"],
             lifespan = 120,
             colour = (0, 0, 0),
             onlyWhenMoving = True,
@@ -142,7 +142,7 @@ def create_zombie(game, position):
             randomness = (5,5),
             size = 4,
             height = "above",
-            cooldown = 0.5
+            cooldown = 1
         )
     ]
 
@@ -162,20 +162,7 @@ def create_bounce(position):
         ),
         IngameObject(position=position, size=(64, 64)),
         Directioned(direction='default'),
-        ChasePlayer(speed = 2),
-        ParticleEmitter(
-            particleTypes = ["circle"],
-            lifespan = 60,
-            offset = (0,16),
-            colour = (255, 128, 0),
-            velocity = (0,0),
-            randomness = (0.5,0.2),
-            size = 8,
-            height = "below",
-            cooldown = 0.5,
-            particleAmount = 5,
-            initialRandomOnly = True
-        )
+        ChasePlayer(speed = 2)
     ]
 
 def create_sheep(position):
@@ -200,19 +187,20 @@ def create_sheep(position):
 def create_chicken(position):
     return [
         SpriteSheet(
-            path='./assets/sprites/chick5.png',
+            path='./assets/sprites/chicken.png',
             tile_size=50,
             tiles={
                 'default': [0],
-                'left': [3, 3, 3],
-                'right': [0, 0, 0],
-                'up': [0, 0, 0],
-                'down': [0, 0, 0]
+                'left': [1],
+                'right': [0]
             },
             moving=False
         ),
-        IngameObject(position=position, size=(64,64)),
-        Directioned(direction='default'),
+        IngameObject(position=position, size=(50,50)),
+        Directioned(
+            direction='default',
+            isOnlyLR=True
+        ),
         MoveRandom()
     ]
 

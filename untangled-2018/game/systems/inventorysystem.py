@@ -58,6 +58,9 @@ class InventorySystem(System):
 
                 # Delete the items from the inventory
                 entity[Inventory].items.pop(item[0], None)
+
+                # IF YOU WANT DUPLICATE ITEMS, COMMENT THIS LINE
+                entity[Inventory].activeItem = ()
             else:
                 newItemEntityKey = game.add_entity(create_test_item_object(item[0], 1))
 

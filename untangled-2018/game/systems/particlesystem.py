@@ -73,6 +73,6 @@ class Particle:
     def kill(self):
         self.doKill = True
 
-    def randomModi(self,axis):
+    def randomModi(self, axis):
         i = random.uniform(-10.0,10)
         return (i * self.randomness[axis])/10

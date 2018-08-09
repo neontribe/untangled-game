@@ -91,8 +91,8 @@ class RenderSystem(System):
                     previousCollidables.append((key,entity[Collidable]))
 
             if IngameObject in entity and ParticleEmitter in entity:
-                new_part = entity[ParticleEmitter].getParticle(entity)
-                if new_part != None:
+                new_particles = entity[ParticleEmitter].getParticles(entity)
+                for new_part in new_particles:
                     game.particles.add_particle(new_part)
 
             # Is this an entity we should draw?

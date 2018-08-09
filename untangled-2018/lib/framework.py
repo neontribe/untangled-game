@@ -72,8 +72,9 @@ class Framework:
 
     def enter_game(self, char_name, char_gender, char_colour):
         # To be called from the menu, puts us into the game
-        final_colour = list(char_colour)
-        for i in range(0,len(char_colour)):
-            if char_colour[i] not in range(0,256):
-                final_colour[i] = 128
+        final_colour = list(char_colour) if char_colour is not None else (00,255,29)
+        if char_colour is not None:
+            for i in range(0,len(char_colour)):
+                if char_colour[i] not in range(0,256):
+                    final_colour[i] = 128
         self.state = self.GameState(self, char_name, char_gender, (final_colour[0],final_colour[1],final_colour[2]) if char_colour != (-1,-1,-1) else (-1,-1,-1))

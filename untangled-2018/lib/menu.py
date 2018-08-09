@@ -219,7 +219,8 @@ class CharSetupMenuItem(MenuItem):
 
     def hexToRGB(self,hexa):
         if len(hexa) == 6:
-            return tuple(int(hexa[i:i+2], 16) for i in (0, 2 ,4))
+            if hexa[1] != "-" and hexa[3] != "-" and hexa[5] != "-":
+                return tuple(int(hexa[i:i+2], 16) for i in (0, 2 ,4))
         return None
 
 

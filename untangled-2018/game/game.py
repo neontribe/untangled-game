@@ -11,8 +11,9 @@ from random import randint
 from game.components import *
 from game.entities import *
 from game.systems.rendersystem import RenderSystem
-from game.systems.userinputsystem import UserInputSystem
 from game.systems.profilesystem import ProfileSystem
+from game.systems.userinputsystem import UserInputSystem
+from game.systems.timemagic import TimeSystem
 from game.systems.animalsystem import AnimalSystem
 from game.systems.AI_system import AI_system
 from game.systems.collisionsystem import CollisionSystem, CollisionCall
@@ -80,7 +81,37 @@ class GameState:
             self.renderSystem,
             self.particles,
             SoundSystem(),
-            self.damagesystem
+            self.damagesystem,
+            TimeSystem(),
+        ])
+        self.add_entity([
+            # They should have a position and size in game
+            IngameObject(position=(70, -40), size=(64, 64)),
+
+            # They should be facing a certain direction
+            Directioned(direction='default'),
+
+            # We know what they may look like
+            SpriteSheet(
+                path='./assets/sprites/debug.png', # Original was nuns.png, but this doesn't exist. Infact, why does it even exist in the time branch?
+                tile_size=64, # Original: 48
+                #Original:
+                #tiles={
+                #    'default':[1],
+                #    'left':[14, 15, 13],
+                #    'right':[26, 27, 25],
+                #    'up':[1, 2, 0],
+                #    'down':[38, 39, 37]
+                #},
+                tiles={
+                    'default':[0],
+                    'left':[0],
+                    'right':[0],
+                    'up':[0],
+                    'down':[0]
+                },
+                moving=True
+            )
         ])
 
         if self.net.is_hosting():
@@ -93,6 +124,8 @@ class GameState:
             self.add_entity(create_background_music())
             
             # TODO check we don't spawn in tiles
+            self.add_entity([Clock(), Timed()])
+
             # Spawn zombies
             for i in range(4):
                 spawnx = random.randrange(map_ent[Map].width * map_ent[SpriteSheet].tile_size)
@@ -145,13 +178,14 @@ class GameState:
         """This code gets run 60fps. All of our game logic stems from updating
         our systems on our entities."""
 
+
         # Update ourselves from the network
         self.net.pull_game(self)
 
         # Update our systems
         for system in self.systems:
             system.update(self, dt, events)
-
+        
         # Send our changes to everyone else
         self.net.push_game(self)
 

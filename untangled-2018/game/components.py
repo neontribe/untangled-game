@@ -136,6 +136,18 @@ class GameAction:
     action: str = ''
     last_plant: float = 0.0
 
+class Clock:
+    minute:int = 3
+    cycle: int = 1
+    year:  int = 1
+
+@component(networked=False)
+class Timed:
+    time: float = 0
+
+@component(networked=True)
+class Npc:
+    NotPlayer: int = 1
 @component()
 class MoveRandom:
     direction: str = 'default'

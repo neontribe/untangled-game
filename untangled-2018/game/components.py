@@ -2,7 +2,7 @@ from typing import List
 from typing import Tuple
 from typing import Union
 from pygame import Rect
-import random
+import random, time
 
 from lib.component import component
 from lib.framework import Framework
@@ -87,10 +87,18 @@ directionVelocity = {
 }
 
 @component(networked=True)
+class Map:
+    path: str
+    width: int
+    height: int
+    grid: list
+
+@component(networked=True)
 class Directioned:
     """States that an entity will be pointing in a certain direction.
     e.g. if walking"""
     direction: str = 'default'
+    isOnlyLR: bool = False
 
     def toVelocity(self):
         return directionVelocity[self.direction]
@@ -101,6 +109,7 @@ class Profile:
     """Gives an entity a name and gender."""
     name: str = 'Player'
     gender: str = 'Unknown'
+    colour: Tuple[int,int,int] = (0, 255, 25)
 
 @component(networked=True)
 class PlayerControl:
@@ -145,49 +154,65 @@ class ParticleEmitter:
     # 2 - times by inverse direction (so particles go in opposite to facing)
     directionMode: int = 0
     onlyWhenMoving: bool = False
+    size: int = 8
+    cooldown: float = 0.0
+    particleAmount: int = 1
+    initialRandomOnly: bool = False
 
     #DO NOT USE THIS MANUALLY
     _prePosition = (0,0)
+    _lastGet = 0
 
-    def getParticle(self,entity):
-        if self.doCreateParticles and IngameObject in entity:
-            doParticles = True
-            if self.onlyWhenMoving:
-                if self._prePosition == entity[IngameObject].position:
-                    doParticles = False
-                else:
-                    self._prePosition = entity[IngameObject].position
+    def getParticles(self,entity):
+        new_particles = []
+        if self.doCreateParticles and IngameObject in entity and self._lastGet + self.cooldown < time.time():
+            for i in range(0,self.particleAmount):
+                doParticles = True
+                if self.onlyWhenMoving:
+                    if self._prePosition == entity[IngameObject].position:
+                        doParticles = False
+                    else:
+                        self._prePosition = entity[IngameObject].position
 
-            if doParticles:
-                l = ["square","circle","ring","star"]
-                if len(self.particleTypes) > 0:
-                    l = self.particleTypes
-                t = random.choice(l)
-                pos = (entity[IngameObject].position[0] + self.offset[0], entity[IngameObject].position[1] + self.offset[1])
-                vel = self.velocity
-                if self.directionMode > 0 and Directioned in entity:
-                    dire = entity[Directioned].toVelocity()
-                    modi = 1
-                    if self.directionMode == 2:
-                        modi = -1
-                    vel = (vel[0] * dire[0] * modi, vel[1] * dire[1] * modi)
-                part = Particle(
-                    t,
-                    pos,
-                    self.lifespan,
-                    velocity = vel,
-                    acceleration = self.acceleration,
-                    colour = self.colour,
-                    below = (self.height == "below"),
-                    randomness = self.randomness
-                )
-                return part
-        return None
+                if doParticles:
+                    l = ["square","circle","ring","star"]
+                    if len(self.particleTypes) > 0:
+                        l = self.particleTypes
+                    t = random.choice(l)
+                    pos = (entity[IngameObject].position[0] + self.offset[0], entity[IngameObject].position[1] + self.offset[1])
+                    vel = self.velocity
+                    rand = self.randomness
+                    if self.initialRandomOnly:
+                        vel = (vel[0] + ((random.uniform(-10.0,10) * rand[0])/10), vel[1] + ((random.uniform(-10.0,10) * rand[1])/10))
+                        rand = (0,0)
+                    col = self.colour
+                    if col == (-1,-1,-1):
+                        col = random.choice([(255,0,0),(255,255,0),(0,255,0),(0,255,255),(0,0,255),(255,0,255)])
+                    if self.directionMode > 0 and Directioned in entity:
+                        dire = entity[Directioned].toVelocity()
+                        modi = 1
+                        if self.directionMode == 2:
+                            modi = -1
+                        vel = (vel[0] * dire[0] * modi, vel[1] * dire[1] * modi)
+                    part = Particle(
+                        t,
+                        pos,
+                        self.lifespan,
+                        velocity = vel,
+                        acceleration = self.acceleration,
+                        colour = col,
+                        below = (self.height == "below"),
+                        randomness = rand,
+                        size = self.size
+                    )
+                    self._lastGet = time.time()
+                    new_particles.append(part)
+        return new_particles
 
-@component(networked=False)
+@component(networked=True)
 class Collidable:
     """Lets an entity collide with another collidable"""
-    call: CollisionCall
+    call_name: str
     canCollide: bool = True
     #rect to override
     customCollisionBox = None

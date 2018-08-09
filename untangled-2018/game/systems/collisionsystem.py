@@ -27,7 +27,7 @@ class CollisionSystem(System):
                 rectB = against[1].toRect(game.entities[against[0]])
                 keys = [key, against[0]]
                 if rectA.colliderect(rectB):
-                    self.createCollision(keys)
+                    self.createCollision(game, keys)
                 else:
                     self.endCollision(keys)
 
@@ -38,11 +38,11 @@ class CollisionSystem(System):
             event.doEnd = True
 
 
-    def createCollision(self,keys: list):
+    def createCollision(self,game,keys: list):
         #Collide the entities
         if self.collisionExists(keys) is None:
             #print("Collision Created")
-            self.COLLISIONEVENTS.append(CollisionEvent(self, keys))
+            self.COLLISIONEVENTS.append(CollisionEvent(game, self, keys))
 
     def allExcept(self, exclude, l: list):
         ret = []
@@ -81,32 +81,53 @@ class CollisionSystem(System):
 class CollisionEvent:
     doEnd: bool
     keys: list
-    calls: list
-    def __init__(self, colSystem: CollisionSystem, keys: list):
+    game = None
+    def __init__(self, game, colSystem: CollisionSystem, keys: list):
         self.calls = []
         self.doEnd = False
         self.keys = keys
-        for k in keys:
-            if colSystem.COLLISIONCALLS[k] is not None:
-                #print("calls: " + str(len(self.calls)))
-                self.calls.append(colSystem.COLLISIONCALLS[k])
-        #print("Collision Started")
+        self.game = game
         self.start()
+
+    def get_entity_with_component(self, component):
+        for k in self.keys:
+            if component in self.game.entities[k]:
+                return k, self.game.entities[k]
+        return None, None
         
+    def get_calls(self):
+        calls = []
+        for key in self.keys:
+            calls.append(self.game.get_collision_functions(self.game.entities[key]))
+        return calls
+
     def start(self):
-        for c in self.calls:
+        if not self.isValid():
+            return
+        for c in self.get_calls():
             if c.onCollisionStart != None:
-                c.onCollisionStart(self)
+                c.onCollisionStart(self.game, self)
 
     def update(self):
-        for c in self.calls:
+        if not self.isValid():
+            return
+        for c in self.get_calls():
             if c.onCollisionUpdate != None:
-                c.onCollisionUpdate(self)
+                c.onCollisionUpdate(self.game, self)
 
     def end(self):
-        for c in self.calls:
+        if not self.isValid():
+            return
+        for c in self.get_calls():
             if c.onCollisionEnd != None:
-                c.onCollisionEnd(self)
+                c.onCollisionEnd(self.game, self)
+
+    def isValid(self):
+        for k in self.keys:
+            if k not in self.game.entities:
+                self.doKill = True
+                return False
+        return True
 
 class CollisionCall:
     def __init__(self, start=None, update=None, end=None):

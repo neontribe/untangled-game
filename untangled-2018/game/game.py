@@ -20,6 +20,7 @@ from game.systems.particlesystem import ParticleSystem
 from game.systems.soundsystem import SoundSystem
 from game.systems.damagesystem import DamageSystem
 from game.systems.inventorysystem import *
+from game.collisions import Class_Collisions
 
 
 class GameState:
@@ -42,7 +43,7 @@ class GameState:
     systems = []
     collisionSystem = None
 
-    def __init__(self, framework, name, gender):
+    def __init__(self, framework, name, gender, colour):
         """Creates a GameState to fit our framework, with some information about ourselves."""
         self.framework = framework
         self.screen = framework.screen
@@ -52,10 +53,11 @@ class GameState:
         self.inventorySystem = InventorySystem()
         self.particles = ParticleSystem(self.renderSystem)
         self.damagesystem = DamageSystem()
+        self.collisions = Class_Collisions(self)
 
         # Add all systems we want to run
         self.systems.extend([
-            ProfileSystem(name, gender),
+            ProfileSystem(name, gender, colour),
             UserInputSystem(),
             AI_system(),
             AnimalSystem(),
@@ -68,37 +70,60 @@ class GameState:
         ])
 
         if self.net.is_hosting():
+            map_ent = self.entities[self.add_entity(create_map('assets/maps/testmap2.tmx'))]
+
             # If we're hosting, we need to register that we joined our own game
             self.on_player_join(self.net.get_id())
+            self.add_entity(create_test_item_object(animated=True))
             
+            # TODO check we don't spawn in tiles
             # Spawn zombies
             for i in range(4):
-                spawnx = random.randint(-4000, 4000)
-                spawny = random.randint(-4000, 4000)
+                spawnx = random.randrange(map_ent[Map].width * map_ent[SpriteSheet].tile_size)
+                spawny = random.randrange(map_ent[Map].height * map_ent[SpriteSheet].tile_size)
                 self.add_entity(create_zombie(self, (spawnx, spawny)))
 
             # Spawn bounces
             for i in range(4):
-                spawnx = random.randint(-4000, 4000)
-                spawny = random.randint(-4000, 4000)
+                spawnx = random.randrange(map_ent[Map].width * map_ent[SpriteSheet].tile_size)
+                spawny = random.randrange(map_ent[Map].height * map_ent[SpriteSheet].tile_size)
                 self.add_entity(create_bounce((spawnx, spawny)))
 
             # Spawn sheep
             for i in range(30):
-                spawnx = random.randint(-4000, 4000)
-                spawny = random.randint(-4000, 4000)
+                spawnx = random.randrange(map_ent[Map].width * map_ent[SpriteSheet].tile_size)
+                spawny = random.randrange(map_ent[Map].height * map_ent[SpriteSheet].tile_size)
                 self.add_entity(create_sheep((spawnx, spawny)))
 
             # Spawn chicken
+
             for i in range(60):
                 spawnx = random.randint(-2000, 2000)
                 spawny = random.randint(-2000, 2000)
+
+            for i in range(30):
+                spawnx = random.randrange(map_ent[Map].width * map_ent[SpriteSheet].tile_size)
+                spawny = random.randrange(map_ent[Map].height * map_ent[SpriteSheet].tile_size)
+
                 self.add_entity(create_chicken((spawnx, spawny)))
 
 
 
             # We need to make all other entities at the start of the game here
             self.add_entity(create_background_music())
+
+    def on_player_join(self, player_id):
+        """This code gets run whenever a new player joins the game."""
+        # Let's give them an entity that they can control
+        self.add_entity(create_player(player_id))
+
+    def on_player_quit(self, player_id):
+        """This code gets run whever a player exits the game."""
+        # Remove any entities tied to them - e.g. the player they control
+        tied = []
+        for key, entity in list(self.entities.items()):
+            if PlayerControl in entity and entity[PlayerControl].player_id == player_id:
+                del self.entities[key]
 
     def update(self, dt: float, events):
         """This code gets run 60fps. All of our game logic stems from updating
@@ -113,6 +138,7 @@ class GameState:
 
         # Send our changes to everyone else
         self.net.push_game(self)
+
 
     def on_player_join(self, player_id):
         """This code gets run whenever a new player joins the game."""
@@ -152,6 +178,7 @@ class GameState:
             if PlayerControl in entity and entity[PlayerControl].player_id == player_id:
                 del self.entities[key]
 
+
     def add_entity(self, components):
         """Add an entity to the game, from a set of components. Returns a unique
         ID for the entity."""
@@ -159,17 +186,13 @@ class GameState:
         self.entities[key] = {type(value): value for (value) in components}
         if IngameObject in self.entities[key]:
             self.entities[key][IngameObject].id = key
-        if Collidable in self.entities[key]:
-            self.registerCollisionCalls(key, self.entities[key])
-        if Inventory in self.entities[key]:
-            self.registerInventory(key)
         return key
-
-    def registerCollisionCalls(self, key, entity):
-        self.collisionSystem.COLLISIONCALLS[key] = entity[Collidable].call
-
-    def registerInventory(self, key):
-        self.entities[key][Collidable].call.onCollisionStart = lambda event: self.inventorySystem.itemPickedUp(self, event, key)
-
+        
     def itemPickedUp(self, event):
         print(event.keys)
+
+    def get_collision_functions(self, entity):
+        if Collidable in entity:
+            return self.collisions.get_functions(entity[Collidable].call_name)
+        else:
+            return None

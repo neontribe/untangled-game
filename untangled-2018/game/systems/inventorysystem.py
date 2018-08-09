@@ -7,24 +7,19 @@ class InventorySystem(System):
     def update(self, game, dt: float, events):
         pass
     
-    def itemPickedUp(self, game, event, key):
-        itemEntity, itemKey = self.getItemFromEvent(game, event, key)
+    def itemPickedUp(self, event):
+        itemKey, itemEntity = event.get_entity_with_component(CanPickUp)
+        invKey, inventoryEntity = event.get_entity_with_component(Inventory)
 
-        if CanPickUp in itemEntity:
+        if itemEntity is not None:
             if not itemEntity[CanPickUp].pickedUp:
-                playerEntity = game.entities[key]
                 
-                if itemKey not in playerEntity[Inventory].items:
-                    playerEntity[Inventory].items.append(itemKey)
-                    playerEntity[Inventory].items.append(itemEntity[CanPickUp].quantity)
+                if itemKey not in inventoryEntity[Inventory].items:
+                    inventoryEntity[Inventory].items.append(itemKey)
+                    inventoryEntity[Inventory].items.append(itemEntity[CanPickUp].quantity)
                 else:
-                    itemIndexInList = playerEntity[Inventory].items.index(itemKey)
-                    playerEntity[Inventory].items[itemIndexInList + 1] += 1
+                    itemIndexInList = inventoryEntity[Inventory].items.index(itemKey)
+                    inventoryEntity[Inventory].items[itemIndexInList + 1] += 1
 
                 itemEntity[CanPickUp].pickedUp = True
-                playerEntity[Inventory].activeItem = (itemKey, itemEntity[CanPickUp].quantity)
-
-    def getItemFromEvent(self, game, event, playerkey):
-        for k in event.keys:
-            if k is not playerkey:
-                return (game.entities[k], k)
+                inventoryEntity[Inventory].activeItem = (itemKey, itemEntity[CanPickUp].quantity)

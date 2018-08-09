@@ -117,19 +117,22 @@ class UserInputSystem(System):
 
                                 
             elif Wieldable in entity and SwingSword in entity and SpriteSheet in entity:
-                if entity[Wieldable].wielded and keysdown[pygame.locals.K_SPACE]:
-                    entity[SwingSword].swing = True
-                    entity[SpriteSheet].moving = True
-                    for key_col, entity_col in game.entities.items():
-                        wielding_player = game.entities[entity[Wieldable].player_id]
-                        if entity_col != wielding_player:
-                            if Health in entity_col:
-                                if entity[IngameObject].get_rect().colliderect(entity_col[IngameObject].get_rect()):
-                                    damage = 1
-                                    entity_col[Health].value = entity_col[Health].value - damage                     
-                else:
-                    entity[SwingSword].swing = False
-                    entity[SpriteSheet].moving = False
+                if entity[Wieldable].wielded:
+                    player_id = game.entities[entity[Wieldable].player_id][PlayerControl].player_id
+                    if game.net.is_me(player_id):
+                        if keysdown[pygame.locals.K_SPACE]:
+                            entity[SwingSword].swing = True
+                            entity[SpriteSheet].moving = True
+                            for key_col, entity_col in game.entities.items():
+                                wielding_player = game.entities[entity[Wieldable].player_id]
+                                if entity_col != wielding_player:
+                                    if Health in entity_col:
+                                        if entity[IngameObject].get_rect().colliderect(entity_col[IngameObject].get_rect()):
+                                            damage = 1
+                                            entity_col[Health].value = entity_col[Health].value - damage                     
+                        else:
+                            entity[SwingSword].swing = False
+                            entity[SpriteSheet].moving = False
 
 
 def get_position(io, hoped_vel, tmap):

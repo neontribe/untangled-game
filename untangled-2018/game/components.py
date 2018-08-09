@@ -84,7 +84,6 @@ class PlayerControl:
 class GameAction:
     """Allows entities to have different actions"""
     action: str = ""
-    dropping: bool = False
 
 @component(networked=False)
 class Collidable:

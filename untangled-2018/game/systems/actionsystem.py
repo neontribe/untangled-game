@@ -10,7 +10,6 @@ class ActionSystem(System):
             if GameAction in entity:
                 action = entity[GameAction].action
 
-                if action == "drop" and entity[GameAction].dropping:
-                    entity[GameAction].dropping = False
+                if action == "drop":
                     if Inventory in entity and Directioned in entity:
                         game.inventorySystem.itemDroppedOff(game, entity, entity[Directioned].direction)

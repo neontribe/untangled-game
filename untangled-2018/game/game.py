@@ -178,6 +178,16 @@ class GameState:
         if Inventory in self.entities[key]:
             self.registerInventory(key)
         return key
+    
+    def copy_entity(self, entity):
+        """Create a new entity based on another entity's components"""
+        key = uuid.uuid4()
+        self.entities[key] = {type(value): value for (value) in entity.components}
+        if Collidable in self.entities[key]:
+            self.registerCollisionCalls(key, self.entities[key])
+        if Inventory in self.entities[key]:
+            self.registerInventory(key)
+        return key
 
     def registerCollisionCalls(self, key, entity):
         self.collisionSystem.COLLISIONCALLS[key] = entity[Collidable].call

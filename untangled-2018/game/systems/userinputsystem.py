@@ -43,9 +43,8 @@ class UserInputSystem(System):
                         moved = True
                         direction = 'right'
                     # Dropping items
-                    elif keysdown[pygame.locals.K_d] and not entity[GameAction].dropping:
+                    elif keysdown[pygame.locals.K_d]:
                         entity[GameAction].action = "drop"
-                        entity[GameAction].dropping = True
 
                     # Trigger animation of this entity's sprite, if it has one
                     if SpriteSheet in entity:

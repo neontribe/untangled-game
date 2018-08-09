@@ -4,3 +4,4 @@ pygame==1.9.4
 https://github.com/zeromq/pyre/archive/master.zip
 pyzmq==17.1.0
 zmq==0.0.0
+tmx==1.9.1

@@ -1,5 +1,6 @@
 from lib.system import System
 from game.components import *
+from game.entities import *
 import pygame
 
 class InventorySystem(System):
@@ -8,37 +9,39 @@ class InventorySystem(System):
     def update(self, game, dt: float, events):
         pass
     
-    def itemPickedUp(self, game, event, key):
-        itemEntity, itemEKey = self.getItemFromEvent(game, event, key)
+    def itemPickedUp(self, event):
+        itemKey, itemEntity = event.get_entity_with_component(CanPickUp)
+        invKey, inventoryEntity = event.get_entity_with_component(Inventory)
 
-        if CanPickUp in itemEntity:
-            # If item can be picked up
+        if itemEntity is not None:
+            itemID = itemEntity[CanPickUp].itemID
             if not itemEntity[CanPickUp].pickedUp:
-                itemID = itemEntity[CanPickUp].itemID
-                playerEntity = game.entities[key]
-
-                # Check if there are any items of that kind in the inventory already
-                if itemEKey not in playerEntity[Inventory].items:
-                    playerEntity[Inventory].items.append(itemEKey)
-                    playerEntity[Inventory].items.append(itemID)
-                    playerEntity[Inventory].items.append(itemEntity[CanPickUp].quantity)
+                
+                if itemID not in inventoryEntity[Inventory].items:
+                    inventoryEntity[Inventory].items[itemID] = (
+                        itemEntity[CanPickUp].quantity,
+                        itemEntity[SpriteSheet],
+                        inventoryEntity[Inventory].numItems + 1
+                    )
                 else:
-                    itemIndexInList = playerEntity[Inventory].items.index(itemID)
-                    playerEntity[Inventory].items[itemIndexInList + 1] += 1
+                    lItems = list(inventoryEntity[Inventory].items[itemID])
+                    lItems[0] += itemEntity[CanPickUp].quantity
+                    inventoryEntity[Inventory].items[itemID] = tuple(lItems)
 
                 # Make items disappear
                 itemEntity[CanPickUp].pickedUp = True
-                playerEntity[Inventory].activeItem = (itemID, itemEntity[CanPickUp].quantity)
+                inventoryEntity[Inventory].activeItem = (itemID, inventoryEntity[Inventory].items[itemID][0], itemEntity[SpriteSheet], inventoryEntity[Inventory].numItems + 1)
+                print("Item picked up")
 
-    def itemDroppedOff(self, game, entity, direction):
-        itemKey = entity[Inventory].activeItem
-        if itemKey:
-            item = game.entities[itemKey[0]]
-            itemPos = item[IngameObject].position
+    def itemDroppedOff(self, game, entity, direction, typeOfDrop):
+        # Get the item uuid, item id and quantity
+        if entity[Inventory].activeItem:
+            item = entity[Inventory].activeItem
 
+            # Sorting out the position of the new entity
             disDropping = entity[Inventory].distanceToDrop
-
             offsetX, offsetY = (0, 0)
+            entityPos = entity[IngameObject].position
 
             if direction == "up":
                 offsetY = -disDropping
@@ -48,19 +51,34 @@ class InventorySystem(System):
                 offsetX = -disDropping
             elif direction == "right":
                 offsetX = disDropping
-            
-            if item[CanPickUp].pickedUp:
-                item[IngameObject].position = (itemPos[0]+offsetX, itemPos[1]+offsetY)
-                item[CanPickUp].pickedUp = False
-            else:
-                pass
 
+            # If you drop all of the items at once
+            if typeOfDrop.endswith("stack") or (typeOfDrop.endswith("one") and item[1] == 1):
+                newItemEntityKey = game.add_entity(create_test_item_object(item[0], item[1]))
+                newItemEntity = game.entities[newItemEntityKey]
+
+                # Delete the items from the inventory
+                entity[Inventory].items.pop(item[0], None)
+            else:
+                newItemEntityKey = game.add_entity(create_test_item_object(item[0], 1))
+
+                # Decrement quantity in dict
+                newActiveInInv = list(entity[Inventory].items[item[0]])
+                newActiveInInv[0] -= 1
+                entity[Inventory].items[item[0]] = tuple(newActiveInInv)
+
+                # Decrement quantity in active item
+                newActiveItem = list(entity[Inventory].activeItem)
+                newActiveItem[1] -= 1
+                entity[Inventory].activeItem = tuple(newActiveItem)
+
+            newItemEntity = game.entities[newItemEntityKey]
+            newItemEntity[IngameObject].position = (entityPos[0]+offsetX, entityPos[1]+offsetY)
+            newItemEntity[CanPickUp].pickedUp = False
+            
+            print("I have been dropped")
+            entity[GameAction].action = ""
             # Set game action to drop the uuid
             # On server side look up uuid
             # COpy components 
-            # Drop on floor
-
-    def getItemFromEvent(self, game, event, playerkey):
-        for k in event.keys:
-            if k is not playerkey:
-                return (game.entities[k], k)
+            # Drop on floor"""

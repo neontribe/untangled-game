@@ -26,7 +26,7 @@ PROFILE_SPRITES = {
             'down': [10, 11, 9]
         },
         'moving': False
-    }
+    },
 }
 
 class ProfileSystem(System):

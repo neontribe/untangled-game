@@ -1,3 +1,4 @@
+import math
 import pygame
 from pygame import Rect
 
@@ -12,6 +13,16 @@ class RenderSystem(System):
         self.screen = screen
         self.image_cache = {}
         self.steps = 0
+        self.particles = {
+            'above':[],
+            'below':[]
+        }
+        self.particleFunc = {
+            'square': lambda p, s: self.particle_square(p,s),
+            'circle': lambda p, s: self.particle_circle(p,s),
+            'ring': lambda p, s: self.particle_ring(p,s),
+            'star': lambda p, s: self.particle_star(p,s)
+        }
 
         font_path = 'assets/fonts/alterebro-pixel-font.ttf'
         self.font = pygame.font.Font(font_path, 45)
@@ -31,6 +42,39 @@ class RenderSystem(System):
                     our_center = entity[IngameObject].position
                     break
 
+        # Draw tilemap
+        for key, entity in game.entities.items():
+            if Map in entity and SpriteSheet in entity:
+                spritesheet = entity[SpriteSheet]
+                map = entity[Map]
+                # minimum and maximum tile indexes coordinates possible
+                min_x = int((our_center[0] - game.framework.dimensions[0]/2) / spritesheet.tile_size)
+                min_y = int((our_center[1] - game.framework.dimensions[1]/2) / spritesheet.tile_size)
+                max_x = int((our_center[0] + game.framework.dimensions[0]/2) / spritesheet.tile_size)
+                max_y = int((our_center[1] + game.framework.dimensions[1]/2) / spritesheet.tile_size)
+                for y in range(max(min_y, 0), min(max_y + 1, len(map.grid))):
+                    for x in range(max(min_x, 0), min(max_x + 1, len(map.grid[y]))):
+                        tile = map.grid[y][x]
+                        img_indexes = spritesheet.tiles[str(tile-1)]
+                        if spritesheet.moving:
+                            img_index = img_indexes[frame % len(img_indexes)]
+                        else:
+                            img_index = img_indexes[0]
+                        image = self.get_image(spritesheet, img_index)
+                        rel_pos = (
+                            x * spritesheet.tile_size - our_center[0],
+                            y * spritesheet.tile_size - our_center[1]
+                        )
+
+                        screen_pos = (
+                            rel_pos[0] + game.framework.dimensions[0]/2,
+                            rel_pos[1] + game.framework.dimensions[1]/2
+                        )
+
+                        self.screen.blit(image, screen_pos)
+
+        self.draw_particles(game, "below", our_center)
+
         previousCollidables = []
 
         # Render everything we can
@@ -38,6 +82,7 @@ class RenderSystem(System):
             # Don't check for items being picked up
             if CanPickUp in entity:
                 if entity[CanPickUp].pickedUp:
+                    entity[GameAction].action = "delete"
                     continue
 
             #Check collisions for entity against all previously checked entities
@@ -46,6 +91,11 @@ class RenderSystem(System):
                     game.collisionSystem.checkCollisions(game,key,entity[Collidable],previousCollidables)
                     previousCollidables.append((key,entity[Collidable]))
 
+            if IngameObject in entity and ParticleEmitter in entity:
+                new_part = entity[ParticleEmitter].getParticle(entity)
+                if new_part != None:
+                    game.particles.add_particle(new_part)
+
             # Is this an entity we should draw?
             if IngameObject in entity and SpriteSheet in entity:
                 spritesheet = entity[SpriteSheet]
@@ -53,7 +103,10 @@ class RenderSystem(System):
                 # Where are they relative to us?
                 pos = entity[IngameObject].position
                 rel_pos = (pos[0] - our_center[0], pos[1] - our_center[1])
-                screen_pos = (rel_pos[0] + game.framework.dimensions[0] / 2, rel_pos[1] + game.framework.dimensions[1] / 2)
+                screen_pos = (
+                    rel_pos[0] + game.screen.get_width()/2,
+                    rel_pos[1] + game.screen.get_height()/2
+                )
 
                 img_indexes = spritesheet.tiles["default"]
 
@@ -93,13 +146,23 @@ class RenderSystem(System):
                         
                 # Center health bar and nametag
                 rect.x -= 30
+                # Checks if entity has an energy component
+                if Energy in entity:
+                    # Energy bar wrapper
+                    energyBarThickness = 2
+                    pygame.draw.rect(self.screen, (255, 255, 255),(rect.x, rect.y-45, 100+energyBarThickness*2, 10), energyBarThickness)
+                    
+                    # Yellow energy bar
+                    if entity[Energy].value > 0:
+                        currentEnergyPos = (rect.x+energyBarThickness, rect.y-45+energyBarThickness, entity[Energy].value, 10-energyBarThickness*2)
+                        pygame.draw.rect(self.screen, (255, 255, 0), currentEnergyPos)
 
                 # Checks if entity has a health component
                 if Health in entity:
                     # Health bar wrapper
                     healthBarThickness = 2
                     pygame.draw.rect(self.screen, (255, 255, 255), (rect.x, rect.y-30, 100+healthBarThickness*2, 10), healthBarThickness)
-
+             
                     # Red health bar
                     if entity[Health].value > 0:
                         currentHealthPos = (rect.x+healthBarThickness, rect.y-30+healthBarThickness, entity[Health].value, 10-healthBarThickness*2)
@@ -126,7 +189,7 @@ class RenderSystem(System):
                     rendered_text_surface = self.font.render(name, False, (0, 255, 25))
 
                     # Move the nametag above the player
-                    rect.y -= 85 # 60px for the bars
+                    rect.y -= 100
 
                     # Draw this rendered text we've made to the screen
                     self.screen.blit(rendered_text_surface, rect)
@@ -146,10 +209,15 @@ class RenderSystem(System):
                             # Draw inventory bar
                             inventoryPos = (inv.x, inv.y, inv.width, inv.height)
                             pygame.draw.rect(self.screen, inventoryBackgroundColour, inventoryPos)
+                            invX = game.screen.get_width() / 2 - inv.width / 2
+                            invY = game.screen.get_height() - inv.height - inv.slotOffset
 
+                            entity[Inventory].x, entity[Inventory].y = invX, invY
+
+                            distanceBetweenSlots = inv.slotOffset+inv.slotSize
                             # Draw slots
                             slotIndex = 0
-                            for x in range(int(inv.x+inv.slotOffset), int(inv.x+inv.width), inv.slotOffset+inv.slotSize):
+                            for x in range(int(invX+inv.slotOffset), int(invX+inv.width), distanceBetweenSlots):
                                 # The active slot has a different colour
                                 if slotIndex == inv.activeSlot:
                                     colour = (241, 196, 15)
@@ -158,51 +226,95 @@ class RenderSystem(System):
                                 else:
                                     colour = slotBackgroundColour
 
-                                pygame.draw.rect(self.screen, colour, (x, inv.y+inv.slotOffset, inv.slotSize, inv.slotSize))
+                                pygame.draw.rect(self.screen, colour, (x, invY+inv.slotOffset, inv.slotSize, inv.slotSize))
                                 
-                                # Check if item exists in inventory
-                                if slotIndex * 3 < len(entity[Inventory].items):
-                                    item = game.entities[entity[Inventory].items[slotIndex * 3]]
-
-                                    itemImgIndexes = item[SpriteSheet].tiles['default']
-                                    itemImgIndex = itemImgIndexes[frame % len(itemImgIndexes)]
-
-                                    # If it does, get its image
-                                    itemImg = self.get_image(item[SpriteSheet], itemImgIndex)
-                                    itemW, itemH = (inv.slotSize-inv.slotOffset, inv.slotSize-inv.itemSlotOffset * 2)
-                                    itemImg = pygame.transform.scale(itemImg, (itemW, itemH))
-
-                                    # The item is placed in the slot with a 3px offset
-                                    itemRect = (x + inv.itemSlotOffset, inv.y+inv.slotOffset + inv.itemSlotOffset, itemW, itemH)
-                                    self.screen.blit(itemImg, itemRect)
-
-                                    # Drawing text that shows how many items of this kind there are
-                                    lItemRect = list(itemRect)
-                                    lItemRect[1] += inv.slotOffset
-                                    itemRect = tuple(lItemRect)
-
-                                    rendered_text_qslot = self.font.render(str(entity[Inventory].items[slotIndex * 3 + 2]), False, (255, 255, 255))
-                                    self.screen.blit(rendered_text_qslot, itemRect)
 
                                 slotIndex += 1
+                            
+
+                            for itemKey, data in entity[Inventory].items.items():
+                                print(data)
+
+                                itemImgIndexes = data[1].tiles['default']
+                                itemImgIndex = itemImgIndexes[frame % len(itemImgIndexes)]
+
+                                # If it does, get its image
+                                itemImg = self.get_image(data[1], itemImgIndex)
+                                itemW, itemH = (inv.slotSize-inv.slotOffset, inv.slotSize-inv.itemSlotOffset * 2)
+                                itemImg = pygame.transform.scale(itemImg, (itemW, itemH))
+
+                                # The item is placed in the slot with a 3px offset
+                                itemRect = (invX + (distanceBetweenSlots * data[2]) + inv.itemSlotOffset, invY+inv.slotOffset + inv.itemSlotOffset, itemW, itemH)
+                                self.screen.blit(itemImg, itemRect)
+
+                                # Drawing text that shows how many items of this kind there are
+                                lItemRect = list(itemRect)
+                                lItemRect[1] += inv.slotOffset
+                                itemRect = tuple(lItemRect)
+
+                                rendered_text_qslot = self.font.render(str(data[0]), False, (255, 255, 255))
+                                self.screen.blit(rendered_text_qslot, itemRect)
+
+            self.draw_particles(game, "above", our_center)
 
     def get_image(self, spritesheet, index):
         # Ideally, we cache so we only process a file once
         if spritesheet.path not in self.image_cache:
             # Load from file
-            sheet_img = pygame.image.load(spritesheet.path)
+            sheet_img = pygame.image.load(spritesheet.path).convert_alpha()
+
+            if isinstance(spritesheet.tile_size, tuple):
+                tile_width = spritesheet.tile_size[0]
+                tile_height = spritesheet.tile_size[1]
+            else:
+                tile_width = spritesheet.tile_size
+                tile_height = spritesheet.tile_size
+
 
             # Check the file can be divided right
-            if sheet_img.get_width() % spritesheet.tile_size != 0 or sheet_img.get_height() % spritesheet.tile_size != 0:
+            if sheet_img.get_width() % tile_width != 0 or sheet_img.get_height() % tile_height != 0:
                 raise ValueError('Spritesheet width and height are not a multiple of its tile size')
             
             # Partition into sub-images
             images = []
-            for y in range(0, sheet_img.get_height(), spritesheet.tile_size):
-                for x in range(0, sheet_img.get_width(), spritesheet.tile_size):
-                    bounds = pygame.Rect(x, y, spritesheet.tile_size, spritesheet.tile_size)
+            for y in range(0, sheet_img.get_height(), tile_height):
+                for x in range(0, sheet_img.get_width(), tile_width):
+                    bounds = pygame.Rect(x, y, tile_width, tile_height)
                     images.append(sheet_img.subsurface(bounds))
             self.image_cache[spritesheet.path] = images
 
         return self.image_cache[spritesheet.path][index]
+
+    def draw_particles(self, game, height: str, our_center):
+        if height in self.particles.keys():
+            for p in self.particles[height]:
+                self.draw_particle(game, p, our_center)
+
+    def draw_particle(self, game, particle, our_center):
+        pos = (round(particle.position[0]), round(particle.position[1]))
+        rel_pos = (pos[0] - our_center[0], pos[1] - our_center[1])
+        screen_pos = (rel_pos[0] + game.framework.dimensions[0] // 2, rel_pos[1] + game.framework.dimensions[1] // 2)
+        self.particleFunc[particle.particleType](particle, screen_pos)
+
+    def particle_square(self, p, pos):
+        rect = Rect(pos[0],pos[1],8,8)
+        pygame.draw.rect(self.screen,p.colour,rect)
+
+    def particle_circle(self, p, pos):
+        pygame.draw.circle(self.screen,p.colour,pos,4)
+        
+    def particle_ring(self, p, pos):
+        pygame.draw.circle(self.screen,p.colour,pos,4,2)
+
+    def particle_star(self, p, pos):
+        hor = (
+            [pos[0] - 4, pos[1]],
+            [pos[0] + 4, pos[1]]
+        )
+        ver = (
+            [pos[0], pos[1] - 4],
+            [pos[0], pos[1] + 4]
+        )
+        pygame.draw.line(self.screen,p.colour,hor[0],hor[1],2)
+        pygame.draw.line(self.screen,p.colour,ver[0],ver[1],2)
 

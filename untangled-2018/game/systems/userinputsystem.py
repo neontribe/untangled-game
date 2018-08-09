@@ -2,8 +2,9 @@ import pygame.locals
 
 from lib.system import System
 from game.components import *
+from game.systems.particlesystem import Particle
 
-SPEED = 4
+SPEED = 10
 
 class UserInputSystem(System):
     """This system updates certain entities based on the arrow keys."""
@@ -19,6 +20,8 @@ class UserInputSystem(System):
                 if game.net.is_me(entity[PlayerControl].player_id):
                     # Our ingane position and size
                     io = entity[IngameObject]
+
+                    prePos = io.position
 
                     # Store whether we've moved this frame
                     moved = False
@@ -43,8 +46,19 @@ class UserInputSystem(System):
                         moved = True
                         direction = 'right'
                     # Dropping items
-                    elif keysdown[pygame.locals.K_d]:
-                        entity[GameAction].action = "drop"
+
+                    for event in events:
+                        if event.type == pygame.KEYDOWN:
+                            if event.key == pygame.K_f and not entity[GameAction].isDropping:
+                                entity[GameAction].action = "drop-stack"
+                                entity[GameAction].isDropping = True
+                            elif event.key == pygame.K_d and not entity[GameAction].isDropping:
+                                entity[GameAction].action = "drop-one"
+                                entity[GameAction].isDropping = True
+                        elif event.type == pygame.KEYUP:
+                            if event.key == pygame.K_f or event.key == pygame.K_d:
+                                entity[GameAction].isDropping = False
+                        
 
                     # Trigger animation of this entity's sprite, if it has one
                     if SpriteSheet in entity:
@@ -75,12 +89,10 @@ class UserInputSystem(System):
                                         entity[Inventory].activeSlot = activeSlot
 
                                         # Get active item, if there is one
-                                        if activeSlot * 3 < len(inv.items):
-                                            activeItemKey = inv.items[activeSlot * 3]
-                                            activeItemID = inv.items[activeSlot * 3 + 1]
-                                            activeItemQuantity = inv.items[activeSlot * 3 + 2]
-
-                                            entity[Inventory].activeItem = (activeItemKey, activeItemID, activeItemQuantity)
+                                        for itemKey, data in entity[Inventory].items.items():
+                                            if data[2] == activeSlot:
+                                                entity[Inventory].activeItem = (itemKey, data[0], data[1], data[2])
+                                                break
 
                                         # No hovering anymore
                                         entity[Inventory].hoverSlot = None

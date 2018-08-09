@@ -51,6 +51,9 @@ class UserInputSystem(System):
                         entity[SpriteSheet].moving = moved
                     if Directioned in entity:
                         entity[Directioned].direction = direction
+                    if ParticleEmitter in entity:
+                        if entity[ParticleEmitter].onlyWhenMoving:
+                            entity[ParticleEmitter].doCreateParticles = moved
 
                     # Checks if mouse is pressed
                     if mousedown:

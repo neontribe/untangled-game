@@ -289,23 +289,23 @@ class RenderSystem(System):
         self.particleFunc[particle.particleType](particle, screen_pos)
 
     def particle_square(self, p, pos):
-        rect = Rect(pos[0],pos[1],8,8)
+        rect = Rect(pos[0],pos[1],p.size,p.size)
         pygame.draw.rect(self.screen,p.colour,rect)
 
     def particle_circle(self, p, pos):
-        pygame.draw.circle(self.screen,p.colour,pos,4)
+        pygame.draw.circle(self.screen,p.colour,pos,int(round(p.size/2)))
         
     def particle_ring(self, p, pos):
-        pygame.draw.circle(self.screen,p.colour,pos,4,2)
+        pygame.draw.circle(self.screen,p.colour,pos,int(round(p.size/2)), int(math.ceil(p.size ** (1/3))))
 
     def particle_star(self, p, pos):
         hor = (
-            [pos[0] - 4, pos[1]],
-            [pos[0] + 4, pos[1]]
+            [pos[0] - (p.size/2), pos[1]],
+            [pos[0] + (p.size/2), pos[1]]
         )
         ver = (
-            [pos[0], pos[1] - 4],
-            [pos[0], pos[1] + 4]
+            [pos[0], pos[1] - (p.size/2)],
+            [pos[0], pos[1] + (p.size/2)]
         )
         pygame.draw.line(self.screen,p.colour,hor[0],hor[1],2)
         pygame.draw.line(self.screen,p.colour,ver[0],ver[1],2)

@@ -47,8 +47,9 @@ class Particle:
     doKill: bool
     below: bool
     randomness: Tuple[float,float]
+    size: int
 
-    def __init__(self, particle: str, position: Tuple[float,float], lifespan: int, velocity: Tuple[float,float] = None, colour: Tuple[int,int,int] = None, acceleration: Tuple[float,float] = None, below: bool = False, randomness: Tuple[float,float] = (1.0,1.0)):
+    def __init__(self, particle: str, position: Tuple[float,float], lifespan: int, velocity: Tuple[float,float] = None, colour: Tuple[int,int,int] = None, acceleration: Tuple[float,float] = None, below: bool = False, randomness: Tuple[float,float] = (1.0,1.0), size : int = 8):
         self.particleType = particle
         self.lifespan = lifespan
         self.position = position
@@ -58,6 +59,7 @@ class Particle:
         self.doKill = False
         self.below = below
         self.randomness = randomness
+        self.size = size
 
     def updatePos(self):
         if self.velocity is not None:

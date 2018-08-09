@@ -130,6 +130,19 @@ def create_zombie(game, position):
             damagemin=10, # Someone change these, they're op.
             damagemax=20,
             cooldown=1.5
+        ),
+        ParticleEmitter(
+            particleTypes = ["square"],
+            offset = (0,0),
+            lifespan = 120,
+            colour = (0, 0, 0),
+            onlyWhenMoving = True,
+            velocity = (0.5,0.5),
+            directionMode = 1,
+            randomness = (5,5),
+            size = 4,
+            height = "above",
+            cooldown = 0.5
         )
     ]
 

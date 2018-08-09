@@ -2,7 +2,7 @@ from typing import List
 from typing import Tuple
 from typing import Union
 from pygame import Rect
-import random
+import random, time
 
 from lib.component import component
 from lib.framework import Framework
@@ -149,12 +149,15 @@ class ParticleEmitter:
     # 2 - times by inverse direction (so particles go in opposite to facing)
     directionMode: int = 0
     onlyWhenMoving: bool = False
+    size: int = 8
+    cooldown: float = 0.0
 
     #DO NOT USE THIS MANUALLY
     _prePosition = (0,0)
+    _lastGet = 0
 
     def getParticle(self,entity):
-        if self.doCreateParticles and IngameObject in entity:
+        if self.doCreateParticles and IngameObject in entity and self._lastGet + self.cooldown < time.time():
             doParticles = True
             if self.onlyWhenMoving:
                 if self._prePosition == entity[IngameObject].position:
@@ -183,8 +186,10 @@ class ParticleEmitter:
                     acceleration = self.acceleration,
                     colour = self.colour,
                     below = (self.height == "below"),
-                    randomness = self.randomness
+                    randomness = self.randomness,
+                    size = self.size
                 )
+                self._lastGet = time.time()
                 return part
         return None
 

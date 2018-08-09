@@ -6,7 +6,7 @@ from game.systems.collisionsystem import CollisionCall
 def create_player(player_id):
     return [
         # They should have a position and size in game
-        IngameObject(position=(0, 0), size=(64, 64)),
+        IngameObject(position=(100, 100), size=(64, 64)),
 
         # They should have a health component
         Health(value=100),

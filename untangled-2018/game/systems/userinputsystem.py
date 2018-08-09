@@ -51,51 +51,75 @@ class UserInputSystem(System):
                         direction = 'right'
 
                     if hoped_vel != (0, 0):
-                        hoped_pos = (io.position[0] + hoped_vel[0], io.position[1] + hoped_vel[1])
+                        # Step collision by one tile side at a time, by reducing the vector's magnitude to no higher than that of a tile's side
+                        hoped_dist = math.ceil((math.sqrt(hoped_vel[0]**2 + hoped_vel[1]**2)) / tmap[SpriteSheet].tile_size)
+                        hoped_vel = (hoped_vel[0] / hoped_dist, hoped_vel[1] / hoped_dist)
 
-                        # TODO if tmap = None
-                        # TODO if |vel| > 1
-                        # TODO if tile doesn't exist
-                        # TODO if in tile
+                        # Do every step we need to cover the whole movement vector
+                        for i in range(hoped_dist):
+                            # This is where we'd hope to be after this step
+                            hoped_pos = (io.position[0] + hoped_vel[0], io.position[1] + hoped_vel[1])
 
-                        if abs(hoped_vel[0]) > 0:
-                            intrusive_x = hoped_pos[0] + math.copysign(io.size[0] / 2, hoped_vel[0])
-                            tcollision = False
-                            y = hoped_pos[1] - io.size[1] / 2
-                            while y < hoped_pos[1] + io.size[1] / 2:
-                                tile_x = int(intrusive_x / tmap[SpriteSheet].tile_size)
-                                tile_y = int(y / tmap[SpriteSheet].tile_size)
-                                if tmap[Map].grid[tile_y][tile_x] != 1:
-                                    tcollision = True
-                                    break
-                                if y != hoped_pos[1] + io.size[1] / 2 - 1 and y + tmap[SpriteSheet].tile_size >= hoped_pos[1] + io.size[1] / 2:
-                                    y = hoped_pos[1] + io.size[1] / 2 - 1
-                                else:
-                                    y += tmap[SpriteSheet].tile_size
-                            if tcollision:
-                                unintrusive_x = (int(intrusive_x / tmap[SpriteSheet].tile_size) - math.copysign(1, hoped_vel[0])) * tmap[SpriteSheet].tile_size
-                                hoped_pos = (unintrusive_x + (tmap[SpriteSheet].tile_size / 2) - math.copysign((io.size[0] - tmap[SpriteSheet].tile_size) / 2, hoped_vel[0]), hoped_pos[1])
-                        if abs(hoped_vel[1]) > 0:
-                            intrusive_y = hoped_pos[1] + math.copysign(io.size[1] / 2, hoped_vel[1])
-                            tcollision = False
-                            x = hoped_pos[0] - io.size[0] / 2
-                            while x < hoped_pos[0] + io.size[0] / 2:
-                                tile_y = int(intrusive_y / tmap[SpriteSheet].tile_size)
-                                tile_x = int(x / tmap[SpriteSheet].tile_size)
-                                if tmap[Map].grid[tile_y][tile_x] != 1:
-                                    tcollision = True
-                                    break
-                                if x != hoped_pos[0] + io.size[0] / 2 - 1 and x + tmap[SpriteSheet].tile_size >= hoped_pos[0] + io.size[0] / 2:
-                                    x = hoped_pos[0] + io.size[0] / 2 - 1
-                                else:
-                                    x += tmap[SpriteSheet].tile_size
-                            if tcollision:
-                                unintrusive_y = (int(intrusive_y / tmap[SpriteSheet].tile_size) - math.copysign(1, hoped_vel[1])) * tmap[SpriteSheet].tile_size
-                                hoped_pos = (hoped_pos[0], unintrusive_y + (tmap[SpriteSheet].tile_size / 2) - math.copysign((io.size[1] - tmap[SpriteSheet].tile_size) / 2, hoped_vel[1]))
+                            # Do we have a tile map to check collisions against?
+                            if tmap != None:
+                                # TODO we check X and then Y, in that order; this is a different path to Y and then X
+                                # in time, we should check that too
+                                if abs(hoped_vel[0]) > 0:
+                                    # Where the x extremity would be if moved
+                                    intrusive_x = hoped_pos[0] + math.copysign(io.size[0] / 2, hoped_vel[0])
+                                    tcollision = False
 
-                        if io.position != hoped_pos:
-                            io.position = hoped_pos
-                            moved = True
+                                    # Look at all colliding tiles on the x extermity
+                                    y = hoped_pos[1] - io.size[1] / 2
+                                    while y < hoped_pos[1] + io.size[1] / 2:
+                                        tile_x = math.floor(intrusive_x / tmap[SpriteSheet].tile_size)
+                                        tile_y = math.floor(y / tmap[SpriteSheet].tile_size)
+                                        
+                                        if (tile_y < 0 or tile_y >= tmap[Map].height) or (tile_x < 0 or tile_x >= tmap[Map].width) or tmap[Map].grid[tile_y][tile_x] != 1:
+                                            # It's off map or collidable
+                                            tcollision = True
+                                            break
+
+                                        # Increment by tile size or do a special case if we're on the last tile
+                                        if y != hoped_pos[1] + io.size[1] / 2 - 1 and y + tmap[SpriteSheet].tile_size >= hoped_pos[1] + io.size[1] / 2:
+                                            # Last tile, check at the very bottom of the entity, so this is not missed
+                                            y = hoped_pos[1] + io.size[1] / 2 - 1
+                                        else:
+                                            y += tmap[SpriteSheet].tile_size
+                                    if tcollision:
+                                        # We collided with a tile, step back a tile and position ourselves so our extremity is just touching the unreachable tile
+                                        unintrusive_x = (math.floor(intrusive_x / tmap[SpriteSheet].tile_size) - math.copysign(1, hoped_vel[0])) * tmap[SpriteSheet].tile_size
+                                        hoped_pos = (unintrusive_x + (tmap[SpriteSheet].tile_size / 2) - math.copysign((io.size[0] - tmap[SpriteSheet].tile_size) / 2, hoped_vel[0]), hoped_pos[1])
+                                if abs(hoped_vel[1]) > 0:
+                                    # Where the y extremity would be if moved
+                                    intrusive_y = hoped_pos[1] + math.copysign(io.size[1] / 2, hoped_vel[1])
+                                    tcollision = False
+
+                                    # Look at all colliding tiles on the y extermity
+                                    x = hoped_pos[0] - io.size[0] / 2
+                                    while x < hoped_pos[0] + io.size[0] / 2:
+                                        tile_y = math.floor(intrusive_y / tmap[SpriteSheet].tile_size)
+                                        tile_x = math.floor(x / tmap[SpriteSheet].tile_size)
+
+                                        if (tile_y < 0 or tile_y >= tmap[Map].height) or (tile_x < 0 or tile_x >= tmap[Map].width) or tmap[Map].grid[tile_y][tile_x] != 1:
+                                            # It's off map or collidable
+                                            tcollision = True
+                                            break
+
+                                        # Increment by tile size or do a special case if we're on the last tile
+                                        if x != hoped_pos[0] + io.size[0] / 2 - 1 and x + tmap[SpriteSheet].tile_size >= hoped_pos[0] + io.size[0] / 2:
+                                            # Last tile, check at the very bottom of the entity, so this is not missed
+                                            x = hoped_pos[0] + io.size[0] / 2 - 1
+                                        else:
+                                            x += tmap[SpriteSheet].tile_size
+                                    if tcollision:
+                                        # We collided with a tile, step back a tile and position ourselves so our extremity is just touching the unreachable tile
+                                        unintrusive_y = (math.floor(intrusive_y / tmap[SpriteSheet].tile_size) - math.copysign(1, hoped_vel[1])) * tmap[SpriteSheet].tile_size
+                                        hoped_pos = (hoped_pos[0], unintrusive_y + (tmap[SpriteSheet].tile_size / 2) - math.copysign((io.size[1] - tmap[SpriteSheet].tile_size) / 2, hoped_vel[1]))
+
+                            if io.position != hoped_pos:
+                                io.position = hoped_pos
+                                moved = True
 
                     # Trigger animation of this entity's sprite, if it has one
                     if SpriteSheet in entity:

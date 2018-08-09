@@ -80,7 +80,7 @@ def create_map(path):
     return [
         map_comp,
         SpriteSheet(
-            tile_size=32,
+            tile_size=48,
             path="assets/tilesets/map.png",
             tiles={
                 'default':[0],
@@ -110,7 +110,7 @@ def create_zombie(game, position):
     return [
         SpriteSheet(
             path='./assets/sprites/ZOM_enemy.png',
-            tile_size=32,
+            tile_size=48,
             tiles={
                 'default': [0],
                 'left': [9, 10, 11],

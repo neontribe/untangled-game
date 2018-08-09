@@ -167,8 +167,7 @@ class GameState:
         ])
         entity_id = self.add_entity(create_player(player_id, [sword_id,1]))
         self.entities[sword_id][Wieldable].player_id = entity_id
-        print(type(entity_id))
-        
+
 
     def on_player_quit(self, player_id):
         """This code gets run whever a player exits the game."""
@@ -189,7 +188,7 @@ class GameState:
         return key
         
     def itemPickedUp(self, event):
-        print(event.keys)
+        pass
 
     def get_collision_functions(self, entity):
         if Collidable in entity:

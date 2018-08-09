@@ -203,7 +203,7 @@ def create_chicken(position):
         IngameObject(position=position, size=(64,64)),
         Directioned(direction='default'),
         MoveRandom(),
-        Health(value=100)
+        Health(value=100),
 
         IngameObject(position=position, size=(50,50)),
         Directioned(

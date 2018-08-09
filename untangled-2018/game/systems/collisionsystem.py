@@ -41,7 +41,6 @@ class CollisionSystem(System):
     def createCollision(self,game,keys: list):
         #Collide the entities
         if self.collisionExists(keys) is None:
-            #print("Collision Created")
             self.COLLISIONEVENTS.append(CollisionEvent(game, self, keys))
 
     def allExcept(self, exclude, l: list):
@@ -68,7 +67,6 @@ class CollisionSystem(System):
             if c.doEnd:
                 c.end()
                 remove.append(c)
-                #print("Collision Ended")
             else:
                 c.update()
         for r in remove:

@@ -11,7 +11,7 @@ class DamageSystem(System):
                 if entity[Health].value <= 0:
                     del game.entities[key]
 
-    def onDamage(self, event):
+    def onDamage(self, game, event):
         target = None
         other = None
         
@@ -43,5 +43,5 @@ class DamageSystem(System):
         
             if target[Health].value<=0:
                target[Health].value=100
-               target[IngameObject].position=(0,0)
+               target[IngameObject].position=(100, 100)
 

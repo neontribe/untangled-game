@@ -147,7 +147,7 @@ class Clock:
     cycle: int = 0
     year:  int = 0
 
-@component(networked=True)
+@component(networked=False)
 class Timed:
     time: float = 0
 

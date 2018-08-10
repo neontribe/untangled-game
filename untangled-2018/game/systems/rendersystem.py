@@ -80,7 +80,6 @@ class RenderSystem(System):
                         if alpha > 255:
                             alpha = 255
                         image.set_alpha(alpha)
-                        print(image.get_alpha())
                         self.screen.blit(image, screen_pos)
 
         self.draw_particles(game, "below", our_center)

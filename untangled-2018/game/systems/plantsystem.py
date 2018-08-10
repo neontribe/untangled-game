@@ -35,19 +35,22 @@ class PlantSystem(System):
                     spritesheet = entity[SpriteSheet]
                     water_bar = entity[WaterBar]
                     growth_bar = entity[Energy]
-                    plantedTime = crops.plantage_time
-                    timeDifference = time.time() - plantedTime
+                    timeDifference = time.time() - crops.plantage_time
 
-                    water_bar.value = max(water_bar.value-0.005, 1)
+                    water_bar.value = max(water_bar.value-crops.dehydration_rate, 1)
 
-                    # Time to grow is inversely proportional to water bar value
-                    if timeDifference > (1/(water_bar.value))*60*60*crops.growth_stage:
-                        crops.growth_stage = min(crops.growth_stage+1, crops.max_growth_stage)
+                    maxGrowth = 100
 
-                    if crops.growth_stage == crops.max_growth_stage:
-                        growth_bar.value = 100
-                    else:
-                        growth_bar.value = (timeDifference / (1 / water_bar.value * 60 * 60 * (crops.growth_stage or 1))) * 100
+                    if water_bar.value > 1:
+                        # Time to grow is inversely proportional to water bar value
+                        if growth_bar.value > maxGrowth:
+                            crops.growth_stage = min(crops.growth_stage+1, crops.max_growth_stage)
+                            growth_bar.value = 1
+
+                        if crops.growth_stage == crops.max_growth_stage:
+                            growth_bar.value = maxGrowth
+                        else:
+                            growth_bar.value = (timeDifference * crops.growth_rate) - (crops.growth_stage * maxGrowth)
 
                     spritesheet.tiles['default'] = [crops.growth_stage]
 
@@ -65,8 +68,19 @@ class PlantSystem(System):
                             if Crops in e:
                                 if entity[IngameObject].get_rect().colliderect(e[IngameObject].get_rect()):
                                     water_bar = e[WaterBar]
-                                    water_bar.value = min(water_bar.value + 0.2, 100)
+                                    water_bar.value = min(water_bar.value + 0.4, 100)
                                     action.action = ''
+                                    if random.randint(0,2) == 0:
+                                        game.particles.add_particle(
+                                            Particle(
+                                                colour = ((0,60,255),(65,110,255),(100,130,255))[random.randint(0,2)],
+                                                particle = "square",
+                                                position = [e[IngameObject].position[0] + random.randint(-30,30), e[IngameObject].position[1] + random.randint(-30,30)],
+                                                velocity = (random.uniform(-1,1), random.uniform(-1,1)),
+                                                lifespan = 30
+                                            )
+                                        )
+
                     if action.action == 'harvest':
                         for k,e in dict(game.entities).items():
                             if Crops in e:

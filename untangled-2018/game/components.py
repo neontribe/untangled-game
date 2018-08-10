@@ -31,7 +31,7 @@ class Crops:
     """Stores infomation about crops"""
     name: str
     growth_rate: int
-    dehydration_rate: int
+    dehydration_rate: float
     growth_stage:int
     max_growth_stage:int
     plantage_time:float = time.time()

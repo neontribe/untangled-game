@@ -9,7 +9,7 @@ def create_player(player_id, inventory_items):
         IngameObject(position=(100, 100), size=(64, 64)),
 
         # They should have a health component
-        Health(value=100),
+        Health(value=100, maxValue=100),
 
         # They should have an energy component
         Energy(value=100),
@@ -123,10 +123,11 @@ def create_zombie(game, position):
         ),
         IngameObject(position=position, size=(64, 64)),
         Directioned(direction='default'),
-        Health(value=100),
+        Health(value=80, maxValue=80),
         ChasePlayer(speed = 1),
         Collidable(
-            call_name = "zombie"
+            call_name = "zombie",
+            doPush = True
         ),
         Damager(
             damagemin=10, # Someone change these, they're op.
@@ -163,7 +164,7 @@ def create_skeleton(position):
         ),
         IngameObject(position=position, size=(64, 64)),
         Directioned(direction='default'),
-        Health(value=100),
+        Health(value=70, maxValue=70),
         ChasePlayer(speed = 1),
         Collidable(
             call_name = "zombie"
@@ -203,7 +204,7 @@ def create_ice_skeleton(position):
         ),
         IngameObject(position=position, size=(64, 64)),
         Directioned(direction='default'),
-        Health(value=100),
+        Health(value=100, maxValue=100),
         ChasePlayer(speed = 2),
         Collidable(
             call_name = "zombie"
@@ -242,17 +243,17 @@ def create_bounce(position):
         ),
         IngameObject(position=position, size=(64, 64)),
         Directioned(direction='default'),
-        Health(value=100),
         ChasePlayer(speed = 2),
+        Health(value=40, maxValue=40),
         Collidable(
-            call_name = "zombie"
+            call_name = 'bounce',
+            doPush = True
         ),
         Damager(
-            damagemin=10, # Someone change these, they're op.
-            damagemax=20,
+            damagemin=5, # Someone change these, they're op.
+            damagemax=10,
             cooldown=1.5
-        ),
-
+        )
     ]
 
 
@@ -272,7 +273,7 @@ def create_sheep(position):
         ),
         IngameObject(position=position, size=(64,64)),
         Directioned(direction='default'),
-        Health(value=100),
+        Health(value=30, maxValue=30),
         MoveRandom()
     ]
 def create_BOSS(position):
@@ -291,7 +292,7 @@ def create_BOSS(position):
         ),
         IngameObject(position=position, size=(100,100)),
         Directioned(direction='default'),
-        Health(value=500),
+        Health(value=500, maxValue=500),
         MoveRandom(),
         Collidable(
             call_name = "zombie"
@@ -300,7 +301,7 @@ def create_BOSS(position):
             damagemin=25, # Someone change these, they're op.
             damagemax=75,
             cooldown=5
-        ),
+        )
     ]
 def create_chicken(position):
     return [
@@ -315,11 +316,10 @@ def create_chicken(position):
             moving=False
         ),
 
-        Health(value=100),
+        Health(value=30, maxValue=30),
         IngameObject(position=position, size=(64,64)),
         Directioned(direction='default'),
         MoveRandom(),
-        Health(value=100),
 
         IngameObject(position=position, size=(50,50)),
         Directioned(
@@ -333,7 +333,7 @@ def create_chicken(position):
 def create_plant(game, name, path, position):
     return [
         IngameObject(position=position,size=(64, 64)),
-        Health(value=100),
+        Health(value=100, maxValue=100),
         Energy(value=0),
         WaterBar(value=50),
         Crops(name=name, growth_rate=3,dehydration_rate=2, max_growth_stage=3,growth_stage=0),

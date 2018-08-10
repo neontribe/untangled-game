@@ -192,7 +192,8 @@ class GameState:
             Damager(
                 damagemin=10,
                 damagemax=20,
-                cooldown=1.5
+                cooldown=1.5,
+                enemyFaction = False
             ),
             Wieldable(wielded = True)
         ])

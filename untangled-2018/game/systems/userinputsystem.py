@@ -85,7 +85,27 @@ class UserInputSystem(System):
                         if GameAction in entity:
                             gaComponent = entity[GameAction]
                             gaComponent.action = "drink"
+
+                    if Inventory in entity:
+                        activeSlot = None
+                        if keysdown[pygame.locals.K_1]:
+                            activeSlot = 0
+                        elif keysdown[pygame.locals.K_2]:
+                            activeSlot = 1
+                        elif keysdown[pygame.locals.K_3]:
+                            activeSlot = 2
+                        elif keysdown[pygame.locals.K_4]:
+                            activeSlot = 3
+                        elif keysdown[pygame.locals.K_5]:
+                            activeSlot = 4
+                        elif keysdown[pygame.locals.K_6]:
+                            activeSlot = 5
                         
+                        if activeSlot is not None:
+                            entity[Inventory].activeSlot = activeSlot
+                            if activeSlot in entity[Inventory].items.keys():
+                                entity[Inventory].activeItem = entity[Inventory].items[activeSlot]
+
 
                     if hoped_vel != (0, 0):
                         # Get us to the right speed

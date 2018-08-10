@@ -3,6 +3,8 @@ from game.components import *
 from game.entities import *
 import pygame
 
+ITEMSNODROP = []
+
 class InventorySystem(System):
     """This system updates the player's inventory"""
 
@@ -88,7 +90,7 @@ class InventorySystem(System):
 
     def itemDroppedOff(self, game, entity, direction, typeOfDrop):
         # Get the item id and quantity
-        if entity[Inventory].activeItem:
+        if entity[Inventory].activeItem and entity[Inventory].activeSlot != 0:
             item = entity[Inventory].activeItem
 
             # Sorting out the position of the new entity

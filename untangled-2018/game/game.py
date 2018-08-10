@@ -142,20 +142,7 @@ class GameState:
             for i in range(8):
                 spawnx = random.randrange(map_ent[Map].width * map_ent[SpriteSheet].tile_size)
                 spawny = random.randrange(map_ent[Map].height * map_ent[SpriteSheet].tile_size)
-                self.add_entity(create_house((spawnx, spawny)))     
-
-    def on_player_join(self, player_id):
-        """This code gets run whenever a new player joins the game."""
-        # Let's give them an entity that they can control
-        self.add_entity(create_player(player_id))
-
-    def on_player_quit(self, player_id):
-        """This code gets run whever a player exits the game."""
-        # Remove any entities tied to them - e.g. the player they control
-        tied = []
-        for key, entity in list(self.entities.items()):
-            if PlayerControl in entity and entity[PlayerControl].player_id == player_id:
-                del self.entities[key]
+                self.add_entity(create_house((spawnx, spawny)))
 
     def update(self, dt: float, events):
         """This code gets run 60fps. All of our game logic stems from updating

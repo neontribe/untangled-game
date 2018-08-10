@@ -81,11 +81,14 @@ class RenderSystem(System):
 
         self.draw_particles(game, "below", our_center)
 
+        #pygame.draw.rect(self.screen,(255,0,0),Rect(0,0,self.screen.get_width(), self.screen.get_height()))
+
         previousCollidables = []
 
         # Render everything we can
         for key, entity in game.entities.items():
             r = False
+            
             # Don't check for items being picked up
             if CanPickUp in entity:
                 if entity[CanPickUp].pickedUp:
@@ -93,6 +96,17 @@ class RenderSystem(System):
                         wieldable = entity[Wieldable]
                         if not wieldable.wielded:
                             continue
+
+            if IngameObject in entity:
+                # Where are they relative to us?
+                pos = entity[IngameObject].position
+                rel_pos = (pos[0] - our_center[0], pos[1] - our_center[1])
+                screen_pos = (
+                    rel_pos[0] + game.framework.dimensions[0]/2,
+                    rel_pos[1] + game.framework.dimensions[1]/2
+                )
+                if screen_pos[0] < 0 or screen_pos[0] > self.screen.get_width() or screen_pos[1] < 0 or screen_pos[1] > self.screen.get_height():
+                    continue
 
             #Check collisions for entity against all previously checked entities
             if IngameObject in entity and Collidable in entity:
@@ -109,6 +123,14 @@ class RenderSystem(System):
 
             # Is this an entity we should draw?
             if IngameObject in entity and SpriteSheet in entity:
+                
+                # Where are they relative to us?
+                pos = entity[IngameObject].position
+                rel_pos = (pos[0] - our_center[0], pos[1] - our_center[1])
+                screen_pos = (
+                    rel_pos[0] + game.framework.dimensions[0]/2,
+                    rel_pos[1] + game.framework.dimensions[1]/2
+                )
                 spritesheet = entity[SpriteSheet]
                 if Wieldable in entity:
                     wieldable = entity[Wieldable]
@@ -133,26 +155,15 @@ class RenderSystem(System):
                         if Directioned in entity:
                             entity[Directioned] = direction
 
-                # Where are they relative to us?
-                pos = entity[IngameObject].position
-                rel_pos = (pos[0] - our_center[0], pos[1] - our_center[1])
-                screen_pos = (
-                    rel_pos[0] + game.framework.dimensions[0]/2,
-                    rel_pos[1] + game.framework.dimensions[1]/2
-                )
 
                 img_indexes = spritesheet.tiles["default"]
-
 
                 # Will they be facing a certain direction?
                 if Directioned in entity:
                     alts = spritesheet.tiles[entity[Directioned].direction]
                     if alts != None:
                         img_indexes = alts
-               
-
                         
-
                 # Get the image relevent to how far through the animation we are
                 if spritesheet.moving:
                     img_index = img_indexes[frame % len(img_indexes)]
@@ -326,6 +337,9 @@ class RenderSystem(System):
         pos = (particle.position[0], particle.position[1])
         rel_pos = (pos[0] - our_center[0], pos[1] - our_center[1])
         screen_pos = (round(rel_pos[0] + game.framework.dimensions[0] // 2), round(rel_pos[1] + game.framework.dimensions[1] // 2))
+        if screen_pos[0] < 0 or screen_pos[0] > self.screen.get_width() or screen_pos[1] < 0 or screen_pos[1] > self.screen.get_height():
+            particle.doKill = True
+            return
         self.particleFunc[particle.particleType](particle, screen_pos)
 
     def particle_square(self, p, pos):

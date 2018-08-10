@@ -4,7 +4,7 @@ from lib.system import System
 from game.components import *
 from game.systems.particlesystem import Particle
 
-SPEED = 4
+SPEED = 10
 
 class UserInputSystem(System):
     """This system updates certain entities based on the arrow keys."""
@@ -51,6 +51,9 @@ class UserInputSystem(System):
                         entity[SpriteSheet].moving = moved
                     if Directioned in entity:
                         entity[Directioned].direction = direction
+                    if ParticleEmitter in entity:
+                        if entity[ParticleEmitter].onlyWhenMoving:
+                            entity[ParticleEmitter].doCreateParticles = moved
 
                     # Checks if mouse is pressed
                     if mousedown:
@@ -73,9 +76,18 @@ class UserInputSystem(System):
                                     # If the mouse is pressed, it changes the active slot
                                     if mousedown[0]:
                                         entity[Inventory].activeSlot = activeSlot
+
+                                        # Get active item, if there is one
+                                        if activeSlot * 2 < len(inv.items):
+                                            activeItemKey = inv.items[activeSlot * 2]
+                                            activeItemQuantity = inv.items[activeSlot * 2 + 1]
+
+                                            entity[Inventory].activeItem = (activeItemKey, activeItemQuantity)
+
+                                        # No hovering anymore
                                         entity[Inventory].hoverSlot = None
                                     
-                                    # If the mouse only hovers, change the hover slot
+                                    # If the mouse only hovers, and does not click, change the hover slot
                                     else:
                                         entity[Inventory].hoverSlot = activeSlot
                                         

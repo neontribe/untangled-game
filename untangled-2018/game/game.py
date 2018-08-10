@@ -1,14 +1,27 @@
 import uuid
+
+import random
+from random import randint
+
 import time
+import random
+from random import randint
+
 
 from game.components import *
+from game.entities import *
 from game.systems.rendersystem import RenderSystem
 from game.systems.userinputsystem import UserInputSystem
 from game.systems.profilesystem import ProfileSystem
+from game.systems.animalsystem import AnimalSystem
+from game.systems.AI_system import AI_system
 from game.systems.collisionsystem import CollisionSystem, CollisionCall
 from game.systems.particlesystem import ParticleSystem
 from game.systems.soundsystem import SoundSystem
+from game.systems.damagesystem import DamageSystem
 from game.systems.inventorysystem import *
+from game.collisions import Class_Collisions
+
 
 class GameState:
     """Our core code.
@@ -39,68 +52,81 @@ class GameState:
         self.collisionSystem = CollisionSystem()
         self.inventorySystem = InventorySystem()
         self.particles = ParticleSystem(self.renderSystem)
+        self.damagesystem = DamageSystem()
+        self.collisions = Class_Collisions(self)
 
         # Add all systems we want to run
         self.systems.extend([
             ProfileSystem(name, gender),
             UserInputSystem(),
+            AI_system(),
+            AnimalSystem(),
             self.collisionSystem,
             self.inventorySystem,
-            RenderSystem(self.screen),
             self.renderSystem,
             self.particles,
-            SoundSystem()
+            SoundSystem(),
+            self.damagesystem
         ])
 
-        # If we're hosting, we need to register that we joined our own game
         if self.net.is_hosting():
+            # If we're hosting, we need to register that we joined our own game
+            self.add_entity(create_map('assets/maps/boi.tmx'))
             self.on_player_join(self.net.get_id())
-            self.add_entity([
-                BackgroundMusic (
-                    path="assets/sounds/overworld.wav"
-                )
-            ])
-            self.add_entity([
-                IngameObject(position=(100,100), size=(49,49)),
-                SpriteSheet(
-                    path='./assets/sprites/test.png',
-                    tile_size=8,
-                    moving=False,
-                    tiles={
-                        'default':[0]
-                    }
-                ),
-                Collidable(
-                    call = CollisionCall()
-                ),
-                # Every item has this component
-                CanPickUp()
-            ])
-            self.add_entity([
-                IngameObject(position=(-100,100), size=(70,70)),
-                SpriteSheet(
-                    path='./assets/sprites/wand.png',
-                    tile_size=8,
-                    moving=False,
-                    tiles={
-                        'default':[2]
-                    }
-                ),
-                Collidable(
-                    call = CollisionCall()
-                ),
-                # Every item has this component
-                CanPickUp(),
-            ParticleEmitter(
-                particleTypes = ["star"],
-                offset = (0,0),
-                velocity = (0,-1),
-                acceleration = (0,0.1),
-                colour = (255, 255, 69),
-                randomness = (5,0),
-                lifespan = 20
-            )
-            ])
+            self.add_entity(create_test_item_object(animated=True))
+            self.add_entity(create_wand())
+            
+            # Spawn zombies
+            for i in range(4):
+                spawnx = random.randint(-4000, 4000)
+                spawny = random.randint(-4000, 4000)
+                self.add_entity(create_zombie(self, (spawnx, spawny)))
+
+            # Spawn bounces
+            for i in range(4):
+                spawnx = random.randint(-4000, 4000)
+                spawny = random.randint(-4000, 4000)
+                self.add_entity(create_bounce((spawnx, spawny)))
+
+            # Spawn sheep
+            for i in range(30):
+                spawnx = random.randint(-4000, 4000)
+                spawny = random.randint(-4000, 4000)
+                self.add_entity(create_sheep((spawnx, spawny)))
+
+            # Spawn chicken
+            for i in range(30):
+                spawnx = random.randint(-4000, 4000)
+                spawny = random.randint(-4000, 4000)
+                self.add_entity(create_chicken((spawnx, spawny)))
+            
+            # Spawn NPC
+            for i in range(55):
+                spawnx = random.randint(-4000, 4000)
+                spawny = random.randint(-4000, 4000)
+                self.add_entity(create_NPC((spawnx, spawny)))
+            
+            # Spawn house
+            for i in range(25):
+                spawnx = random.randint(-5000, 5000)
+                spawny = random.randint(-5000, 5000)
+                self.add_entity(create_house((spawnx, spawny)))     
+
+            # We need to make all other entities at the start of the game here
+            self.add_entity(create_background_music())
+
+    def on_player_join(self, player_id):
+        """This code gets run whenever a new player joins the game."""
+        # Let's give them an entity that they can control
+        self.add_entity(create_player(player_id))
+
+    def on_player_quit(self, player_id):
+        """This code gets run whever a player exits the game."""
+        # Remove any entities tied to them - e.g. the player they control
+        tied = []
+        for key, entity in list(self.entities.items()):
+            if PlayerControl in entity and entity[PlayerControl].player_id == player_id:
+                del self.entities[key]
 
     def update(self, dt: float, events):
         """This code gets run 60fps. All of our game logic stems from updating
@@ -116,69 +142,6 @@ class GameState:
         # Send our changes to everyone else
         self.net.push_game(self)
 
-    def on_player_join(self, player_id):
-        """This code gets run whenever a new player joins the game."""
-        # Let's give them an entity that they can control
-        self.add_entity([
-            # They should have a position and size in game
-            IngameObject(position=(0, 0), size=(64, 64)),
-
-            # They should have a health
-            Health(value=100),
-
-            # They should have an inventory
-            Inventory([]),
-
-            # They should be facing a certain direction
-            Directioned(direction='default'),
-            WaterBar(value=100),
-
-            # They will have a name and gender
-            Profile(),
-
-            # We know what they may look like
-            SpriteSheet(
-                path='./assets/sprites/player.png',
-                tile_size=48,
-                moving=False,
-                tiles={
-                    'default':[58],
-                    'left':[70,71,69],
-                    'right':[82,83,81],
-                    'up':[94,95,93],
-                    'down':[58,59,57]
-                }
-            ),
-
-            # The player who has connected con control them with the arrow keys
-            PlayerControl(player_id=player_id),
-
-            Collidable(
-                call = CollisionCall(
-                    #start = ,
-                    #update = lambda event: print("Player Collision Update"),
-                    end = lambda event: print("Item no longer exists")
-                )
-            ),
-            ParticleEmitter(
-                particleTypes = ["ring","star"],
-                offset = (0,0),
-                velocity = (1,1),
-                directionMode = 2,
-                colour = (137, 63, 69),
-                onlyWhenMoving = True,
-                randomness = (3,3)
-            )
-        ])
-
-    def on_player_quit(self, player_id):
-        """This code gets run whever a player exits the game."""
-        # Remove any entities tied to them - e.g. the player they control
-        tied = []
-        for key, entity in list(self.entities.items()):
-            if PlayerControl in entity and entity[PlayerControl].player_id == player_id:
-                del self.entities[key]
-
     def add_entity(self, components):
         """Add an entity to the game, from a set of components. Returns a unique
         ID for the entity."""
@@ -186,17 +149,13 @@ class GameState:
         self.entities[key] = {type(value): value for (value) in components}
         if IngameObject in self.entities[key]:
             self.entities[key][IngameObject].id = key
-        if Collidable in self.entities[key]:
-            self.registerCollisionCalls(key, self.entities[key])
-        if Inventory in self.entities[key]:
-            self.registerInventory(key)
         return key
-
-    def registerCollisionCalls(self, key, entity):
-        self.collisionSystem.COLLISIONCALLS[key] = entity[Collidable].call
-
-    def registerInventory(self, key):
-        self.entities[key][Collidable].call.onCollisionStart = lambda event: self.inventorySystem.itemPickedUp(self, event, key)
 
     def itemPickedUp(self, event):
         print(event.keys)
+
+    def get_collision_functions(self, entity):
+        if Collidable in entity:
+            return self.collisions.get_functions(entity[Collidable].call_name)
+        else:
+            return None

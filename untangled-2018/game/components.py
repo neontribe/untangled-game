@@ -2,7 +2,7 @@ from typing import List
 from typing import Tuple
 from typing import Union
 from pygame import Rect
-import random
+import random, time
 
 from lib.component import component
 from lib.framework import Framework
@@ -20,6 +20,18 @@ class IngameObject:
 class Health:
     """Gives the entity health"""
     value: int
+@component(networked=True)
+class Energy:
+    """"Gives the entity energy"""
+    value: int
+
+@component(networked=True)
+class Damager:
+    damagemin: int
+    damagemax: int
+    cooldown: float
+    lasthit: float = 0.0
+    exclude = []
 
 @component(networked=True)
 class CanPickUp:
@@ -36,16 +48,17 @@ class WaterBar:
 class Inventory:
     """Gives a player items"""
     items: List[Tuple[str, int]]
-    maxSlots: int = 6 # it represents the last index, not the number of slots
+    maxSlots: int = 6
     activeSlot: int = 0
     hoverSlot: int = None
+    activeItem: Tuple[str, int] = ()
 
     itemSlotOffset: int = 6
     slotOffset: int = 10
     slotSize: int = 55
 
     height: float = slotOffset*2 + slotSize
-    width: float = slotSize * maxSlots + (slotOffset+1) * maxSlots * 2
+    width: float = slotSize * maxSlots + slotOffset * maxSlots + slotOffset
 
     x: float = Framework.dimensions[0] / 2 - width / 2
     y: float = Framework.dimensions[1] - height - slotOffset
@@ -54,7 +67,7 @@ class Inventory:
 class SpriteSheet:
     """Gives an entity an image and animations."""
     path: str
-    tile_size: int
+    tile_size: Union[int, Tuple[int, int]]
     tiles: dict
     moving: bool = False
 
@@ -69,6 +82,19 @@ directionVelocity = {
     'up':[0,-1],
     'down':[0,1]
 }
+
+@component(networked=True)
+class Tileset:
+    tile_size: int
+    path: str
+
+
+@component(networked=True)
+class Map:
+    path: str
+    width: int
+    height: int
+    grid: list
 
 @component(networked=True)
 class Directioned:
@@ -91,10 +117,19 @@ class PlayerControl:
     """Lets an entity be controlled by specific player's arrow keys."""
     player_id: str
 
+@component()
+class MoveRandom:
+    direction: str = 'default'
+    lastmove: float = 0
+
+@component()
+class ChasePlayer:
+    speed: int
+
 @component(networked=True)
 class ParticleEmitter:
     # square / circle / ring / star
-    # blank means random 
+    # blank means random
     particleTypes: list
     # offset from IngameObject
     offset: Tuple[int,int] = (0,0)
@@ -114,12 +149,15 @@ class ParticleEmitter:
     # 2 - times by inverse direction (so particles go in opposite to facing)
     directionMode: int = 0
     onlyWhenMoving: bool = False
+    size: int = 8
+    cooldown: float = 0.0
 
     #DO NOT USE THIS MANUALLY
     _prePosition = (0,0)
+    _lastGet = 0
 
     def getParticle(self,entity):
-        if self.doCreateParticles and IngameObject in entity:
+        if self.doCreateParticles and IngameObject in entity and self._lastGet + self.cooldown < time.time():
             doParticles = True
             if self.onlyWhenMoving:
                 if self._prePosition == entity[IngameObject].position:
@@ -148,17 +186,17 @@ class ParticleEmitter:
                     acceleration = self.acceleration,
                     colour = self.colour,
                     below = (self.height == "below"),
-                    randomness = self.randomness
+                    randomness = self.randomness,
+                    size = self.size
                 )
+                self._lastGet = time.time()
                 return part
         return None
 
-        
-
-@component(networked=False)
+@component(networked=True)
 class Collidable:
     """Lets an entity collide with another collidable"""
-    call: CollisionCall
+    call_name: str
     canCollide: bool = True
     #rect to override
     customCollisionBox = None
@@ -178,3 +216,4 @@ class Collidable:
             entity[IngameObject].size[0],
             entity[IngameObject].size[1]
         )
+

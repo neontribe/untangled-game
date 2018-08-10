@@ -79,6 +79,7 @@ class RenderSystem(System):
 
         # Render everything we can
         for key, entity in game.entities.items():
+            r = False
             # Don't check for items being picked up
             if CanPickUp in entity:
                 if entity[CanPickUp].pickedUp:
@@ -94,6 +95,8 @@ class RenderSystem(System):
                     previousCollidables.append((key,entity[Collidable]))
 
             if IngameObject in entity and ParticleEmitter in entity:
+                if entity[ParticleEmitter].colour == (-1,-1,-1):
+                    r = True
                 new_particles = entity[ParticleEmitter].getParticles(entity)
                 for new_part in new_particles:
                     game.particles.add_particle(new_part)
@@ -215,7 +218,7 @@ class RenderSystem(System):
                     name = entity[Profile].name
 
                     # Draw our name with our font in white
-                    rendered_text_surface = self.font.render(name, False, entity[Profile].colour)
+                    rendered_text_surface = self.font.render(name, False, entity[Profile].colour if not r else Particle.get_random_colour())
 
                     # Move the nametag above the player
                     rect.y -= 100

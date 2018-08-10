@@ -207,7 +207,7 @@ class ParticleEmitter:
                         rand = (0,0)
                     col = self.colour
                     if col == (-1,-1,-1):
-                        col = random.choice([(255,0,0),(255,255,0),(0,255,0),(0,255,255),(0,0,255),(255,0,255)])
+                        col = Particle.get_random_colour()
                     if self.directionMode > 0 and Directioned in entity:
                         dire = entity[Directioned].toVelocity()
                         modi = 1

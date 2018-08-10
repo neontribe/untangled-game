@@ -16,14 +16,14 @@ PROFILE_SPRITES = {
         'moving':False
     },
     'Boy2': {
-        'path': './assets/sprites/character-animation-finished',
-        'tile_size': 48,
+        'path': './assets/sprites/character-animation-finished!.png',
+        'tile_size': (22,42),
         'tiles':{
-            'default': [10],
-            'left': [22, 23, 21],
-            'right': [34, 35, 33],
-            'up': [46, 47, 45],
-            'down': [10, 11, 9]
+            'default': [13],
+            'left': [6, 7,  8, 9, 10 ],
+            'right': [0, 1, 2, 3, 4, 5],
+            'up': [19, 20, 21, 22],
+            'down': [13, 14, 15, 16]
         },
         'moving': False
     },

@@ -4,26 +4,26 @@ from game.components import *
 # The default images for each gender
 PROFILE_SPRITES = {
     'Girl': {
-        'path': './assets/sprites/player.png',
-        'tile_size': 48,
+        'path': './assets/sprites/female_charachter_spritesheet_full.png',
+        'tile_size': (22,42),
         'tiles':{
-            'default': [58],
-            'left': [70, 71, 69],
-            'right': [82, 83, 81],
-            'up': [94, 95, 93],
-            'down': [58, 59, 57]
+            'default': [13],
+            'left': [6, 7,  8, 9, 10 ],
+            'right': [0, 1, 2, 3, 4, 5],
+            'up': [18, 19, 20, 21],
+            'down': [12, 13, 14, 15]
         },
         'moving':False
     },
-    'Boy2': {
+    'Boy': {
         'path': './assets/sprites/character-animation-finished!.png',
         'tile_size': (22,42),
         'tiles':{
             'default': [13],
             'left': [6, 7,  8, 9, 10 ],
             'right': [0, 1, 2, 3, 4, 5],
-            'up': [19, 20, 21, 22],
-            'down': [13, 14, 15, 16]
+            'up': [18, 19, 20, 21],
+            'down': [12, 13, 14, 15]
         },
         'moving': False
     },

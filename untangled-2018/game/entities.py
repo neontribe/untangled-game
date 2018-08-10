@@ -326,7 +326,6 @@ def create_chicken(position):
         IngameObject(position=position, size=(64,64)),
         Directioned(direction='default'),
         MoveRandom(),
-
         IngameObject(position=position, size=(50,50)),
         Directioned(
             direction='default',
@@ -342,7 +341,7 @@ def create_plant(game, name, path, position):
         Health(value=100, maxValue=100),
         Energy(value=0),
         WaterBar(value=3),
-        Crops(name=name, growth_rate=1,dehydration_rate=0.05, max_growth_stage=3,growth_stage=0,plantage_time=time.time()),
+        Crops(name=name, growth_rate=0.05,dehydration_rate=0.05, max_growth_stage=3,growth_stage=0,plantage_time=time.time()),
         SpriteSheet(path=path,tile_size=16,tiles={
             'default': [0, 1, 2, 3]
         })

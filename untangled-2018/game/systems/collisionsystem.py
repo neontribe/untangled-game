@@ -20,7 +20,7 @@ class CollisionSystem(System):
         if others == None:
             return
         for against in others:
-            if collidable == against[1]:
+            if key == against[0]:
                 continue
             else:
                 rectA = collidable.toRect(game.entities[key])

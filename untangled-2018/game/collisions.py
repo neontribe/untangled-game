@@ -13,8 +13,8 @@ class Class_Collisions:
         'zombie': CollisionCall(
             update = lambda game, event: game.damagesystem.onDamage(event)
         ),
-        'test': CollisionCall(
-
+        'item': CollisionCall(
+            update = lambda game, event: game.inventorySystem.mergeStacks(event)
         ),
         'bounce': CollisionCall(
 

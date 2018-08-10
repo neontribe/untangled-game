@@ -8,7 +8,30 @@ class InventorySystem(System):
 
     def update(self, game, dt: float, events):
         pass
-    
+
+    def mergeStacks(self, event):
+        IDs = []
+        entities = []
+        for k in event.keys:
+            entity = event.game.entities[k]
+            if CanPickUp not in entity:
+                return
+            else:
+                if entity[CanPickUp].itemID not in IDs:
+                    IDs.append(entity[CanPickUp].itemID)
+                entities.append(entity)
+        
+        if len(IDs) == 1:
+            entKeep = entities[0]
+            entDest = entities[1]
+
+            if entKeep[GameAction].action == "delete" or entDest[GameAction].action == "delete":
+                return
+
+            entKeep[CanPickUp].quantity += entDest[CanPickUp].quantity
+
+            entDest[GameAction].action = "delete"
+
     def itemPickedUp(self, event):
         itemKey, itemEntity = event.get_entity_with_component(CanPickUp)
         invKey, inventoryEntity = event.get_entity_with_component(Inventory)
@@ -64,7 +87,7 @@ class InventorySystem(System):
                 inventoryEntity[Inventory].usedSlots[nextSlot] = True
 
     def itemDroppedOff(self, game, entity, direction, typeOfDrop):
-        # Get the item uuid, item id and quantity
+        # Get the item id and quantity
         if entity[Inventory].activeItem:
             item = entity[Inventory].activeItem
 
@@ -73,7 +96,7 @@ class InventorySystem(System):
             offsetX, offsetY = (0, 0)
             entityPos = entity[IngameObject].position
 
-            if direction == "up":
+            if direction == "up" :
                 offsetY = -disDropping
             elif direction in ("down", "default"):
                 offsetY = disDropping
@@ -82,6 +105,15 @@ class InventorySystem(System):
             elif direction == "right":
                 offsetX = disDropping
 
+            # print(entity[Inventory].mapMinY)
+            # print(entity[IngameObject].position[1])
+
+            # # If the offset is out of bounds, inverse it
+            # if entityPos[1] + disDropping > entity[Inventory].mapMaxY and entityPos[1] - disDropping < entity[Inventory].mapMinY:
+            #     offsetY = -offsetY
+            # elif entityPos[0] + disDropping > entity[Inventory].mapMaxX and entityPos[0] - disDropping < entity[Inventory].mapMinX:
+            #     offsetX = -offsetX
+            
             # If you drop all of the items at once]
             if typeOfDrop.endswith("stack") or (typeOfDrop.endswith("one") and item[1] == 1):
                 newItemEntityKey = game.add_entity(create_test_item_object(item[0], item[1]))

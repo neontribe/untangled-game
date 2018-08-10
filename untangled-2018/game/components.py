@@ -57,7 +57,7 @@ class SpriteSheet:
 class Inventory:
     """Gives a player items"""
     items = {}
-    maxSlots: int = 6
+    maxSlots: int = 10
     activeSlot: int = 0
     hoverSlot: int = None
     activeItem: Tuple[str, int, SpriteSheet, int] = None
@@ -73,6 +73,11 @@ class Inventory:
     y: float = 0
     height: float = slotOffset*2 + slotSize
     width: float = slotSize * maxSlots + slotOffset * maxSlots + slotOffset
+
+    mapMinX: float = 0
+    mapMinY: float = 0
+    mapMaxX: float = 0
+    mapMaxY: float = 0
 
     def getFirst(self):
         for i, v in enumerate(self.usedSlots):

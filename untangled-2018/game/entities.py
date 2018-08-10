@@ -242,7 +242,7 @@ def create_test_item_object(itemID, numItems, pos=(200, 300)):
                 moving=True
             ),
             Collidable(
-                call_name = 'bounce'
+                call_name = 'item'
             ),
             # Every item has this component
             CanPickUp(quantity=numItems, itemID="test-item-bounce"),
@@ -261,7 +261,7 @@ def create_test_item_object(itemID, numItems, pos=(200, 300)):
                 moving=True
             ),
             Collidable(
-                call_name = 'bounce'
+                call_name = 'item'
             ),
             # Every item has this component
             CanPickUp(quantity=numItems, itemID="water-bucket"),
@@ -280,7 +280,7 @@ def create_test_item_object(itemID, numItems, pos=(200, 300)):
                 }
             ),
             Collidable(
-                call_name = 'test'
+                call_name = 'item'
             ),
             # Every item has this component
             CanPickUp(quantity=numItems, itemID="test-item"),

@@ -41,6 +41,9 @@ class RenderSystem(System):
                 if game.net.is_me(entity[PlayerControl].player_id):
                     our_center = entity[IngameObject].position
                     break
+        
+        invMapX = {"min": 0, "max": 0}
+        invMapY = {"min": 0, "max": 0}
 
         # Draw tilemap
         for key, entity in game.entities.items():
@@ -52,6 +55,11 @@ class RenderSystem(System):
                 min_y = int((our_center[1] - game.framework.dimensions[1]/2) / spritesheet.tile_size)
                 max_x = int((our_center[0] + game.framework.dimensions[0]/2) / spritesheet.tile_size)
                 max_y = int((our_center[1] + game.framework.dimensions[1]/2) / spritesheet.tile_size)
+
+                # We store these values so the player doesn't drop items outside of the map
+                invMapX = {"min": min_x, "max": max_x * len(map.grid)}
+                invMapY = {"min": min_y, "max": max_y * len(map.grid[0])}
+
                 for y in range(max(min_y, 0), min(max_y + 1, len(map.grid))):
                     for x in range(max(min_x, 0), min(max_x + 1, len(map.grid[y]))):
                         tile = map.grid[y][x]
@@ -202,6 +210,12 @@ class RenderSystem(System):
                         # Debugging if statement
                         if Inventory in entity:
                             inv = entity[Inventory]
+
+                            # Store the map borders
+                            entity[Inventory].mapMinX = invMapX["min"]
+                            entity[Inventory].mapMinY = invMapY["min"]
+                            entity[Inventory].mapMaxX = invMapX["max"]
+                            entity[Inventory].mapMaxY = invMapY["max"]
 
                             # Inventory bar colours
                             inventoryBackgroundColour = (183, 92, 5)

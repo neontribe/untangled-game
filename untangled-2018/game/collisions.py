@@ -12,13 +12,13 @@ class Class_Collisions:
             start = lambda game, event: game.inventorySystem.itemPickedUp(event)
         ),
         'zombie': CollisionCall(
-            update = lambda game, event: game.damagesystem.onDamage(event)
+            update = lambda game, event: damagerUpdate(event)
         ),
         'test': CollisionCall(
 
         ),
         'bounce': CollisionCall(
-            update = lambda game,event: avoidOthers(event)
+            update = lambda game,event: damagerUpdate(event)
         ),
         'plant': CollisionCall(
             start = lambda game, event: game.plantsystem.oncollidestart(event),
@@ -31,6 +31,10 @@ class Class_Collisions:
             return self.COLLISIONS[name]
         else:
             print("No collision for " + name + " found")
+
+def damagerUpdate(event):
+    event.game.damagesystem.onDamage(event)
+    avoidOthers(event)
 
 def avoidOthers(event):
     entities = []

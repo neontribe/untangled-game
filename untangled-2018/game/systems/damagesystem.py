@@ -12,12 +12,13 @@ class DamageSystem(System):
                     del game.entities[key]
 
     def onDamage(self, event):
-        targetKey, target = event.get_entity_with_component(Health)
-        if target != None:
-            if ChasePlayer in target:
-                return
-            otherKey, other = event.get_entity_with_component(Damager, [targetKey])
-            if other != None:
+        otherKey, other = event.get_entity_with_component(Damager)
+        if other != None:
+            targetKey, target = event.get_entity_with_component(Health,[otherKey])
+            if target != None:
+                if ChasePlayer in target:
+                    return
+                print("Non chase-player")
                 other_DamagerComponent = other[Damager]
                 if target[IngameObject].id in other_DamagerComponent.exclude:
                     return 

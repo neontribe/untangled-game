@@ -35,7 +35,6 @@ class PlantSystem(System):
                     spritesheet = entity[SpriteSheet]
                     water_bar = entity[WaterBar]
                     growth_bar = entity[Energy]
-                    timeDifference = time.time() - crops.plantage_time
 
                     water_bar.value = max(water_bar.value-crops.dehydration_rate, 1)
 
@@ -50,7 +49,7 @@ class PlantSystem(System):
                         if crops.growth_stage == crops.max_growth_stage:
                             growth_bar.value = maxGrowth
                         else:
-                            growth_bar.value = (timeDifference * crops.growth_rate) - (crops.growth_stage * maxGrowth)
+                            growth_bar.value += crops.growth_rate
 
                     spritesheet.tiles['default'] = [crops.growth_stage]
 

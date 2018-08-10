@@ -353,7 +353,10 @@ def create_plant(game, name, path, position):
         SpriteSheet(path=path,tile_size=16,tiles={
             'default': [0, 1, 2, 3]
         }),
-        GameAction()
+        GameAction(),
+        Collidable(
+            call_name = 'plant'
+        )
     ]
 
 

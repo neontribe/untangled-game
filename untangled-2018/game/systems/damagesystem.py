@@ -29,5 +29,8 @@ class DamageSystem(System):
                     other_DamagerComponent.lasthit = time.time()
                     event.game.particles.add_damage_particle(damage, target[IngameObject].position)
                 if target[Health].value<=0:
-                    target[Health].value=100
-                    target[IngameObject].position=(2000, 2000)
+                    if PlayerControl in target:
+                        target[Health].value=100
+                        target[IngameObject].position=(2000, 2000)
+                    elif GameAction in target:
+                        target[GameAction].action = 'delete'

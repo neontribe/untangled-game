@@ -326,10 +326,10 @@ class RenderSystem(System):
 
                                 slotIndex += 1
             if Clock in entity:
-                time_names = ["Dusk","Dawn","Morning","Noon","Afternoon","Evening"]
+                time_names = ("Dusk","Dawn","Morning","Noon","Afternoon","Evening")
                 rendered_text_surface = self.font.render(time_names[entity[Clock].minute], False, (255, 255, 255))
                 rect = rendered_text_surface.get_rect()
-                rect.topleft= (10,5) 
+                rect.topleft = (10,5) 
                 self.screen.blit(rendered_text_surface, rect)
                 
                 cycle= entity[Clock].cycle

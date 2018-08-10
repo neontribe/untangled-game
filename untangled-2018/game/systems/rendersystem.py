@@ -21,11 +21,14 @@ class RenderSystem(System):
             'square': lambda p, s: self.particle_square(p,s),
             'circle': lambda p, s: self.particle_circle(p,s),
             'ring': lambda p, s: self.particle_ring(p,s),
-            'star': lambda p, s: self.particle_star(p,s)
+            'star': lambda p, s: self.particle_star(p,s),
+            'text': lambda p, s: self.particle_text(p,s)
         }
 
         font_path = 'assets/fonts/alterebro-pixel-font.ttf'
         self.font = pygame.font.Font(font_path, 45)
+        self.damageFont = pygame.font.Font(font_path, 45)
+        self.damageFont.set_bold(True)
 
     def update(self, game, dt: float, events: list):
         # Step through 15 sprite frames each second
@@ -51,18 +54,16 @@ class RenderSystem(System):
                 spritesheet = entity[SpriteSheet]
                 map = entity[Map]
                 # minimum and maximum tile indexes coordinates possible
-                min_x = int((our_center[0] - game.framework.dimensions[0]/2) / spritesheet.tile_size)
-                min_y = int((our_center[1] - game.framework.dimensions[1]/2) / spritesheet.tile_size)
-                max_x = int((our_center[0] + game.framework.dimensions[0]/2) / spritesheet.tile_size)
-                max_y = int((our_center[1] + game.framework.dimensions[1]/2) / spritesheet.tile_size)
-
-                # We store these values so the player doesn't drop items outside of the map
-                invMapX = {"min": min_x, "max": max_x * len(map.grid)}
-                invMapY = {"min": min_y, "max": max_y * len(map.grid[0])}
-
-                for y in range(max(min_y, 0), min(max_y + 1, len(map.grid))):
-                    for x in range(max(min_x, 0), min(max_x + 1, len(map.grid[y]))):
-                        tile = map.grid[y][x]
+                min_x = math.floor((our_center[0] - game.framework.dimensions[0]/2) / spritesheet.tile_size)
+                min_y = math.floor((our_center[1] - game.framework.dimensions[1]/2) / spritesheet.tile_size)
+                max_x = math.floor((our_center[0] + game.framework.dimensions[0]/2) / spritesheet.tile_size)
+                max_y = math.floor((our_center[1] + game.framework.dimensions[1]/2) / spritesheet.tile_size)
+                for y in range(min_y, max_y + 1):
+                    for x in range(min_x, max_x + 1):
+                        if 0 <= x < map.width and 0 <= y < map.height:
+                            tile = map.grid[y][x]
+                        else:
+                            tile = 20
                         img_indexes = spritesheet.tiles[str(tile-1)]
                         if spritesheet.moving:
                             img_index = img_indexes[frame % len(img_indexes)]
@@ -175,8 +176,9 @@ class RenderSystem(System):
                 if CanPickUp in entity:
                     pygame.draw.circle(self.screen, (0, 255, 0), (int(rect.x + rect.width / 2), int(rect.y + rect.height / 2)), int(rect.width/2))
 
-                # Draw the image
-                self.screen.blit(img, rect)
+                # Draw the image, but only if it's on screen
+                if not (rect.right < 0 or rect.left >= game.framework.dimensions[0] or rect.bottom < 0 or rect.top >= game.framework.dimensions[1]):
+                    self.screen.blit(img, rect)
 
                 # If it is an item show the amount of items there are
                 if CanPickUp in entity:
@@ -206,9 +208,9 @@ class RenderSystem(System):
              
                     # Red health bar
                     if entity[Health].value > 0:
-                        currentHealthPos = (rect.x+healthBarThickness, rect.y-30+healthBarThickness, entity[Health].value, 10-healthBarThickness*2)
+                        healthValue = int(entity[Health].value / entity[Health].maxValue * 100)
+                        currentHealthPos = (rect.x+healthBarThickness, rect.y-30+healthBarThickness, healthValue, 10-healthBarThickness*2)
                         pygame.draw.rect(self.screen, (255, 0, 0), currentHealthPos)
-                
 
                 if WaterBar in entity:
                     if not entity[WaterBar].disabled:
@@ -363,4 +365,8 @@ class RenderSystem(System):
         )
         pygame.draw.line(self.screen,p.colour,hor[0],hor[1],2)
         pygame.draw.line(self.screen,p.colour,ver[0],ver[1],2)
+
+    def particle_text(self, p, pos):
+        text_surface = self.damageFont.render(p.textValue,False,p.colour)
+        self.screen.blit(text_surface,pos)
 

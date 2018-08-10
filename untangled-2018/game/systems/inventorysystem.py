@@ -13,7 +13,7 @@ class InventorySystem(System):
         inventory = entity[Inventory]
         entity[GameAction].action = ""
         for key, data in dict(inventory.items).items():
-            if inventory.items[key]["ID"] == "water-bucket":
+            if inventory.items[key]["ID"] == "water-bucket" and entity[WaterBar].value != 100:
                 entity[WaterBar].value = 100
                 data["quantity"] -= 1
                 if data["quantity"] == 0:

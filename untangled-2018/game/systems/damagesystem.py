@@ -1,5 +1,6 @@
 from typing import Tuple
 from lib.system import System
+from game.systems.particlesystem import Particle
 from game.components import *
 from random import randint
 import math, time
@@ -12,12 +13,12 @@ class DamageSystem(System):
                     del game.entities[key]
 
     def onDamage(self, event):
-        targetKey, target = event.get_entity_with_component(Health)
-        if target != None:
-            if ChasePlayer in target:
-                return
-            otherKey, other = event.get_entity_with_component(Damager, [targetKey])
-            if other != None:
+        otherKey, other = event.get_entity_with_component(Damager)
+        if other != None:
+            targetKey, target = event.get_entity_with_component(Health,[otherKey])
+            if target != None:
+                if ChasePlayer in target:
+                    return
                 other_DamagerComponent = other[Damager]
                 if target[IngameObject].id in other_DamagerComponent.exclude:
                     return 
@@ -25,7 +26,8 @@ class DamageSystem(System):
                     damage = randint(other_DamagerComponent.damagemin, other_DamagerComponent.damagemax)
                     target_HealthComponent = target[Health]
                     target_HealthComponent.value -= damage
-                    other_DamagerComponent.lasthit = time.time()        
+                    other_DamagerComponent.lasthit = time.time()
+                    event.game.particles.add_damage_particle(damage, target[IngameObject].position)
                 if target[Health].value<=0:
                     target[Health].value=100
-                    target[IngameObject].position=(100, 100)
+                    target[IngameObject].position=(2000, 2000)

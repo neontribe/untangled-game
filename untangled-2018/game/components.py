@@ -23,6 +23,7 @@ class IngameObject:
 @component(networked=True)
 class Health:
     """Gives the entity health"""
+    maxValue: int
     value: int
 
 @component(networked=True)
@@ -30,7 +31,7 @@ class Crops:
     """Stores infomation about crops"""
     name: str
     growth_rate: int
-    dehydration_rate: int
+    dehydration_rate: float
     growth_stage:int
     max_growth_stage:int
     plantage_time:float = time.time()
@@ -47,6 +48,8 @@ class Damager:
     cooldown: float
     lasthit: float = 0.0
     enemyFaction: bool = True
+    knockback: bool = True
+    exclude = []
 
 @component(networked=True)
 class CanPickUp:
@@ -177,6 +180,8 @@ class ChasePlayer:
 class Wieldable:
     wielded: bool
     player_id: Union[str, None] = None
+    cooldown = 2
+    _last_hit: float = 0.0
 @component(networked=True)
 class SwingSword:
     swing: bool

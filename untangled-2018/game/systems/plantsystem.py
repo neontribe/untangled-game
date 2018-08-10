@@ -80,6 +80,8 @@ class PlantSystem(System):
                             inventory.usedSlots[wheatKey] = False
                             del inventory.items[wheatKey]
                             isWheatInInventory = False
+                        else:
+                            inventory.activeItem = ("wheat", inventory.items[wheatKey]["quantity"], inventory.items[wheatKey]["sprite"], wheatKey)
 
                     waterUsed = 0.2
                     if action.action == 'water' and entity[WaterBar].value >= waterUsed:

@@ -146,11 +146,27 @@ class UserInputSystem(System):
                                 wielding_player = game.entities[entity[Wieldable].player_id]
                                 if entity_col != wielding_player:
                                     if Health in entity_col:
-                                        if entity[IngameObject].get_rect().colliderect(entity_col[IngameObject].get_rect()):
+                                        collisionio = entity_col[IngameObject]
+                                        if entity[IngameObject].get_rect().colliderect(collisionio.get_rect()):
+                                            damager = entity[Damager]
+                                            if damager.knockback == True:
+                                                collisionio.position
+                                                entitydirection = entity[Directioned].direction
+                                                if entitydirection == 'left':
+                                                    collisionio.position = (collisionio.position[0]-100,collisionio.position[1])
+                                                elif entitydirection == 'right':
+                                                    collisionio.position = (collisionio.position[0]+100,collisionio.position[1])
+                                                elif entitydirection == 'up':
+                                                    collisionio.position = (collisionio.position[0],collisionio.position[1]-100)
+                                                elif entitydirection == 'down':
+                                                    collisionio.position = (collisionio.position[0],collisionio.position[1]+100)
+
                                             damage = 15
+                                            
                                             entity_col[Health].value = entity_col[Health].value - damage
                                             game.particles.add_damage_particle(damage, entity_col[IngameObject].position, (255,128,0))
                                             entity[Wieldable]._last_hit = time.time()
+
                                             #Successful hit           
                         else:
                             entity[SwingSword].swing = False

@@ -48,6 +48,7 @@ class Damager:
     cooldown: float
     lasthit: float = 0.0
     enemyFaction: bool = True
+    knockback: bool = True
     exclude = []
 
 @component(networked=True)

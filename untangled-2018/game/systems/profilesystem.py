@@ -16,7 +16,7 @@ PROFILE_SPRITES = {
         'moving':False
     },
     'Boy': {
-        'path': './assets/sprites/player.png',
+        'path': './assets/sprites/character-animation-finished',
         'tile_size': 48,
         'tiles':{
             'default': [10],

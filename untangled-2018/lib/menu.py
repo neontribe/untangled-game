@@ -165,7 +165,7 @@ class CharSetupMenuItem(MenuItem):
         self.char_name = ""
         self.ticker = 0
         self.char_name_max = 15
-        self.gender_options = ("Boy", "Girl")
+        self.gender_options = ("Boy", "Girl","Boy2")
         self.gender_choice = 0
         self.hex = "00FF19"
 

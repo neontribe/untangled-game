@@ -144,6 +144,16 @@ class MoveRandom:
     direction: str = 'default'
     lastmove: float = 0
 
+@component(networked=True)
+class Clock:
+    minute:int = 0
+    cycle: int = 0
+    year:  int = 0
+
+@component(networked=False)
+class Timed:
+    time: float = 0
+
 @component()
 class ChasePlayer:
     speed: int

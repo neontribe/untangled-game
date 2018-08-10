@@ -9,10 +9,13 @@ from game.systems.collisionsystem import *
 class RenderSystem(System):
     """This system draws any entity with a SpriteSheet component."""
 
-    def __init__(self, screen):
+    def __init__(self, screen, framework):
+        self.lightingImg = pygame.Surface(framework.dimensions, pygame.SRCALPHA, 32).convert_alpha()
+        self.lightingImg.fill((0,0,0,0))
         self.screen = screen
         self.image_cache = {}
         self.steps = 0
+        self.ticks = 0
         self.particles = {
             'above':[],
             'below':[]
@@ -29,6 +32,7 @@ class RenderSystem(System):
         self.font = pygame.font.Font(font_path, 45)
         self.damageFont = pygame.font.Font(font_path, 45)
         self.damageFont.set_bold(True)
+
 
     def update(self, game, dt: float, events: list):
         # Step through 15 sprite frames each second
@@ -76,7 +80,12 @@ class RenderSystem(System):
                             rel_pos[0] + game.framework.dimensions[0]/2,
                             rel_pos[1] + game.framework.dimensions[1]/2
                         )
-
+                        image = image.convert()
+                        alpha = math.sin(self.ticks/1000)*100
+                        alpha = 100 - alpha
+                        if alpha > 255:
+                            alpha = 255
+                        image.set_alpha(alpha)
                         self.screen.blit(image, screen_pos)
 
         self.draw_particles(game, "below", our_center)
@@ -298,6 +307,68 @@ class RenderSystem(System):
                                     self.screen.blit(rendered_text_qslot, itemRect)
 
                                 slotIndex += 1
+            if Clock in entity:
+                if entity[Clock].minute ==1: 
+                    rendered_text_surface = self.font.render(str("Dawn"), False, (255, 255, 255))
+                    rect = rendered_text_surface.get_rect()
+                    rect.topleft= (10,5) 
+                    self.screen.blit(rendered_text_surface, rect)    
+                elif entity[Clock].minute ==2:
+                    rendered_text_surface = self.font.render(str("Morning"), False, (255, 255, 255))
+                    rect = rendered_text_surface.get_rect()
+                    rect.topleft= (10,5) 
+                    self.screen.blit(rendered_text_surface, rect)    
+                elif entity[Clock].minute ==3:
+                    rendered_text_surface = self.font.render(str("Noon"), False, (255, 255, 255))
+                    rect = rendered_text_surface.get_rect()
+                    rect.topleft= (10,5) 
+                    self.screen.blit(rendered_text_surface, rect)    
+                elif entity[Clock].minute ==4:
+                    rendered_text_surface = self.font.render(str("Afternoon"), False, (255, 255, 255))
+                    rect = rendered_text_surface.get_rect()
+                    rect.topleft= (10,5) 
+                    self.screen.blit(rendered_text_surface, rect)    
+                elif entity[Clock].minute ==5:
+                    rendered_text_surface = self.font.render(str("Evening"), False, (255, 255, 255))
+                    rect = rendered_text_surface.get_rect()
+                    rect.topleft= (10,5) 
+                    self.screen.blit(rendered_text_surface, rect)    
+                elif entity[Clock].minute ==6:
+                    rendered_text_surface = self.font.render(str("Night"), False, (255, 255, 255))
+                    rect = rendered_text_surface.get_rect()
+                    rect.topleft= (10,5) 
+                    self.screen.blit(rendered_text_surface, rect)    
+                elif entity[Clock].minute ==0:
+                    rendered_text_surface = self.font.render(str("Dusk"), False, (255, 255, 255))
+                    rect = rendered_text_surface.get_rect()
+                    rect.topleft= (10,5) 
+                    self.screen.blit(rendered_text_surface, rect)
+                
+                cycle= entity[Clock].cycle
+                rendered_text_surface = self.font.render(str("Day"), False, (255, 255, 255))
+                rect = rendered_text_surface.get_rect()
+                rect.topleft= (150,5) 
+                self.screen.blit(rendered_text_surface, rect)
+            
+                cycle= entity[Clock].cycle
+                rendered_text_surface = self.font.render(str(cycle), False, (255, 255, 255))
+                rect = rendered_text_surface.get_rect()
+                rect.topleft= (215,5) 
+                self.screen.blit(rendered_text_surface, rect)
+
+                year= entity[Clock].year
+                rendered_text_surface = self.font.render(str("Year"), False, (255, 255, 255))
+                rect = rendered_text_surface.get_rect()
+                rect.topleft= (270,5) 
+                self.screen.blit(rendered_text_surface, rect)
+            
+                year= entity[Clock].year
+                rendered_text_surface = self.font.render(str(year), False, (255, 255, 255))
+                rect = rendered_text_surface.get_rect()
+                rect.topleft= (340,5) 
+                self.screen.blit(rendered_text_surface, rect)
+
+                self.ticks = entity[Timed].time + (entity[Clock].minute * 3600) + (entity[Clock].cycle * 21600) + (entity[Clock].year * 7776000)
             self.draw_particles(game, "above", our_center)
 
     def get_image(self, spritesheet, index):
@@ -324,6 +395,7 @@ class RenderSystem(System):
                 for x in range(0, sheet_img.get_width(), tile_width):
                     bounds = pygame.Rect(x, y, tile_width, tile_height)
                     images.append(sheet_img.subsurface(bounds))
+                    
             self.image_cache[spritesheet.path] = images
 
         return self.image_cache[spritesheet.path][index]

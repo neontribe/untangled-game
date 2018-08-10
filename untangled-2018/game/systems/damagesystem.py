@@ -18,7 +18,6 @@ class DamageSystem(System):
             if target != None:
                 if ChasePlayer in target:
                     return
-                print("Non chase-player")
                 other_DamagerComponent = other[Damager]
                 if target[IngameObject].id in other_DamagerComponent.exclude:
                     return 

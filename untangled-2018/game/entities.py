@@ -9,7 +9,7 @@ def create_player(player_id, initial_inventory=[]):
         IngameObject(position=(100, 100), size=(64, 64)),
 
         # They should have a health component
-        Health(value=100),
+        Health(value=100, maxValue=100),
 
         # They should have an energy component
         Energy(value=100),
@@ -123,7 +123,7 @@ def create_zombie(game, position):
         ),
         IngameObject(position=position, size=(64, 64)),
         Directioned(direction='default'),
-        Health(value=100),
+        Health(value=80, maxValue=80),
         ChasePlayer(speed = 1),
         Collidable(
             call_name = "zombie",
@@ -165,7 +165,7 @@ def create_bounce(position):
         IngameObject(position=position, size=(64, 64)),
         Directioned(direction='default'),
         ChasePlayer(speed = 2),
-        Health(value=100),
+        Health(value=40, maxValue=40),
         Collidable(
             call_name = 'bounce',
             doPush = True
@@ -194,7 +194,7 @@ def create_sheep(position):
         IngameObject(position=position, size=(64,64)),
         Directioned(direction='default'),
         MoveRandom(),
-        Health(value=100)
+        Health(value=30, maxValue=30)
     ]
 
 def create_chicken(position):
@@ -210,11 +210,10 @@ def create_chicken(position):
             moving=False
         ),
 
-        Health(value=100),
+        Health(value=30, maxValue=30),
         IngameObject(position=position, size=(64,64)),
         Directioned(direction='default'),
         MoveRandom(),
-        Health(value=100),
 
         IngameObject(position=position, size=(50,50)),
         Directioned(
@@ -228,7 +227,7 @@ def create_chicken(position):
 def create_plant(game, name, path, position):
     return [
         IngameObject(position=position,size=(64, 64)),
-        Health(value=100),
+        Health(value=100, maxValue=100),
         Energy(value=0),
         WaterBar(value=50),
         Crops(name=name, growth_rate=3,dehydration_rate=2, max_growth_stage=3,growth_stage=0),

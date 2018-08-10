@@ -196,9 +196,9 @@ class RenderSystem(System):
              
                     # Red health bar
                     if entity[Health].value > 0:
-                        currentHealthPos = (rect.x+healthBarThickness, rect.y-30+healthBarThickness, entity[Health].value, 10-healthBarThickness*2)
+                        healthValue = int(entity[Health].value / entity[Health].maxValue * 100)
+                        currentHealthPos = (rect.x+healthBarThickness, rect.y-30+healthBarThickness, healthValue, 10-healthBarThickness*2)
                         pygame.draw.rect(self.screen, (255, 0, 0), currentHealthPos)
-                
 
                 if WaterBar in entity:
                     if not entity[WaterBar].disabled:

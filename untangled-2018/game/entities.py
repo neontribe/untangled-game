@@ -255,7 +255,33 @@ def create_bounce(position):
 
     ]
 
-
+def create_BOMB(position):
+    return [
+        SpriteSheet(
+            path='./assets/sprites/BOMB_ememy.png',
+            tile_size=32,
+            tiles={
+                'default': [0],
+                'left': [0, 1, 0],
+                'right': [0, 1, 0],
+                'up': [0, 1, 0],
+                'down': [0, 1, 0]
+            },
+            moving=False
+        ),
+        IngameObject(position=position, size=(64, 64)),
+        Directioned(direction='default'),
+        Health(value=1),
+        ChasePlayer(speed = 3),
+        Collidable(
+            call_name = "zombie"
+        ),
+        Damager(
+            damagemin=75, # Someone change these, they're op.
+            damagemax=100,
+            cooldown=10
+        ),
+    ]
 def create_sheep(position):
     return [
         SpriteSheet(

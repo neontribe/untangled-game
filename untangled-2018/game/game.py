@@ -114,7 +114,7 @@ class GameState:
                 spawnx = random.randrange(map_ent[Map].width * map_ent[SpriteSheet].tile_size)
                 spawny = random.randrange(map_ent[Map].height * map_ent[SpriteSheet].tile_size)
                 self.add_entity(create_skeleton((spawnx, spawny)))
-            # Spawn ice skeletons
+            # Spawn Boss
             for i in range(1):
                 spawnx = random.randrange(map_ent[Map].width * map_ent[SpriteSheet].tile_size)
                 spawny = random.randrange(map_ent[Map].height * map_ent[SpriteSheet].tile_size)
@@ -125,6 +125,11 @@ class GameState:
                 spawnx = random.randrange(map_ent[Map].width * map_ent[SpriteSheet].tile_size)
                 spawny = random.randrange(map_ent[Map].height * map_ent[SpriteSheet].tile_size)
                 self.add_entity(create_sheep((spawnx, spawny)))
+            #Spawn Bombs
+            for i in range(10):
+                spawnx = random.randrange(map_ent[Map].width * map_ent[SpriteSheet].tile_size)
+                spawny = random.randrange(map_ent[Map].height * map_ent[SpriteSheet].tile_size)
+                self.add_entity(create_BOMB((spawnx, spawny)))
 
             # Spawn chicken
 

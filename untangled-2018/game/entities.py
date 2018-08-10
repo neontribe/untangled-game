@@ -164,7 +164,11 @@ def create_bounce(position):
         IngameObject(position=position, size=(64, 64)),
         Directioned(direction='default'),
         ChasePlayer(speed = 2),
-        Health(value=100)
+        Health(value=100),
+        Collidable(
+            call_name = 'bounce',
+            doPush = True
+        )
     ]
 
 def create_sheep(position):

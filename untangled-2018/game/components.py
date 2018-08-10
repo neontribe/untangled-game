@@ -236,6 +236,7 @@ class Collidable:
     canCollide: bool = True
     #rect to override
     customCollisionBox = None
+    doPush: bool = False
     def setCustomCollisionBox(self, obj: IngameObject, width: int, height: int):
         center = (obj.position[0] + (obj.size[0] / 2), obj.position[1] + (obj.size[1] / 2))
         newTopLeft = (center[0] - (width/2), center[1] - (height/2))

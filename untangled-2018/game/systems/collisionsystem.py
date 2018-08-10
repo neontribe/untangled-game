@@ -87,9 +87,9 @@ class CollisionEvent:
         self.game = game
         self.start()
 
-    def get_entity_with_component(self, component):
+    def get_entity_with_component(self, component, exclude = []):
         for k in self.keys:
-            if component in self.game.entities[k]:
+            if component in self.game.entities[k] and k not in exclude:
                 return k, self.game.entities[k]
         return None, None
         

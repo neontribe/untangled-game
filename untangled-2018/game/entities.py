@@ -126,7 +126,8 @@ def create_zombie(game, position):
         Health(value=100),
         ChasePlayer(speed = 1),
         Collidable(
-            call_name = "zombie"
+            call_name = "zombie",
+            doPush = True
         ),
         Damager(
             damagemin=10, # Someone change these, they're op.
@@ -168,6 +169,11 @@ def create_bounce(position):
         Collidable(
             call_name = 'bounce',
             doPush = True
+        ),
+        Damager(
+            damagemin=5, # Someone change these, they're op.
+            damagemax=10,
+            cooldown=1.5
         )
     ]
 

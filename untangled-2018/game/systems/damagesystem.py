@@ -11,14 +11,16 @@ class DamageSystem(System):
                 if entity[Health].value <= 0:
                     del game.entities[key]
 
-    def onDamage(self, game, event):
+    def onDamage(self, event):
         targetKey, target = event.get_entity_with_component(Health)
         if target != None:
+            if ChasePlayer in target:
+                return
             otherKey, other = event.get_entity_with_component(Damager, [targetKey])
             if other != None:
                 other_DamagerComponent = other[Damager]
                 if target[IngameObject].id in other_DamagerComponent.exclude:
-                    return
+                    return 
                 if other_DamagerComponent.lasthit + other_DamagerComponent.cooldown < time.time():
                     damage = randint(other_DamagerComponent.damagemin, other_DamagerComponent.damagemax)
                     target_HealthComponent = target[Health]

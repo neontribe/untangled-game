@@ -46,7 +46,7 @@ class Damager:
     damagemax: int
     cooldown: float
     lasthit: float = 0.0
-    exclude = []
+    enemyFaction: bool = True
 
 @component(networked=True)
 class CanPickUp:

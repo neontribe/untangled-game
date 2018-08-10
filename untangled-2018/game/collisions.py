@@ -18,6 +18,9 @@ class Class_Collisions:
 
         ),
         'bounce': CollisionCall(
+
+        ),
+        'wand': CollisionCall(
             update = lambda game,event: damagerUpdate(event)
         ),
         'plant': CollisionCall(

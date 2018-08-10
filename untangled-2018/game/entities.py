@@ -6,7 +6,7 @@ from game.systems.collisionsystem import CollisionCall
 def create_player(player_id, inventory_items):
     return [
         # They should have a position and size in game
-        IngameObject(position=(100, 100), size=(64, 64)),
+        IngameObject(position=(2000, 2000), size=(64, 64)),
 
         # They should have a health component
         Health(value=100, maxValue=100),
@@ -82,7 +82,7 @@ def create_map(path):
         map_comp,
         SpriteSheet(
             tile_size=32,
-            path="assets/tilesets/map.png",
+            path="assets/tilesets/tilemap.png",
             tiles={
                 'default':[0],
                 '0': [0],
@@ -100,7 +100,14 @@ def create_map(path):
                 '12': [12],
                 '13': [13],
                 '14':[14],
-                '15':[15]
+                '15':[15],
+                '16':[16],
+                '17':[17],
+                '18':[18],
+                '19':[19],
+                '20':[20],
+                '21':[21],
+                '22':[22],
             },
             moving=True
         )
@@ -403,6 +410,64 @@ def create_test_item_object(animated=False):
             CanPickUp(quantity=2)
         ]
 
+def create_wand():
+    return [
+            IngameObject(position=(-100,100), size=(70,70)),
+            SpriteSheet(
+                path='./assets/sprites/wand.png',
+                tile_size=8,
+                moving=False,
+                tiles={
+                    'default':[2]
+                }
+            ),
+            Collidable(
+                call_name = 'wand'
+            ),
+            # Every item has this component
+            CanPickUp(),
+            ParticleEmitter(
+                particleTypes = ["star"],
+                offset = (0,0),
+                velocity = (0,-1),
+                acceleration = (0,0.1),
+                colour = (255, 255, 69),
+                randomness = (5,0),
+                lifespan = 20
+            )
+        ]
+def create_NPC(position):
+    return [
+        SpriteSheet(
+            path='./assets/sprites/NPC.png',
+            tile_size=32,
+            tiles={
+                'default': [0, 1, 2],
+                'left': [0, 1, 2],
+                'right': [0, 1, 2],
+                'up': [0, 1, 2],
+                'down': [0, 1, 2]
+            },
+            moving=False
+        ),
+        Health(maxValue=200, value=200),
+        IngameObject(position=position, size=(100,100)),
+        Directioned(direction='default'),
+        MoveRandom()
+    ]
+def create_house(position):
+    return [
+        SpriteSheet(
+            path='./assets/sprites/house.png',
+            tile_size=32,
+            tiles={
+                'default': [0]   
+            },
+            moving=False
+        ),
+        IngameObject(position=position, size=(400,400))
+    ]
+        
 def create_item(ingameobject,spritesheet,quantity=1):
     return [
         ingameobject,

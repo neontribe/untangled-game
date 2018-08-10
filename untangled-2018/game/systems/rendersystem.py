@@ -168,8 +168,9 @@ class RenderSystem(System):
                 if CanPickUp in entity:
                     pygame.draw.circle(self.screen, (0, 255, 0), (int(rect.x + rect.width / 2), int(rect.y + rect.height / 2)), int(rect.width/2))
 
-                # Draw the image
-                self.screen.blit(img, rect)
+                # Draw the image, but only if it's on screen
+                if not (rect.right < 0 or rect.left >= game.framework.dimensions[0] or rect.bottom < 0 or rect.top >= game.framework.dimensions[1]):
+                    self.screen.blit(img, rect)
 
                 # If it is an item show the amount of items there are
                 if CanPickUp in entity:

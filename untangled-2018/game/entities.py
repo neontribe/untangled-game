@@ -275,7 +275,33 @@ def create_sheep(position):
         Health(value=100),
         MoveRandom()
     ]
-
+def create_BOSS(position):
+    return [
+        SpriteSheet(
+            path='./assets/sprites/BOSS_enemy.png',
+            tile_size=32,
+            tiles={
+                'default' : [0],
+                'left' : [0, 1, 2],
+                'right' : [0, 1, 2],
+                'up' : [0, 1, 2],
+                'down' : [0, 1, 2],
+            },
+            moving=False
+        ),
+        IngameObject(position=position, size=(100,100)),
+        Directioned(direction='default'),
+        Health(value=500),
+        MoveRandom(),
+        Collidable(
+            call_name = "zombie"
+        ),
+        Damager(
+            damagemin=25, # Someone change these, they're op.
+            damagemax=75,
+            cooldown=5
+        ),
+    ]
 def create_chicken(position):
     return [
         SpriteSheet(

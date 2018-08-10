@@ -114,6 +114,11 @@ class GameState:
                 spawnx = random.randint(-4000, 4000)
                 spawny = random.randint(-4000, 4000)
                 self.add_entity(create_skeleton((spawnx, spawny)))
+            # Spawn ice skeletons
+            for i in range(10):
+                spawnx = random.randint(-4000, 4000)
+                spawny = random.randint(-4000, 4000)
+                self.add_entity(create_BOSS((spawnx, spawny)))
 
             # Spawn sheep
             for i in range(30):

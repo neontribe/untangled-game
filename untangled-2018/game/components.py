@@ -23,6 +23,7 @@ class IngameObject:
 @component(networked=True)
 class Health:
     """Gives the entity health"""
+    maxValue: int
     value: int
 
 @component(networked=True)
@@ -30,7 +31,7 @@ class Crops:
     """Stores infomation about crops"""
     name: str
     growth_rate: int
-    dehydration_rate: int
+    dehydration_rate: float
     growth_stage:int
     max_growth_stage:int
     plantage_time:float = time.time()
@@ -46,6 +47,8 @@ class Damager:
     damagemax: int
     cooldown: float
     lasthit: float = 0.0
+    enemyFaction: bool = True
+    knockback: bool = True
     exclude = []
 
 @component(networked=True)
@@ -158,6 +161,8 @@ class ChasePlayer:
 class Wieldable:
     wielded: bool
     player_id: Union[str, None] = None
+    cooldown = 2
+    _last_hit: float = 0.0
 @component(networked=True)
 class SwingSword:
     swing: bool
@@ -217,7 +222,7 @@ class ParticleEmitter:
                         rand = (0,0)
                     col = self.colour
                     if col == (-1,-1,-1):
-                        col = random.choice([(255,0,0),(255,255,0),(0,255,0),(0,255,255),(0,0,255),(255,0,255)])
+                        col = Particle.get_random_colour()
                     if self.directionMode > 0 and Directioned in entity:
                         dire = entity[Directioned].toVelocity()
                         modi = 1
@@ -246,6 +251,7 @@ class Collidable:
     canCollide: bool = True
     #rect to override
     customCollisionBox = None
+    doPush: bool = False
     def setCustomCollisionBox(self, obj: IngameObject, width: int, height: int):
         center = (obj.position[0] + (obj.size[0] / 2), obj.position[1] + (obj.size[1] / 2))
         newTopLeft = (center[0] - (width/2), center[1] - (height/2))

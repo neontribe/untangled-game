@@ -69,10 +69,7 @@ class GameState:
             self.plantsystem,
             ProfileSystem(name, gender, colour),
             UserInputSystem(),
-
-            RenderSystem(self.screen,self.framework),
-            SoundSystem(),
-
+          
             AI_system(),
             AnimalSystem(),
 
@@ -86,12 +83,13 @@ class GameState:
         ])
 
         if self.net.is_hosting():
-            map_ent = self.entities[self.add_entity(create_map('assets/maps/testmap2.tmx'))]
+            map_ent = self.entities[self.add_entity(create_map('assets/maps/boi.tmx'))]
 
             # If we're hosting, we need to register that we joined our own game
             self.on_player_join(self.net.get_id())
 
-            # We need to make all other entities at the start of the game here
+            # If we're hosting, we need to register that we joined our own game
+            self.add_entity(create_wand())
             self.add_entity(create_background_music())
 
             self.add_entity(create_clock())
@@ -108,42 +106,47 @@ class GameState:
                 spawnx = random.randrange(map_ent[Map].width * map_ent[SpriteSheet].tile_size)
                 spawny = random.randrange(map_ent[Map].height * map_ent[SpriteSheet].tile_size)
                 self.add_entity(create_bounce((spawnx, spawny)))
+            # Spawn skeletons
+            for i in range(4):
+                spawnx = random.randrange(map_ent[Map].width * map_ent[SpriteSheet].tile_size)
+                spawny = random.randrange(map_ent[Map].height * map_ent[SpriteSheet].tile_size)
+                self.add_entity(create_ice_skeleton((spawnx, spawny)))
+            # Spawn ice skeletons
+            for i in range(4):
+                spawnx = random.randrange(map_ent[Map].width * map_ent[SpriteSheet].tile_size)
+                spawny = random.randrange(map_ent[Map].height * map_ent[SpriteSheet].tile_size)
+                self.add_entity(create_skeleton((spawnx, spawny)))
+            # Spawn boss
+            for i in range(1):
+                spawnx = random.randrange(map_ent[Map].width * map_ent[SpriteSheet].tile_size)
+                spawny = random.randrange(map_ent[Map].height * map_ent[SpriteSheet].tile_size)
+                self.add_entity(create_BOSS((spawnx, spawny)))
 
             # Spawn sheep
-            for i in range(30):
+            for i in range(8):
                 spawnx = random.randrange(map_ent[Map].width * map_ent[SpriteSheet].tile_size)
                 spawny = random.randrange(map_ent[Map].height * map_ent[SpriteSheet].tile_size)
                 self.add_entity(create_sheep((spawnx, spawny)))
 
             # Spawn chicken
 
-            for i in range(60):
-                spawnx = random.randint(-2000, 2000)
-                spawny = random.randint(-2000, 2000)
-
-            for i in range(30):
+            for i in range(8):
                 spawnx = random.randrange(map_ent[Map].width * map_ent[SpriteSheet].tile_size)
                 spawny = random.randrange(map_ent[Map].height * map_ent[SpriteSheet].tile_size)
 
                 self.add_entity(create_chicken((spawnx, spawny)))
-
-
-
-            # We need to make all other entities at the start of the game here
-            self.add_entity(create_background_music())
-
-    def on_player_join(self, player_id):
-        """This code gets run whenever a new player joins the game."""
-        # Let's give them an entity that they can control
-        self.add_entity(create_player(player_id))
-
-    def on_player_quit(self, player_id):
-        """This code gets run whever a player exits the game."""
-        # Remove any entities tied to them - e.g. the player they control
-        tied = []
-        for key, entity in list(self.entities.items()):
-            if PlayerControl in entity and entity[PlayerControl].player_id == player_id:
-                del self.entities[key]
+            
+            # Spawn NPC
+            for i in range(8):
+                spawnx = random.randrange(map_ent[Map].width * map_ent[SpriteSheet].tile_size)
+                spawny = random.randrange(map_ent[Map].height * map_ent[SpriteSheet].tile_size)
+                self.add_entity(create_NPC((spawnx, spawny)))
+            
+            # Spawn house
+            for i in range(8):
+                spawnx = random.randrange(map_ent[Map].width * map_ent[SpriteSheet].tile_size)
+                spawny = random.randrange(map_ent[Map].height * map_ent[SpriteSheet].tile_size)
+                self.add_entity(create_house((spawnx, spawny)))
 
     def update(self, dt: float, events):
         """This code gets run 60fps. All of our game logic stems from updating
@@ -181,7 +184,8 @@ class GameState:
             Damager(
                 damagemin=10,
                 damagemax=20,
-                cooldown=1.5
+                cooldown=1.5,
+                enemyFaction = False
             ),
             Wieldable(wielded = True)
         ])

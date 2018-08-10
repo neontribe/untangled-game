@@ -102,7 +102,7 @@ class InventorySystem(System):
         if entity[Inventory].activeItem:
             item = entity[Inventory].activeItem
 
-            if item["ID"] == "sword":
+            if item[0] == "sword":
                 return
             
             # Sorting out the position of the new entity

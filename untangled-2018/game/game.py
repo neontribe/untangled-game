@@ -69,9 +69,6 @@ class GameState:
             ProfileSystem(name, gender, colour),
             UserInputSystem(),
 
-            RenderSystem(self.screen),
-            SoundSystem(),
-
             AI_system(),
             AnimalSystem(),
 

@@ -120,6 +120,12 @@ class Directioned:
     def toVelocity(self):
         return directionVelocity[self.direction]
 
+@component(networked=True)
+class Money
+    """Creates money"""
+    amount: int
+    
+
 
 @component(networked=True)
 class Profile:

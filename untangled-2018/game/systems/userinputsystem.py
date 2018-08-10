@@ -7,7 +7,7 @@ from lib.system import System
 from game.components import *
 from game.systems.particlesystem import Particle
 
-SPEED = 10
+SPEED = 30
 
 class UserInputSystem(System):
     """This system updates certain entities based on the arrow keys."""
@@ -146,7 +146,7 @@ class UserInputSystem(System):
                                 if entity_col != wielding_player:
                                     if Health in entity_col:
                                         if entity[IngameObject].get_rect().colliderect(entity_col[IngameObject].get_rect()):
-                                            damage = 15
+                                            damage = 20
                                             entity_col[Health].value = entity_col[Health].value - damage
                                             game.particles.add_damage_particle(damage, entity_col[IngameObject].position, (255,128,0))
                                             entity[Wieldable]._last_hit = time.time()

@@ -56,6 +56,12 @@ def create_player(player_id, inventory_items):
         )
     ]
 
+def create_clock():
+    return [
+        Clock(),
+        Timed()
+    ]
+
 def create_map(path):
     # Load raw tilemap from TMX
     tile_map = tmx.TileMap.load(path)

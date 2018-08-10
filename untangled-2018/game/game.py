@@ -18,6 +18,7 @@ from game.systems.AI_system import AI_system
 from game.systems.collisionsystem import CollisionSystem, CollisionCall
 from game.systems.particlesystem import ParticleSystem
 from game.systems.soundsystem import SoundSystem
+from game.systems.timesystem import TimeSystem
 
 from game.systems.plantsystem import PlantSystem
 
@@ -52,7 +53,7 @@ class GameState:
         self.framework = framework
         self.screen = framework.screen
         self.net = framework.net
-        self.renderSystem = RenderSystem(self.screen)
+        self.renderSystem = RenderSystem(self.screen,self.framework)
         self.collisionSystem = CollisionSystem()
         self.inventorySystem = InventorySystem()
         self.particles = ParticleSystem(self.renderSystem)
@@ -68,7 +69,7 @@ class GameState:
             self.plantsystem,
             ProfileSystem(name, gender, colour),
             UserInputSystem(),
-
+          
             AI_system(),
             AnimalSystem(),
 
@@ -77,7 +78,8 @@ class GameState:
             self.renderSystem,
             self.particles,
             SoundSystem(),
-            self.damagesystem
+            self.damagesystem,
+            TimeSystem()
         ])
 
         if self.net.is_hosting():
@@ -89,6 +91,8 @@ class GameState:
             # If we're hosting, we need to register that we joined our own game
             self.add_entity(create_wand())
             self.add_entity(create_background_music())
+
+            self.add_entity(create_clock())
             
             # TODO check we don't spawn in tiles
             # Spawn zombies

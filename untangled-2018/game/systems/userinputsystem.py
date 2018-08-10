@@ -8,6 +8,7 @@ from game.components import *
 from game.systems.particlesystem import Particle
 
 SPEED = 10
+CLEAR_TILES = [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 11, 12, 13, 14, 15, 16 ]
 
 class UserInputSystem(System):
     """This system updates certain entities based on the arrow keys."""
@@ -180,7 +181,7 @@ def get_position(io, hoped_vel, tmap):
                 tile_x = math.floor(intrusive_x / tmap[SpriteSheet].tile_size)
                 tile_y = math.floor(y / tmap[SpriteSheet].tile_size)
 
-                if (tile_y < 0 or tile_y >= tmap[Map].height) or (tile_x < 0 or tile_x >= tmap[Map].width) or tmap[Map].grid[tile_y][tile_x] != 1:
+                if (tile_y < 0 or tile_y >= tmap[Map].height) or (tile_x < 0 or tile_x >= tmap[Map].width) or tmap[Map].grid[tile_y][tile_x] not in CLEAR_TILES:
                     # It's off map or collidable
                     tcollision = True
                     break
@@ -206,7 +207,7 @@ def get_position(io, hoped_vel, tmap):
                 tile_y = math.floor(intrusive_y / tmap[SpriteSheet].tile_size)
                 tile_x = math.floor(x / tmap[SpriteSheet].tile_size)
 
-                if (tile_y < 0 or tile_y >= tmap[Map].height) or (tile_x < 0 or tile_x >= tmap[Map].width) or tmap[Map].grid[tile_y][tile_x] != 1:
+                if (tile_y < 0 or tile_y >= tmap[Map].height) or (tile_x < 0 or tile_x >= tmap[Map].width) or tmap[Map].grid[tile_y][tile_x] not in CLEAR_TILES:
                     # It's off map or collidable
                     tcollision = True
                     break

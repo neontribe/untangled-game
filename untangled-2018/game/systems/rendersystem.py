@@ -51,13 +51,16 @@ class RenderSystem(System):
                 spritesheet = entity[SpriteSheet]
                 map = entity[Map]
                 # minimum and maximum tile indexes coordinates possible
-                min_x = int((our_center[0] - game.framework.dimensions[0]/2) / spritesheet.tile_size)
-                min_y = int((our_center[1] - game.framework.dimensions[1]/2) / spritesheet.tile_size)
-                max_x = int((our_center[0] + game.framework.dimensions[0]/2) / spritesheet.tile_size)
-                max_y = int((our_center[1] + game.framework.dimensions[1]/2) / spritesheet.tile_size)
-                for y in range(max(min_y, 0), min(max_y + 1, len(map.grid))):
-                    for x in range(max(min_x, 0), min(max_x + 1, len(map.grid[y]))):
-                        tile = map.grid[y][x]
+                min_x = math.floor((our_center[0] - game.framework.dimensions[0]/2) / spritesheet.tile_size)
+                min_y = math.floor((our_center[1] - game.framework.dimensions[1]/2) / spritesheet.tile_size)
+                max_x = math.floor((our_center[0] + game.framework.dimensions[0]/2) / spritesheet.tile_size)
+                max_y = math.floor((our_center[1] + game.framework.dimensions[1]/2) / spritesheet.tile_size)
+                for y in range(min_y, max_y + 1):
+                    for x in range(min_x, max_x + 1):
+                        if 0 <= x < map.width and 0 <= y < map.height:
+                            tile = map.grid[y][x]
+                        else:
+                            tile = 20
                         img_indexes = spritesheet.tiles[str(tile-1)]
                         if spritesheet.moving:
                             img_index = img_indexes[frame % len(img_indexes)]
@@ -168,8 +171,9 @@ class RenderSystem(System):
                 if CanPickUp in entity:
                     pygame.draw.circle(self.screen, (0, 255, 0), (int(rect.x + rect.width / 2), int(rect.y + rect.height / 2)), int(rect.width/2))
 
-                # Draw the image
-                self.screen.blit(img, rect)
+                # Draw the image, but only if it's on screen
+                if not (rect.right < 0 or rect.left >= game.framework.dimensions[0] or rect.bottom < 0 or rect.top >= game.framework.dimensions[1]):
+                    self.screen.blit(img, rect)
 
                 # If it is an item show the amount of items there are
                 if CanPickUp in entity:

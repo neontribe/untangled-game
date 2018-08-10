@@ -69,9 +69,6 @@ class GameState:
             ProfileSystem(name, gender, colour),
             UserInputSystem(),
 
-            RenderSystem(self.screen),
-            SoundSystem(),
-
             AI_system(),
             AnimalSystem(),
 
@@ -84,12 +81,13 @@ class GameState:
         ])
 
         if self.net.is_hosting():
-            map_ent = self.entities[self.add_entity(create_map('assets/maps/testmap2.tmx'))]
+            map_ent = self.entities[self.add_entity(create_map('assets/maps/boi.tmx'))]
 
             # If we're hosting, we need to register that we joined our own game
             self.on_player_join(self.net.get_id())
 
-            # We need to make all other entities at the start of the game here
+            # If we're hosting, we need to register that we joined our own game
+            self.add_entity(create_wand())
             self.add_entity(create_background_music())
             
             # TODO check we don't spawn in tiles
@@ -121,27 +119,30 @@ class GameState:
                 self.add_entity(create_BOSS((spawnx, spawny)))
 
             # Spawn sheep
-            for i in range(30):
+            for i in range(8):
                 spawnx = random.randrange(map_ent[Map].width * map_ent[SpriteSheet].tile_size)
                 spawny = random.randrange(map_ent[Map].height * map_ent[SpriteSheet].tile_size)
                 self.add_entity(create_sheep((spawnx, spawny)))
 
             # Spawn chicken
 
-            for i in range(60):
-                spawnx = random.randint(-2000, 2000)
-                spawny = random.randint(-2000, 2000)
-
-            for i in range(30):
+            for i in range(8):
                 spawnx = random.randrange(map_ent[Map].width * map_ent[SpriteSheet].tile_size)
                 spawny = random.randrange(map_ent[Map].height * map_ent[SpriteSheet].tile_size)
 
                 self.add_entity(create_chicken((spawnx, spawny)))
-
-
-
-            # We need to make all other entities at the start of the game here
-            self.add_entity(create_background_music())
+            
+            # Spawn NPC
+            for i in range(8):
+                spawnx = random.randrange(map_ent[Map].width * map_ent[SpriteSheet].tile_size)
+                spawny = random.randrange(map_ent[Map].height * map_ent[SpriteSheet].tile_size)
+                self.add_entity(create_NPC((spawnx, spawny)))
+            
+            # Spawn house
+            for i in range(8):
+                spawnx = random.randrange(map_ent[Map].width * map_ent[SpriteSheet].tile_size)
+                spawny = random.randrange(map_ent[Map].height * map_ent[SpriteSheet].tile_size)
+                self.add_entity(create_house((spawnx, spawny)))     
 
     def on_player_join(self, player_id):
         """This code gets run whenever a new player joins the game."""

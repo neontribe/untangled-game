@@ -275,10 +275,6 @@ class RenderSystem(System):
                                     colour = slotBackgroundColour
 
                                 pygame.draw.rect(self.screen, colour, (x, invY+inv.slotOffset, inv.slotSize, inv.slotSize))
-                                
-                                # Check if item exists in inventory
-                                if slotIndex * 3 < len(entity[Inventory].items):
-                                    item = game.entities[entity[Inventory].items[slotIndex * 3]]
 
                                 slotIndex += 1
                             

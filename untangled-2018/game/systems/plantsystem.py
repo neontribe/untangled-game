@@ -53,13 +53,30 @@ class PlantSystem(System):
 
             # Handle game actions
             for key,entity in dict(game.entities).items():
-                if GameAction in entity and IngameObject in entity:
+                if GameAction in entity and IngameObject in entity and Inventory in entity:
                     action = entity[GameAction]
-                    if action.action == 'plant' and action.last_plant + 2 < time.time():
+                    inventory = entity[Inventory]
+
+                    # Check if wheat is in the inventory
+                    isWheatInInventory = False
+                    wheatKey = 0
+                    for key, data in inventory.items.items():
+                        if data["ID"] == "wheat":
+                            isWheatInInventory = True
+                            wheatKey = key
+                            break
+                
+                    if action.action == 'plant' and action.last_plant + 2 < time.time() and isWheatInInventory:
                         io = entity[IngameObject]
                         game.add_entity(create_plant(game, "wheat", "./assets/sprites/wheat.png", io.position))
                         action.action = ''
                         action.last_plant = time.time()
+
+                        inventory.items[wheatKey]["quantity"] -= 1
+                        if inventory.items[wheatKey]["quantity"] == 0:
+                            inventory.usedSlots[wheatKey] = False
+                            del inventory.items[wheatKey]
+
                     if action.action == 'water':
                         for k,e in dict(game.entities).items():
                             if Crops in e:

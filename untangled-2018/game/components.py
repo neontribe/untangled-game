@@ -72,7 +72,7 @@ class SpriteSheet:
 @component(networked=True)
 class Inventory:
     """Gives a player items"""
-    items = {}
+    items: dict
     maxSlots: int = 10
     activeSlot: int = 0
     hoverSlot: int = None

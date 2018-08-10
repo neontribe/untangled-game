@@ -3,7 +3,7 @@ import tmx
 from game.components import *
 from game.systems.collisionsystem import CollisionCall
 
-def create_player(player_id, initial_inventory=[]):
+def create_player(player_id, initial_inventory={}):
     return [
         # They should have a position and size in game
         IngameObject(position=(100, 100), size=(64, 64)),
@@ -299,6 +299,25 @@ def create_test_item_object(itemID, numItems, pos=(200, 300)):
             ),
             # Every item has this component
             CanPickUp(quantity=numItems, itemID="water-bucket"),
+            Directioned(direction='default'),
+            GameAction()
+        ]
+    elif itemID == "wheat":
+        return [
+            IngameObject(position=pos, size=(49,49)),
+            SpriteSheet(
+                path='./assets/sprites/wheat-icon.png',
+                tile_size=49,
+                tiles={
+                    'default': [0, 1, 2, 3],
+                },
+                moving=True
+            ),
+            Collidable(
+                call_name = 'item'
+            ),
+            # Every item has this component
+            CanPickUp(quantity=numItems, itemID="wheat"),
             Directioned(direction='default'),
             GameAction()
         ]

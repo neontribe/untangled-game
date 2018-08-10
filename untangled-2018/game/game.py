@@ -53,7 +53,7 @@ class GameState:
         self.framework = framework
         self.screen = framework.screen
         self.net = framework.net
-        self.renderSystem = RenderSystem(self.screen)
+        self.renderSystem = RenderSystem(self.screen,self.framework)
         self.collisionSystem = CollisionSystem()
         self.inventorySystem = InventorySystem()
         self.particles = ParticleSystem(self.renderSystem)
@@ -70,7 +70,7 @@ class GameState:
             ProfileSystem(name, gender, colour),
             UserInputSystem(),
 
-            RenderSystem(self.screen),
+            RenderSystem(self.screen,self.framework),
             SoundSystem(),
 
             AI_system(),

@@ -143,9 +143,9 @@ class MoveRandom:
 
 @component(networked=True)
 class Clock:
-    minute:int = 3
-    cycle: int = 1
-    year:  int = 1
+    minute:int = 0
+    cycle: int = 0
+    year:  int = 0
 
 @component(networked=True)
 class Timed:

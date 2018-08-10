@@ -91,8 +91,8 @@ class GameState:
             self.add_entity(create_wand())
             self.add_entity(create_background_music())
             self.add_entity(create_test_item_object("test-item-bounce", 20))
-            self.add_entity(create_test_item_object("water-bucket", 40, (400, 300)))
-            self.add_entity(create_test_item_object("wheat", 40, (200, 300)))
+            self.add_entity(create_test_item_object("water-bucket", 40, (900, 500)))
+            self.add_entity(create_test_item_object("wheat", 40, (1500, 800)))
 
             # TODO check we don't spawn in tiles
             # Spawn zombies

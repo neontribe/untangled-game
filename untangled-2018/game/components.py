@@ -1,6 +1,7 @@
 from typing import List
 from typing import Tuple
 from typing import Union
+import time
 from pygame import Rect
 import random, time
 
@@ -16,10 +17,24 @@ class IngameObject:
     size: Tuple[int, int]
     id = None
 
+    def get_rect(self):
+        return Rect(self.position,self.size)
+
 @component(networked=True)
 class Health:
     """Gives the entity health"""
     value: int
+
+@component(networked=True)
+class Crops:
+    """Stores infomation about crops"""
+    name: str
+    growth_rate: int
+    dehydration_rate: int
+    growth_stage:int
+    max_growth_stage:int
+    plantage_time:float = time.time()
+
 @component(networked=True)
 class Energy:
     """"Gives the entity energy"""
@@ -31,13 +46,14 @@ class Damager:
     damagemax: int
     cooldown: float
     lasthit: float = 0.0
-    exclude = []
+    enemyFaction: bool = True
 
 @component(networked=True)
 class CanPickUp:
     itemID: str
     pickedUp: bool = False
     quantity: int = 1
+
 
 @component(networked=True)
 class WaterBar:
@@ -86,6 +102,15 @@ class Inventory:
         return ret
 
 @component(networked=True)
+class SpriteSheet:
+    """Gives an entity an image and animations."""
+    path: str
+    tile_size: Union[int, Tuple[int, int]]
+    tiles: dict
+    default_tile: int = 0
+    moving: bool = False
+
+@component(networked=True)
 class BackgroundMusic:
     path: str
 
@@ -132,8 +157,9 @@ class GameAction:
     """Allows entities to have different actions"""
     action: str = ""
     isDropping: bool = False
+    last_plant: float = 0.0
 
-@component(networked=False)
+@component()
 class MoveRandom:
     direction: str = 'default'
     lastmove: float = 0
@@ -141,7 +167,13 @@ class MoveRandom:
 @component()
 class ChasePlayer:
     speed: int
-
+@component(networked=True)
+class Wieldable:
+    wielded: bool
+    player_id: Union[str, None] = None
+@component(networked=True)
+class SwingSword:
+    swing: bool
 @component(networked=True)
 class ParticleEmitter:
     # square / circle / ring / star
@@ -198,7 +230,7 @@ class ParticleEmitter:
                         rand = (0,0)
                     col = self.colour
                     if col == (-1,-1,-1):
-                        col = random.choice([(255,0,0),(255,255,0),(0,255,0),(0,255,255),(0,0,255),(255,0,255)])
+                        col = Particle.get_random_colour()
                     if self.directionMode > 0 and Directioned in entity:
                         dire = entity[Directioned].toVelocity()
                         modi = 1
@@ -227,6 +259,7 @@ class Collidable:
     canCollide: bool = True
     #rect to override
     customCollisionBox = None
+    doPush: bool = False
     def setCustomCollisionBox(self, obj: IngameObject, width: int, height: int):
         center = (obj.position[0] + (obj.size[0] / 2), obj.position[1] + (obj.size[1] / 2))
         newTopLeft = (center[0] - (width/2), center[1] - (height/2))

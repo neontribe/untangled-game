@@ -78,6 +78,7 @@ class GameState:
             # If we're hosting, we need to register that we joined our own game
             self.on_player_join(self.net.get_id())
             self.add_entity(create_test_item_object("test-item-bounce", 20))
+            self.add_entity(create_test_item_object("water-bucket", 40, (400, 300)))
             
             # TODO check we don't spawn in tiles
             # Spawn zombies

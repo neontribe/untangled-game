@@ -109,10 +109,10 @@ class UserInputSystem(System):
                                         entity[Inventory].activeSlot = activeSlot
 
                                         # Get active item, if there is one
-                                        for itemKey, data in entity[Inventory].items.items():
-                                            if data[2] == activeSlot:
-                                                entity[Inventory].activeItem = (itemKey, data[0], data[1], data[2])
-                                                break
+                                        for slotIndex, data in entity[Inventory].items.items():
+                                            if slotIndex == activeSlot:
+                                                entity[Inventory].activeItem = (data['ID'], data['quantity'], data['sprite'], slotIndex)
+                                             
 
                                         # No hovering anymore
                                         entity[Inventory].hoverSlot = None

@@ -61,7 +61,7 @@ class Inventory:
     activeSlot: int = 0
     hoverSlot: int = None
     activeItem: Tuple[str, int, SpriteSheet, int] = None
-    numItems: int = -1
+    usedSlots = [False for i in range(0, maxSlots)]
 
     distanceToDrop: int = 100
 
@@ -73,6 +73,17 @@ class Inventory:
     y: float = 0
     height: float = slotOffset*2 + slotSize
     width: float = slotSize * maxSlots + slotOffset * maxSlots + slotOffset
+
+    def getFirst(self):
+        for i, v in enumerate(self.usedSlots):
+            if not v:
+                return i
+
+    def getIDs(self):
+        ret = []
+        for i, v in self.items.items():
+            ret.append(v['ID'])
+        return ret
 
 @component(networked=True)
 class BackgroundMusic:

@@ -232,27 +232,28 @@ class RenderSystem(System):
 
                                 slotIndex += 1
                             
+                            # Drawing items in slots
+                            for slotIndex, data in entity[Inventory].items.items():
+                                if data:
+                                    itemImgIndexes = data['sprite'].tiles['default']
+                                    itemImgIndex = itemImgIndexes[frame % len(itemImgIndexes)]
 
-                            for itemKey, data in entity[Inventory].items.items():
-                                itemImgIndexes = data[1].tiles['default']
-                                itemImgIndex = itemImgIndexes[frame % len(itemImgIndexes)]
+                                    # If it does, get its image
+                                    itemImg = self.get_image(data['sprite'], itemImgIndex)
+                                    itemW, itemH = (inv.slotSize-inv.slotOffset, inv.slotSize-inv.itemSlotOffset * 2)
+                                    itemImg = pygame.transform.scale(itemImg, (itemW, itemH))
 
-                                # If it does, get its image
-                                itemImg = self.get_image(data[1], itemImgIndex)
-                                itemW, itemH = (inv.slotSize-inv.slotOffset, inv.slotSize-inv.itemSlotOffset * 2)
-                                itemImg = pygame.transform.scale(itemImg, (itemW, itemH))
+                                    # The item is placed in the slot with a 3px offset
+                                    itemRect = (invX + (distanceBetweenSlots * slotIndex) + inv.itemSlotOffset, invY+inv.slotOffset + inv.itemSlotOffset, itemW, itemH)
+                                    self.screen.blit(itemImg, itemRect)
 
-                                # The item is placed in the slot with a 3px offset
-                                itemRect = (invX + (distanceBetweenSlots * data[2]) + inv.itemSlotOffset, invY+inv.slotOffset + inv.itemSlotOffset, itemW, itemH)
-                                self.screen.blit(itemImg, itemRect)
+                                    # Drawing text that shows how many items of this kind there are
+                                    lItemRect = list(itemRect)
+                                    lItemRect[1] += inv.slotOffset
+                                    itemRect = tuple(lItemRect)
 
-                                # Drawing text that shows how many items of this kind there are
-                                lItemRect = list(itemRect)
-                                lItemRect[1] += inv.slotOffset
-                                itemRect = tuple(lItemRect)
-
-                                rendered_text_qslot = self.font.render(str(data[0]), False, (255, 255, 255))
-                                self.screen.blit(rendered_text_qslot, itemRect)
+                                    rendered_text_qslot = self.font.render(str(data['quantity']), False, (0, 0, 128))
+                                    self.screen.blit(rendered_text_qslot, itemRect)
 
             self.draw_particles(game, "above", our_center)
 

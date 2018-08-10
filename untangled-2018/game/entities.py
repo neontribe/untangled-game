@@ -229,10 +229,10 @@ def create_test_collision_object():
         )
     ]
 
-def create_test_item_object(itemID, numItems):
+def create_test_item_object(itemID, numItems, pos=(200, 300)):
     if itemID == "test-item-bounce":
         return [
-            IngameObject(position=(200,300), size=(49,49)),
+            IngameObject(position=pos, size=(49,49)),
             SpriteSheet(
                 path='./assets/sprites/BOUNCE_enemy.png',
                 tile_size=32,
@@ -249,9 +249,28 @@ def create_test_item_object(itemID, numItems):
             Directioned(direction='default'),
             GameAction()
         ]
+    elif itemID == "water-bucket":
+        return [
+            IngameObject(position=pos, size=(49,49)),
+            SpriteSheet(
+                path='./assets/sprites/water_bucket.png',
+                tile_size=49,
+                tiles={
+                    'default': [0, 1, 2, 3],
+                },
+                moving=True
+            ),
+            Collidable(
+                call_name = 'bounce'
+            ),
+            # Every item has this component
+            CanPickUp(quantity=numItems, itemID="water-bucket"),
+            Directioned(direction='default'),
+            GameAction()
+        ]
     else:
         return [
-            IngameObject(position=(200,300), size=(49,49)),
+            IngameObject(position=pos, size=(49,49)),
             SpriteSheet(
                 path='./assets/sprites/test.png',
                 tile_size=8,

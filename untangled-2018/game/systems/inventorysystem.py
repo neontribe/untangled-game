@@ -67,7 +67,6 @@ class InventorySystem(System):
         # Get the item uuid, item id and quantity
         if entity[Inventory].activeItem:
             item = entity[Inventory].activeItem
-            print(item)
 
             # Sorting out the position of the new entity
             disDropping = entity[Inventory].distanceToDrop

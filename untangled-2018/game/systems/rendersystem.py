@@ -48,6 +48,9 @@ class RenderSystem(System):
                 if game.net.is_me(entity[PlayerControl].player_id):
                     our_center = entity[IngameObject].position
                     break
+        
+        invMapX = {"min": 0, "max": 0}
+        invMapY = {"min": 0, "max": 0}
 
         # Draw tilemap
         for key, entity in game.entities.items():
@@ -100,10 +103,12 @@ class RenderSystem(System):
             
             # Don't check for items being picked up
             if CanPickUp in entity:
-                if entity[CanPickUp].pickedUp:
+                if entity[CanPickUp].pickedUp:  
+                    continue
                     if Wieldable in entity:
                         wieldable = entity[Wieldable]
                         if not wieldable.wielded:
+                            entity[GameAction].action = "delete"
                             continue
 
             #Check collisions for entity against all previously checked entities
@@ -262,6 +267,12 @@ class RenderSystem(System):
                         if Inventory in entity:
                             inv = entity[Inventory]
 
+                            # Store the map borders
+                            entity[Inventory].mapMinX = invMapX["min"]
+                            entity[Inventory].mapMinY = invMapY["min"]
+                            entity[Inventory].mapMaxX = invMapX["max"]
+                            entity[Inventory].mapMaxY = invMapY["max"]
+
                             # Inventory bar colours
                             inventoryBackgroundColour = (183, 92, 5)
                             slotBackgroundColour = (255, 159, 67)
@@ -269,10 +280,15 @@ class RenderSystem(System):
                             # Draw inventory bar
                             inventoryPos = (inv.x, inv.y, inv.width, inv.height)
                             pygame.draw.rect(self.screen, inventoryBackgroundColour, inventoryPos)
+                            invX = game.screen.get_width() / 2 - inv.width / 2
+                            invY = game.screen.get_height() - inv.height - inv.slotOffset
 
+                            entity[Inventory].x, entity[Inventory].y = invX, invY
+
+                            distanceBetweenSlots = inv.slotOffset+inv.slotSize
                             # Draw slots
                             slotIndex = 0
-                            for x in range(int(inv.x+inv.slotOffset), int(inv.x+inv.width), inv.slotOffset+inv.slotSize):
+                            for x in range(int(invX+inv.slotOffset), int(invX+inv.width), distanceBetweenSlots):
                                 # The active slot has a different colour
                                 if slotIndex == inv.activeSlot:
                                     colour = (241, 196, 15)
@@ -281,22 +297,23 @@ class RenderSystem(System):
                                 else:
                                     colour = slotBackgroundColour
 
-                                pygame.draw.rect(self.screen, colour, (x, inv.y+inv.slotOffset, inv.slotSize, inv.slotSize))
-                                
-                                # Check if item exists in inventory
-                                if slotIndex * 3 < len(entity[Inventory].items):
-                                    item = game.entities[entity[Inventory].items[slotIndex * 3]]
+                                pygame.draw.rect(self.screen, colour, (x, invY+inv.slotOffset, inv.slotSize, inv.slotSize))
 
-                                    itemImgIndexes = item[SpriteSheet].tiles['default']
+                                slotIndex += 1
+                            
+                            # Drawing items in slots
+                            for slotIndex, data in entity[Inventory].items.items():
+                                if data:
+                                    itemImgIndexes = data['sprite'].tiles['default']
                                     itemImgIndex = itemImgIndexes[frame % len(itemImgIndexes)]
 
                                     # If it does, get its image
-                                    itemImg = self.get_image(item[SpriteSheet], itemImgIndex)
+                                    itemImg = self.get_image(data['sprite'], itemImgIndex)
                                     itemW, itemH = (inv.slotSize-inv.slotOffset, inv.slotSize-inv.itemSlotOffset * 2)
                                     itemImg = pygame.transform.scale(itemImg, (itemW, itemH))
 
                                     # The item is placed in the slot with a 3px offset
-                                    itemRect = (x + inv.itemSlotOffset, inv.y+inv.slotOffset + inv.itemSlotOffset, itemW, itemH)
+                                    itemRect = (invX + (distanceBetweenSlots * slotIndex) + inv.itemSlotOffset, invY+inv.slotOffset + inv.itemSlotOffset, itemW, itemH)
                                     self.screen.blit(itemImg, itemRect)
 
                                     # Drawing text that shows how many items of this kind there are
@@ -304,7 +321,7 @@ class RenderSystem(System):
                                     lItemRect[1] += inv.slotOffset
                                     itemRect = tuple(lItemRect)
 
-                                    rendered_text_qslot = self.font.render(str(entity[Inventory].items[slotIndex * 2 + 1]), False, (255, 255, 255))
+                                    rendered_text_qslot = self.font.render(str(data['quantity']), False, (0, 0, 128))
                                     self.screen.blit(rendered_text_qslot, itemRect)
 
                                 slotIndex += 1

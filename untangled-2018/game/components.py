@@ -53,6 +53,7 @@ class Damager:
 
 @component(networked=True)
 class CanPickUp:
+    itemID: str
     pickedUp: bool = False
     quantity: int = 1
 
@@ -64,24 +65,49 @@ class WaterBar:
     disabled: bool = False
 
 @component(networked=True)
+class SpriteSheet:
+    """Gives an entity an image and animations."""
+    path: str
+    tile_size: Union[int, Tuple[int, int]]
+    tiles: dict
+    moving: bool = False
+
+@component(networked=True)
 class Inventory:
     """Gives a player items"""
-    items: List[Tuple[str, int]]
+    items: dict
     maxSlots: int = 6
     activeSlot: int = 0
     hoverSlot: int = None
-    activeItem: Tuple[str, int] = ()
+    activeItem: Tuple[str, int, SpriteSheet, int] = None
+    usedSlots = [False for i in range(0, maxSlots)]
+
+    distanceToDrop: int = 100
 
     itemSlotOffset: int = 6
     slotOffset: int = 10
     slotSize: int = 55
 
+    x: float = 0
+    y: float = 0
     height: float = slotOffset*2 + slotSize
     width: float = slotSize * maxSlots + slotOffset * maxSlots + slotOffset
 
-    x: float = Framework.dimensions[0] / 2 - width / 2
-    y: float = Framework.dimensions[1] - height - slotOffset
+    mapMinX: float = 0
+    mapMinY: float = 0
+    mapMaxX: float = 0
+    mapMaxY: float = 0
 
+    def getFirst(self):
+        for i, v in enumerate(self.usedSlots):
+            if not v:
+                return i
+
+    def getIDs(self):
+        ret = []
+        for i, v in self.items.items():
+            ret.append(v['ID'])
+        return ret
 
 @component(networked=True)
 class SpriteSheet:
@@ -136,7 +162,10 @@ class PlayerControl:
 
 @component(networked=True)
 class GameAction:
-    action: str = ''
+    """Allows entities to have different actions"""
+    action: str = ""
+    isDropping: bool = False
+    isHarvesting: bool = False
     last_plant: float = 0.0
 
 @component()

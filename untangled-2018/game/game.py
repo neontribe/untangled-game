@@ -20,8 +20,9 @@ from game.systems.particlesystem import ParticleSystem
 from game.systems.soundsystem import SoundSystem
 from game.systems.timesystem import TimeSystem
 
+from game.systems.inventorysystem import InventorySystem
+from game.systems.actionsystem import ActionSystem
 from game.systems.plantsystem import PlantSystem
-
 from game.systems.damagesystem import DamageSystem
 from game.systems.inventorysystem import *
 from game.collisions import Class_Collisions
@@ -75,6 +76,7 @@ class GameState:
 
             self.collisionSystem,
             self.inventorySystem,
+            ActionSystem(),
             self.renderSystem,
             self.particles,
             SoundSystem(),
@@ -94,6 +96,9 @@ class GameState:
 
             self.add_entity(create_clock())
             
+            self.add_entity(create_test_item_object("water-bucket", 40, (1000, 500)))
+            self.add_entity(create_test_item_object("wheat", 40, (1000, 700)))
+
             # TODO check we don't spawn in tiles
             # Spawn zombies
             for i in range(4):
@@ -189,7 +194,8 @@ class GameState:
             ),
             Wieldable(wielded = True)
         ])
-        entity_id = self.add_entity(create_player(player_id, [sword_id,1]))
+        entity_id = self.add_entity(create_player(player_id, {0: {"ID": "sword", "quantity": 1, "sprite": self.entities[sword_id][SpriteSheet]}}))
+        self.entities[entity_id][Inventory].usedSlots[0] = True
         self.entities[sword_id][Wieldable].player_id = entity_id
 
 
@@ -210,7 +216,7 @@ class GameState:
         if IngameObject in self.entities[key]:
             self.entities[key][IngameObject].id = key
         return key
-        
+
     def itemPickedUp(self, event):
         pass
 

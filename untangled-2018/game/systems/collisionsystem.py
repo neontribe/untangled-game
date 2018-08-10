@@ -64,6 +64,9 @@ class CollisionSystem(System):
     def update(self, game, dt, events):
         remove = []
         for c in self.COLLISIONEVENTS:
+            if c.doKill:
+                remove.append(c)
+                continue
             if c.doEnd:
                 c.end()
                 remove.append(c)
@@ -78,11 +81,13 @@ class CollisionSystem(System):
 
 class CollisionEvent:
     doEnd: bool
+    doKill: bool
     keys: list
     game = None
     def __init__(self, game, colSystem: CollisionSystem, keys: list):
         self.calls = []
         self.doEnd = False
+        self.doKill = False
         self.keys = keys
         self.game = game
         self.start()

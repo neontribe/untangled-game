@@ -54,6 +54,20 @@ class UserInputSystem(System):
                     if keysdown[pygame.locals.K_RIGHT]:
                         hoped_vel = (hoped_vel[0] + 1, hoped_vel[1])
                         direction = 'right'
+                        
+                    # Dropping items
+                    for event in events:
+                        if event.type == pygame.KEYDOWN:
+                            if event.key == pygame.K_f and not entity[GameAction].isDropping:
+                                entity[GameAction].action = "drop-stack"
+                                entity[GameAction].isDropping = True
+                            elif event.key == pygame.K_d and not entity[GameAction].isDropping:
+                                entity[GameAction].action = "drop-one"
+                                entity[GameAction].isDropping = True
+                        elif event.type == pygame.KEYUP:
+                            if event.key == pygame.K_f or event.key == pygame.K_d:
+                                entity[GameAction].isDropping = False
+                        
                     if keysdown[pygame.locals.K_p]:
                         if GameAction in entity:
                             # TODO: Allow the player to plant specific plants from their inventory
@@ -69,8 +83,30 @@ class UserInputSystem(System):
                         if GameAction in entity:
                             gaComponent = entity[GameAction]
                             gaComponent.action = 'harvest'
-                        
+                    if keysdown[pygame.locals.K_w]:
+                        if GameAction in entity:
+                            gaComponent = entity[GameAction]
+                            gaComponent.action = "drink"
 
+                    if Inventory in entity:
+                        activeSlot = None
+                        if keysdown[pygame.locals.K_1]:
+                            activeSlot = 0
+                        elif keysdown[pygame.locals.K_2]:
+                            activeSlot = 1
+                        elif keysdown[pygame.locals.K_3]:
+                            activeSlot = 2
+                        elif keysdown[pygame.locals.K_4]:
+                            activeSlot = 3
+                        elif keysdown[pygame.locals.K_5]:
+                            activeSlot = 4
+                        elif keysdown[pygame.locals.K_6]:
+                            activeSlot = 5
+                        
+                        if activeSlot is not None:
+                            entity[Inventory].activeSlot = activeSlot
+                            if activeSlot in entity[Inventory].items.keys():
+                                entity[Inventory].activeItem = entity[Inventory].items[activeSlot]
 
 
                     if hoped_vel != (0, 0):
@@ -119,11 +155,10 @@ class UserInputSystem(System):
                                         entity[Inventory].activeSlot = activeSlot
 
                                         # Get active item, if there is one
-                                        if activeSlot * 2 < len(inv.items):
-                                            activeItemKey = inv.items[activeSlot * 2]
-                                            activeItemQuantity = inv.items[activeSlot * 2 + 1]
-
-                                            entity[Inventory].activeItem = (activeItemKey, activeItemQuantity)
+                                        for slotIndex, data in entity[Inventory].items.items():
+                                            if slotIndex == activeSlot:
+                                                entity[Inventory].activeItem = (data['ID'], data['quantity'], data['sprite'], slotIndex)
+                                             
 
                                         # No hovering anymore
                                         entity[Inventory].hoverSlot = None

@@ -14,7 +14,7 @@ def create_player(player_id, inventory_items):
         Energy(value=100),
 
         # They should have an inventory
-        Inventory([]),
+        Inventory(inventory_items),
 
         # They should be facing a certain direction
         Directioned(direction='default'),
@@ -44,6 +44,8 @@ def create_player(player_id, inventory_items):
         Collidable(
             call_name = "player"
         ),
+
+        GameAction(),
 
         ParticleEmitter(
             particleTypes = ["ring","star"],
@@ -350,7 +352,8 @@ def create_plant(game, name, path, position):
         Crops(name=name, growth_rate=0.05,dehydration_rate=0.05, max_growth_stage=3,growth_stage=0,plantage_time=time.time()),
         SpriteSheet(path=path,tile_size=16,tiles={
             'default': [0, 1, 2, 3]
-        })
+        }),
+        GameAction()
     ]
 
 
@@ -377,10 +380,10 @@ def create_test_collision_object():
         )
     ]
 
-def create_test_item_object(animated=False):
-    if animated:
+def create_test_item_object(itemID, numItems, pos=(200, 300)):
+    if itemID == "test-item-bounce":
         return [
-            IngameObject(position=(200,100), size=(49,49)),
+            IngameObject(position=pos, size=(49,49)),
             SpriteSheet(
                 path='./assets/sprites/BOUNCE_enemy.png',
                 tile_size=32,
@@ -390,15 +393,54 @@ def create_test_item_object(animated=False):
                 moving=True
             ),
             Collidable(
-                call_name = 'bounce'
+                call_name = 'item'
             ),
             # Every item has this component
-            CanPickUp(quantity=1),
-            Directioned(direction='default')
+            CanPickUp(quantity=numItems, itemID="test-item-bounce"),
+            Directioned(direction='default'),
+            GameAction()
+        ]
+    elif itemID == "water-bucket":
+        return [
+            IngameObject(position=pos, size=(49,49)),
+            SpriteSheet(
+                path='./assets/sprites/water_bucket.png',
+                tile_size=49,
+                tiles={
+                    'default': [0, 1, 2, 3],
+                },
+                moving=True
+            ),
+            Collidable(
+                call_name = 'item'
+            ),
+            # Every item has this component
+            CanPickUp(quantity=numItems, itemID="water-bucket"),
+            Directioned(direction='default'),
+            GameAction()
+        ]
+    elif itemID == "wheat":
+        return [
+            IngameObject(position=pos, size=(49,49)),
+            SpriteSheet(
+                path='./assets/sprites/wheat-icon.png',
+                tile_size=49,
+                tiles={
+                    'default': [0, 1, 2, 3],
+                },
+                moving=True
+            ),
+            Collidable(
+                call_name = 'item'
+            ),
+            # Every item has this component
+            CanPickUp(quantity=numItems, itemID="wheat"),
+            Directioned(direction='default'),
+            GameAction()
         ]
     else:
         return [
-            IngameObject(position=(100,100), size=(49,49)),
+            IngameObject(position=pos, size=(49,49)),
             SpriteSheet(
                 path='./assets/sprites/debug.png',
                 tile_size=8,
@@ -408,10 +450,11 @@ def create_test_item_object(animated=False):
                 }
             ),
             Collidable(
-                call_name = 'test'
+                call_name = 'item'
             ),
             # Every item has this component
-            CanPickUp(quantity=2)
+            CanPickUp(quantity=numItems, itemID="test-item"),
+            GameAction()
         ]
 
 def create_wand():
@@ -429,7 +472,7 @@ def create_wand():
                 call_name = 'wand'
             ),
             # Every item has this component
-            CanPickUp(),
+            CanPickUp(quantity=1,itemID="wand"),
             ParticleEmitter(
                 particleTypes = ["star"],
                 offset = (0,0),
@@ -472,7 +515,7 @@ def create_house(position):
         IngameObject(position=position, size=(400,400))
     ]
         
-def create_item(ingameobject,spritesheet,quantity=1):
+def create_item(ingameobject,spritesheet,itemID,quantity=1):
     return [
         ingameobject,
         spritesheet,
@@ -480,5 +523,5 @@ def create_item(ingameobject,spritesheet,quantity=1):
             call_name = 'test'
         ),
         # Every item has this component
-        CanPickUp(quantity=quantity)
+        CanPickUp(quantity=quantity,itemID=itemID)
     ]

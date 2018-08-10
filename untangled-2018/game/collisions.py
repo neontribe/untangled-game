@@ -14,8 +14,8 @@ class Class_Collisions:
         'zombie': CollisionCall(
             update = lambda game, event: damagerUpdate(event)
         ),
-        'test': CollisionCall(
-
+        'item': CollisionCall(
+            update = lambda game, event: game.inventorySystem.mergeStacks(event)
         ),
         'bounce': CollisionCall(
             update = lambda game, event: damagerUpdate(event)

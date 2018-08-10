@@ -14,7 +14,7 @@ def create_player(player_id, inventory_items):
         Energy(value=100),
 
         # They should have an inventory
-        Inventory([]),
+        Inventory(inventory_items),
 
         # They should be facing a certain direction
         Directioned(direction='default'),
@@ -466,7 +466,7 @@ def create_wand():
                 call_name = 'wand'
             ),
             # Every item has this component
-            CanPickUp(),
+            CanPickUp(itemID="wand"),
             ParticleEmitter(
                 particleTypes = ["star"],
                 offset = (0,0),
@@ -517,5 +517,5 @@ def create_item(ingameobject,spritesheet,quantity=1):
             call_name = 'test'
         ),
         # Every item has this component
-        CanPickUp(quantity=quantity)
+        CanPickUp(quantity=quantity, itemID="test")
     ]

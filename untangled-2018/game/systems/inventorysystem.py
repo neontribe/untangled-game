@@ -3,8 +3,6 @@ from game.components import *
 from game.entities import *
 import pygame
 
-ITEMSNODROP = []
-
 class InventorySystem(System):
     """This system updates the player's inventory"""
 

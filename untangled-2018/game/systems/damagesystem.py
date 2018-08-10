@@ -30,4 +30,4 @@ class DamageSystem(System):
                     event.game.particles.add_damage_particle(damage, target[IngameObject].position)
                 if target[Health].value<=0:
                     target[Health].value=100
-                    target[IngameObject].position=(100, 100)
+                    target[IngameObject].position=(2000, 2000)

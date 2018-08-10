@@ -8,6 +8,7 @@ from game.components import *
 from game.systems.particlesystem import Particle
 
 SPEED = 10
+CLEAR_TILES = [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 11, 12, 13, 14, 15, 16 ]
 
 class UserInputSystem(System):
     """This system updates certain entities based on the arrow keys."""
@@ -149,16 +150,35 @@ class UserInputSystem(System):
                 if entity[Wieldable].wielded:
                     player_id = game.entities[entity[Wieldable].player_id][PlayerControl].player_id
                     if game.net.is_me(player_id):
-                        if keysdown[pygame.locals.K_SPACE]:
+                        if keysdown[pygame.locals.K_SPACE] and entity[Wieldable]._last_hit + entity[Wieldable].cooldown < time.time():
                             entity[SwingSword].swing = True
                             entity[SpriteSheet].moving = True
                             for key_col, entity_col in game.entities.items():
                                 wielding_player = game.entities[entity[Wieldable].player_id]
                                 if entity_col != wielding_player:
                                     if Health in entity_col:
-                                        if entity[IngameObject].get_rect().colliderect(entity_col[IngameObject].get_rect()):
-                                            damage = 1
-                                            entity_col[Health].value = entity_col[Health].value - damage                     
+                                        collisionio = entity_col[IngameObject]
+                                        if entity[IngameObject].get_rect().colliderect(collisionio.get_rect()):
+                                            damager = entity[Damager]
+                                            if damager.knockback == True:
+                                                collisionio.position
+                                                entitydirection = entity[Directioned].direction
+                                                if entitydirection == 'left':
+                                                    collisionio.position = (collisionio.position[0]-100,collisionio.position[1])
+                                                elif entitydirection == 'right':
+                                                    collisionio.position = (collisionio.position[0]+100,collisionio.position[1])
+                                                elif entitydirection == 'up':
+                                                    collisionio.position = (collisionio.position[0],collisionio.position[1]-100)
+                                                elif entitydirection == 'down':
+                                                    collisionio.position = (collisionio.position[0],collisionio.position[1]+100)
+
+                                            damage = 15
+                                            
+                                            entity_col[Health].value = entity_col[Health].value - damage
+                                            game.particles.add_damage_particle(damage, entity_col[IngameObject].position, (255,128,0))
+                                            entity[Wieldable]._last_hit = time.time()
+
+                                            #Successful hit           
                         else:
                             entity[SwingSword].swing = False
                             entity[SpriteSheet].moving = False
@@ -188,7 +208,7 @@ def get_position(io, hoped_vel, tmap):
                 tile_x = math.floor(intrusive_x / tmap[SpriteSheet].tile_size)
                 tile_y = math.floor(y / tmap[SpriteSheet].tile_size)
 
-                if (tile_y < 0 or tile_y >= tmap[Map].height) or (tile_x < 0 or tile_x >= tmap[Map].width) or tmap[Map].grid[tile_y][tile_x] != 1:
+                if (tile_y < 0 or tile_y >= tmap[Map].height) or (tile_x < 0 or tile_x >= tmap[Map].width) or tmap[Map].grid[tile_y][tile_x] not in CLEAR_TILES:
                     # It's off map or collidable
                     tcollision = True
                     break
@@ -214,7 +234,7 @@ def get_position(io, hoped_vel, tmap):
                 tile_y = math.floor(intrusive_y / tmap[SpriteSheet].tile_size)
                 tile_x = math.floor(x / tmap[SpriteSheet].tile_size)
 
-                if (tile_y < 0 or tile_y >= tmap[Map].height) or (tile_x < 0 or tile_x >= tmap[Map].width) or tmap[Map].grid[tile_y][tile_x] != 1:
+                if (tile_y < 0 or tile_y >= tmap[Map].height) or (tile_x < 0 or tile_x >= tmap[Map].width) or tmap[Map].grid[tile_y][tile_x] not in CLEAR_TILES:
                     # It's off map or collidable
                     tcollision = True
                     break

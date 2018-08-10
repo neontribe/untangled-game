@@ -285,13 +285,13 @@ class LobbyMenuItem(MenuItem):
                 elif event.key == pygame.locals.K_DOWN:
                     self.selected_option += 1
                 elif event.key == pygame.locals.K_RETURN:
-                    if self.selected_option < len(self.hosts):
-                        self.menu_state.net.join_group(self.hosts[self.selected_option])
-                        self.menu_state.current_state = MenuStates.PLAY
-                    elif self.selected_option == (len(self.hosts)):
+                    if self.selected_option == 0:
                         if HOSTNAME not in self.menu_state.net.get_all_groups():
                             self.menu_state.net.host_group(HOSTNAME)
                             self.menu_state.current_state = MenuStates.PLAY
+                    elif self.selected_option <= len(self.hosts):
+                        self.menu_state.net.join_group(self.hosts[self.selected_option-1])
+                        self.menu_state.current_state = MenuStates.PLAY
                     else:
                         option_values = list(self.options.values())
                         self.menu_state.current_state = option_values[self.selected_option - len(
@@ -303,19 +303,24 @@ class LobbyMenuItem(MenuItem):
         font = self.font
         offset = self.get_screen_centre() - self.options_shift
 
+        text = 'HOST'
+        if 0 == self.selected_option:
+            text = ">{0}".format(text)
+
+        self.render_text(font, text, (offset[0], offset[1]))
+
         for index, host in enumerate(self.hosts):
             text = host
-            if index == self.selected_option:
+            if index + 1 == self.selected_option:
                 text = ">{0}".format(host)
 
-            self.render_text(font, text, (index + offset[0], index * 55 + offset[1]))
+            self.render_text(font, text, (index + 1 + offset[0], (index + 1) * 55 + offset[1]))
 
-        for index, value in enumerate(self.options.keys()):
-            text = value
-            if index + len(self.hosts) == self.selected_option:
-                text = ">{0}".format(text)
+        text = 'BACK'
+        if 1 + len(self.hosts) == self.selected_option:
+            text = ">{0}".format(text)
 
-            self.render_text(font, text, (index + offset[0], (index + len(self.hosts)) * 55 + offset[1]))
+        self.render_text(font, text, (1 + offset[0], (1 + len(self.hosts)) * 55 + offset[1]))
 
 
 class HelpMenuItem(MenuItem):

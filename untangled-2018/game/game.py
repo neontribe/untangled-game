@@ -106,18 +106,18 @@ class GameState:
                 self.add_entity(create_bounce((spawnx, spawny)))
             # Spawn skeletons
             for i in range(4):
-                spawnx = random.randint(-4000, 4000)
-                spawny = random.randint(-4000, 4000)
+                spawnx = random.randrange(map_ent[Map].width * map_ent[SpriteSheet].tile_size)
+                spawny = random.randrange(map_ent[Map].height * map_ent[SpriteSheet].tile_size)
                 self.add_entity(create_ice_skeleton((spawnx, spawny)))
             # Spawn ice skeletons
             for i in range(4):
-                spawnx = random.randint(-4000, 4000)
-                spawny = random.randint(-4000, 4000)
+                spawnx = random.randrange(map_ent[Map].width * map_ent[SpriteSheet].tile_size)
+                spawny = random.randrange(map_ent[Map].height * map_ent[SpriteSheet].tile_size)
                 self.add_entity(create_skeleton((spawnx, spawny)))
             # Spawn ice skeletons
-            for i in range(10):
-                spawnx = random.randint(-4000, 4000)
-                spawny = random.randint(-4000, 4000)
+            for i in range(1):
+                spawnx = random.randrange(map_ent[Map].width * map_ent[SpriteSheet].tile_size)
+                spawny = random.randrange(map_ent[Map].height * map_ent[SpriteSheet].tile_size)
                 self.add_entity(create_BOSS((spawnx, spawny)))
 
             # Spawn sheep

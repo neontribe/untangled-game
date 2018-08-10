@@ -169,8 +169,8 @@ def create_skeleton(position):
             call_name = "zombie"
         ),
         Damager(
-            damagemin=10, # Someone change these, they're op.
-            damagemax=20,
+            damagemin=15, # Someone change these, they're op.
+            damagemax=25,
             cooldown=1.5
         ),
         ParticleEmitter(
@@ -204,14 +204,14 @@ def create_ice_skeleton(position):
         IngameObject(position=position, size=(64, 64)),
         Directioned(direction='default'),
         Health(value=100),
-        ChasePlayer(speed = 1),
+        ChasePlayer(speed = 2),
         Collidable(
             call_name = "zombie"
         ),
         Damager(
-            damagemin=10, # Someone change these, they're op.
-            damagemax=20,
-            cooldown=1.5
+            damagemin=15, # Someone change these, they're op.
+            damagemax=25,
+            cooldown=1
         ),
         ParticleEmitter(
             particleTypes = ["circle"],

@@ -28,6 +28,19 @@ class ParticleSystem(System):
         else:
             del(p)
 
+    def add_damage_particle(self, damage, pos, colour = (255,0,0)):
+        self.add_particle(
+            p = Particle(
+                particle = "text",
+                position = pos,
+                lifespan = 40,
+                velocity = (random.uniform(-3,3),-3),
+                acceleration = (0,0.1),
+                below = False,
+                text = str(damage),
+                colour = colour
+            )
+        )
     image_cache: dict = {}
     def get_image(self, path):
         # Ideally, we cache so we only process a file once
@@ -49,8 +62,9 @@ class Particle:
     below: bool
     randomness: Tuple[float,float]
     size: int
+    textValue: str = ""
 
-    def __init__(self, particle: str, position: Tuple[float,float], lifespan: int, velocity: Tuple[float,float] = None, colour: Tuple[int,int,int] = None, acceleration: Tuple[float,float] = None, below: bool = False, randomness: Tuple[float,float] = (1.0,1.0), size : int = 8):
+    def __init__(self, particle: str, position: Tuple[float,float], lifespan: int, velocity: Tuple[float,float] = None, colour: Tuple[int,int,int] = None, acceleration: Tuple[float,float] = None, below: bool = False, randomness: Tuple[float,float] = (1.0,1.0), size: int = 8, text: str = ""):
         self.particleType = particle
         self.lifespan = lifespan
         self.position = position
@@ -61,6 +75,7 @@ class Particle:
         self.below = below
         self.randomness = randomness
         self.size = size
+        self.textValue = text
 
     def updatePos(self):
         if self.velocity is not None:

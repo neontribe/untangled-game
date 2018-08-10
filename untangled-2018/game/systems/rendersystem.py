@@ -21,11 +21,14 @@ class RenderSystem(System):
             'square': lambda p, s: self.particle_square(p,s),
             'circle': lambda p, s: self.particle_circle(p,s),
             'ring': lambda p, s: self.particle_ring(p,s),
-            'star': lambda p, s: self.particle_star(p,s)
+            'star': lambda p, s: self.particle_star(p,s),
+            'text': lambda p, s: self.particle_text(p,s)
         }
 
         font_path = 'assets/fonts/alterebro-pixel-font.ttf'
         self.font = pygame.font.Font(font_path, 45)
+        self.damageFont = pygame.font.Font(font_path, 45)
+        self.damageFont.set_bold(True)
 
     def update(self, game, dt: float, events: list):
         # Step through 15 sprite frames each second
@@ -196,9 +199,9 @@ class RenderSystem(System):
              
                     # Red health bar
                     if entity[Health].value > 0:
-                        currentHealthPos = (rect.x+healthBarThickness, rect.y-30+healthBarThickness, entity[Health].value, 10-healthBarThickness*2)
+                        healthValue = int(entity[Health].value / entity[Health].maxValue * 100)
+                        currentHealthPos = (rect.x+healthBarThickness, rect.y-30+healthBarThickness, healthValue, 10-healthBarThickness*2)
                         pygame.draw.rect(self.screen, (255, 0, 0), currentHealthPos)
-                
 
                 if WaterBar in entity:
                     if not entity[WaterBar].disabled:
@@ -342,4 +345,8 @@ class RenderSystem(System):
         )
         pygame.draw.line(self.screen,p.colour,hor[0],hor[1],2)
         pygame.draw.line(self.screen,p.colour,ver[0],ver[1],2)
+
+    def particle_text(self, p, pos):
+        text_surface = self.damageFont.render(p.textValue,False,p.colour)
+        self.screen.blit(text_surface,pos)
 

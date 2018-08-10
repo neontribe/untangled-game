@@ -23,6 +23,7 @@ class IngameObject:
 @component(networked=True)
 class Health:
     """Gives the entity health"""
+    maxValue: int
     value: int
 
 @component(networked=True)
@@ -149,6 +150,8 @@ class ChasePlayer:
 class Wieldable:
     wielded: bool
     player_id: Union[str, None] = None
+    cooldown = 2
+    _last_hit: float = 0.0
 @component(networked=True)
 class SwingSword:
     swing: bool

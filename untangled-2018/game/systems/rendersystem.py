@@ -117,7 +117,7 @@ class RenderSystem(System):
                     game.collisionSystem.checkCollisions(game,key,entity[Collidable],previousCollidables)
                     previousCollidables.append((key,entity[Collidable]))
 
-            if IngameObject in entity:
+            if IngameObject in entity and Wieldable not in entity:
                 # Where are they relative to us?
                 pos = entity[IngameObject].position
                 rel_pos = (pos[0] - our_center[0], pos[1] - our_center[1])

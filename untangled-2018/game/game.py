@@ -18,6 +18,7 @@ from game.systems.AI_system import AI_system
 from game.systems.collisionsystem import CollisionSystem, CollisionCall
 from game.systems.particlesystem import ParticleSystem
 from game.systems.soundsystem import SoundSystem
+from game.systems.timesystem import TimeSystem
 
 from game.systems.plantsystem import PlantSystem
 
@@ -80,7 +81,8 @@ class GameState:
             self.renderSystem,
             self.particles,
             SoundSystem(),
-            self.damagesystem
+            self.damagesystem,
+            TimeSystem()
         ])
 
         if self.net.is_hosting():
@@ -91,6 +93,8 @@ class GameState:
 
             # We need to make all other entities at the start of the game here
             self.add_entity(create_background_music())
+
+            self.add_entity(create_clock())
             
             # TODO check we don't spawn in tiles
             # Spawn zombies

@@ -2,6 +2,8 @@ import time
 import pygame
 import math
 import pygame.locals
+import random
+from random import randint
 
 from lib.system import System
 from game.components import *
@@ -161,7 +163,7 @@ class UserInputSystem(System):
                                                 elif entitydirection == 'down':
                                                     collisionio.position = (collisionio.position[0],collisionio.position[1]+100)
 
-                                            damage = 15
+                                            damage = random.randint(15, 30)
                                             
                                             entity_col[Health].value = entity_col[Health].value - damage
                                             game.particles.add_damage_particle(damage, entity_col[IngameObject].position, (255,128,0))

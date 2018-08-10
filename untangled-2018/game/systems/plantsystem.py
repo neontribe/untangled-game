@@ -5,6 +5,7 @@ from game.components import *
 from game.entities import *
 import pygame
 import time
+import random
 
 class PlantSystem(System):
     last_plant = 0
@@ -76,20 +77,58 @@ class PlantSystem(System):
                         if inventory.items[wheatKey]["quantity"] == 0:
                             inventory.usedSlots[wheatKey] = False
                             del inventory.items[wheatKey]
+                            isWheatInInventory = False
 
-                    if action.action == 'water':
+                    waterUsed = 0.2
+                    if action.action == 'water' and entity[WaterBar].value >= waterUsed:
                         for k,e in dict(game.entities).items():
                             if Crops in e:
                                 if entity[IngameObject].get_rect().colliderect(e[IngameObject].get_rect()):
                                     water_bar = e[WaterBar]
-                                    water_bar.value = min(water_bar.value + 0.2, 100)
+                                    water_bar.value = min(water_bar.value + waterUsed, 100)
+                                    entity[WaterBar].value -= waterUsed
+
                                     action.action = ''
+
+
                     if action.action == 'harvest':
                         for k,e in dict(game.entities).items():
                             if Crops in e:
                                 if e[Crops].growth_stage >= e[Crops].max_growth_stage:
                                     # Are the entity and the player touching?
+                                    print("I am called")
                                     if entity[IngameObject].get_rect().colliderect(e[IngameObject].get_rect()):
+                                        print("Hi")
+                                        if isWheatInInventory:
+                                            entity[Inventory].items[wheatKey]["quantity"] += random.randint(1, 3)
+                                        else:
+                                            nextSlot = entity[Inventory].getFirst()
+                                            if nextSlot is None:
+                                                game.create_test_item_object("wheat", random.randint(1, 3), (entity[IngameObject].position))                                        
+                                            else:
+                                                quantity = random.randint(1, 3)
+                                                entity[Inventory].items[nextSlot] = {
+                                                    'ID': "wheat",
+                                                    'quantity': quantity,
+                                                    'sprite': SpriteSheet(
+                                                                path='./assets/sprites/wheat-icon.png',
+                                                                tile_size=49,
+                                                                tiles={
+                                                                    'default': [0, 1, 2, 3],
+                                                                },
+                                                                moving=True
+                                                            ),
+                                                }
+                                                entity[Inventory].activeItem = (
+                                                    entity[Inventory].items[nextSlot]['ID'],
+                                                    entity[Inventory].items[nextSlot]['quantity'],
+                                                    entity[Inventory].items[nextSlot]['sprite'],
+                                                    nextSlot
+                                                )
+                                                entity[Inventory].activeSlot = nextSlot
+
+                                        e[GameAction].action = "delete"
+                                        """
                                         item_igo = IngameObject(position=entity[IngameObject].get_rect().topleft,size=(64,64))
                                         item_ss = SpriteSheet(
                                             path = 'assets/sprites/wheat.png',
@@ -101,4 +140,4 @@ class PlantSystem(System):
                                         )
                                         game.add_entity(create_item(item_igo,item_ss))
                                         action.action = ''
-                                        del game.entities[k]
+                                        del game.entities[k]"""

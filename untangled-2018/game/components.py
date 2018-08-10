@@ -73,7 +73,7 @@ class SpriteSheet:
 class Inventory:
     """Gives a player items"""
     items: dict
-    maxSlots: int = 10
+    maxSlots: int = 6
     activeSlot: int = 0
     hoverSlot: int = None
     activeItem: Tuple[str, int, SpriteSheet, int] = None
@@ -162,6 +162,7 @@ class GameAction:
     """Allows entities to have different actions"""
     action: str = ""
     isDropping: bool = False
+    isHarvesting: bool = False
     last_plant: float = 0.0
 
 @component()

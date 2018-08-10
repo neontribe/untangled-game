@@ -9,6 +9,17 @@ class InventorySystem(System):
     def update(self, game, dt: float, events):
         pass
 
+    def drinkWater(self, game, entity):
+        inventory = entity[Inventory]
+        entity[GameAction].action = ""
+        for key, data in dict(inventory.items).items():
+            if inventory.items[key]["ID"] == "water-bucket":
+                entity[WaterBar].value = 100
+                data["quantity"] -= 1
+                if data["quantity"] == 0:
+                    del inventory.items[key]
+                return
+
     def mergeStacks(self, event):
         IDs = []
         entities = []
@@ -91,6 +102,9 @@ class InventorySystem(System):
         if entity[Inventory].activeItem:
             item = entity[Inventory].activeItem
 
+            if item["ID"] == "sword":
+                return
+            
             # Sorting out the position of the new entity
             disDropping = entity[Inventory].distanceToDrop
             offsetX, offsetY = (0, 0)

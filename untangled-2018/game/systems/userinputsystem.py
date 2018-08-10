@@ -80,6 +80,10 @@ class UserInputSystem(System):
                         if GameAction in entity:
                             gaComponent = entity[GameAction]
                             gaComponent.action = 'harvest'
+                    if keysdown[pygame.locals.K_w]:
+                        if GameAction in entity:
+                            gaComponent = entity[GameAction]
+                            gaComponent.action = "drink"
                         
 
                     if hoped_vel != (0, 0):

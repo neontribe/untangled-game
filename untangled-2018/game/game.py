@@ -128,7 +128,6 @@ class GameState:
                 self.add_entity(create_chicken((spawnx, spawny)))
 
 
-
             # We need to make all other entities at the start of the game here
             self.add_entity(create_background_music())
 
@@ -185,7 +184,7 @@ class GameState:
             ),
             Wieldable(wielded = True)
         ])
-        entity_id = self.add_entity(create_player(player_id, {0: {"ID": sword_id, "quantity": 1, "sprite": self.entities[sword_id][SpriteSheet]}}))
+        entity_id = self.add_entity(create_player(player_id, {0: {"ID": "sword", "quantity": 1, "sprite": self.entities[sword_id][SpriteSheet]}}))
         self.entities[entity_id][Inventory].usedSlots[0] = True
         self.entities[sword_id][Wieldable].player_id = entity_id
 

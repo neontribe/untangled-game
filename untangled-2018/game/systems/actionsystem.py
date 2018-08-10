@@ -16,3 +16,6 @@ class ActionSystem(System):
                         break
                 elif action == "delete":
                     del game.entities[key]
+                elif action == "drink":
+                    if Inventory in entity:
+                        game.inventorySystem.drinkWater(game, entity)

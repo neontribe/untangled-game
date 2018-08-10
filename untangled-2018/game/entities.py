@@ -236,7 +236,8 @@ def create_plant(game, name, path, position):
         Crops(name=name, growth_rate=3,dehydration_rate=2, max_growth_stage=3,growth_stage=0),
         SpriteSheet(path=path,tile_size=16,tiles={
             'default': [0, 1, 2, 3]
-        })
+        }),
+        GameAction()
     ]
 
 

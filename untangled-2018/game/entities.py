@@ -3,7 +3,7 @@ import tmx
 from game.components import *
 from game.systems.collisionsystem import CollisionCall
 
-def create_player(player_id):
+def create_player(player_id, initial_inventory=[]):
     return [
         # They should have a position and size in game
         IngameObject(position=(100, 100), size=(64, 64)),
@@ -15,7 +15,7 @@ def create_player(player_id):
         Energy(value=100),
 
         # They should have an inventory
-        Inventory([]),
+        Inventory(items = initial_inventory),
 
         # They should be facing a certain direction
         Directioned(direction='default'),
@@ -40,6 +40,7 @@ def create_player(player_id):
 
         # The player who has connected con control them with the arrow keys
         PlayerControl(player_id=player_id),
+        GameAction(),
 
         Collidable(
             call_name = "player"
@@ -124,9 +125,11 @@ def create_zombie(game, position):
         ),
         IngameObject(position=position, size=(64, 64)),
         Directioned(direction='default'),
+        Health(value=100),
         ChasePlayer(speed = 1),
         Collidable(
-            call_name = "zombie"
+            call_name = "zombie",
+            doPush = True
         ),
         Damager(
             damagemin=10, # Someone change these, they're op.
@@ -163,7 +166,17 @@ def create_bounce(position):
         ),
         IngameObject(position=position, size=(64, 64)),
         Directioned(direction='default'),
-        ChasePlayer(speed = 2)
+        ChasePlayer(speed = 2),
+        Health(value=100),
+        Collidable(
+            call_name = 'bounce',
+            doPush = True
+        ),
+        Damager(
+            damagemin=5, # Someone change these, they're op.
+            damagemax=10,
+            cooldown=1.5
+        )
     ]
 
 def create_sheep(position):
@@ -182,7 +195,8 @@ def create_sheep(position):
         ),
         IngameObject(position=position, size=(64,64)),
         Directioned(direction='default'),
-        MoveRandom()
+        MoveRandom(),
+        Health(value=100)
     ]
 
 def create_chicken(position):
@@ -197,12 +211,32 @@ def create_chicken(position):
             },
             moving=False
         ),
+
+        Health(value=100),
+        IngameObject(position=position, size=(64,64)),
+        Directioned(direction='default'),
+        MoveRandom(),
+        Health(value=100),
+
         IngameObject(position=position, size=(50,50)),
         Directioned(
             direction='default',
             isOnlyLR=True
         ),
         MoveRandom()
+
+    ]
+
+def create_plant(game, name, path, position):
+    return [
+        IngameObject(position=position,size=(64, 64)),
+        Health(value=100),
+        Energy(value=0),
+        WaterBar(value=50),
+        Crops(name=name, growth_rate=3,dehydration_rate=2, max_growth_stage=3,growth_stage=0),
+        SpriteSheet(path=path,tile_size=16,tiles={
+            'default': [0, 1, 2, 3]
+        })
     ]
 
 
@@ -217,7 +251,7 @@ def create_test_collision_object():
     return [
         IngameObject(position=(0,0), size=(128,128)),
         SpriteSheet(
-            path='./assets/sprites/test.png',
+            path='./assets/sprites/debug.png',
             tile_size=8,
             moving=False,
             tiles={
@@ -272,7 +306,7 @@ def create_test_item_object(itemID, numItems, pos=(200, 300)):
         return [
             IngameObject(position=pos, size=(49,49)),
             SpriteSheet(
-                path='./assets/sprites/test.png',
+                path='./assets/sprites/debug.png',
                 tile_size=8,
                 moving=False,
                 tiles={
@@ -286,3 +320,14 @@ def create_test_item_object(itemID, numItems, pos=(200, 300)):
             CanPickUp(quantity=numItems, itemID="test-item"),
             GameAction()
         ]
+
+def create_item(ingameobject,spritesheet,quantity=1):
+    return [
+        ingameobject,
+        spritesheet,
+        Collidable(
+            call_name = 'test'
+        ),
+        # Every item has this component
+        CanPickUp(quantity=quantity)
+    ]

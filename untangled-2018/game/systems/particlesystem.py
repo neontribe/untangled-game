@@ -20,6 +20,7 @@ class ParticleSystem(System):
                     p.updatePos()
             for k in kill:
                 v.remove(k)
+                del(k)
 
     def add_particle(self, p):
         if p.particleType in self.renderSystem.particleFunc.keys():
@@ -73,6 +74,9 @@ class Particle:
     def kill(self):
         self.doKill = True
 
-    def randomModi(self,axis):
+    def randomModi(self, axis):
         i = random.uniform(-10.0,10)
         return (i * self.randomness[axis])/10
+
+    def get_random_colour():
+        return random.choice([(255,0,0),(255,255,0),(0,255,0),(0,255,255),(0,0,255),(255,0,255)])

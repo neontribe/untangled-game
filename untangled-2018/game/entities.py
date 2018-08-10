@@ -3,13 +3,13 @@ import tmx
 from game.components import *
 from game.systems.collisionsystem import CollisionCall
 
-def create_player(player_id):
+def create_player(player_id, inventory_items):
     return [
         # They should have a position and size in game
-        IngameObject(position=(0, 0), size=(64, 64)),
+        IngameObject(position=(2000, 2000), size=(64, 64)),
 
         # They should have a health component
-        Health(value=100),
+        Health(value=100, maxValue=100),
 
         # They should have an energy component
         Energy(value=100),
@@ -40,6 +40,7 @@ def create_player(player_id):
 
         # The player who has connected con control them with the arrow keys
         PlayerControl(player_id=player_id),
+        GameAction(),
 
         Collidable(
             call_name = "player"
@@ -129,9 +130,11 @@ def create_zombie(game, position):
         ),
         IngameObject(position=position, size=(64, 64)),
         Directioned(direction='default'),
+        Health(value=80, maxValue=80),
         ChasePlayer(speed = 1),
         Collidable(
-            call_name = "zombie"
+            call_name = "zombie",
+            doPush = True
         ),
         Damager(
             damagemin=10, # Someone change these, they're op.
@@ -139,8 +142,7 @@ def create_zombie(game, position):
             cooldown=1.5
         ),
         ParticleEmitter(
-            particleTypes = ["square"],
-            offset = (0,0),
+            particleTypes = ["circle"],
             lifespan = 120,
             colour = (0, 0, 0),
             onlyWhenMoving = True,
@@ -149,10 +151,89 @@ def create_zombie(game, position):
             randomness = (5,5),
             size = 4,
             height = "above",
-            cooldown = 0.5
+            cooldown = 1
         )
     ]
-
+def create_skeleton(position):
+    #Add monster code
+    return [
+        SpriteSheet(
+            path='./assets/sprites/skeleton pix spritesheet.png',
+            tile_size=50,
+            tiles={
+                'default': [0],
+                'left': [7, 8, 9],
+                'right': [10, 11, 12],
+                'up': [4, 5, 6],
+                'down': [1, 2, 3]
+            },
+            moving=False
+        ),
+        IngameObject(position=position, size=(64, 64)),
+        Directioned(direction='default'),
+        Health(value=70, maxValue=70),
+        ChasePlayer(speed = 1),
+        Collidable(
+            call_name = "zombie"
+        ),
+        Damager(
+            damagemin=15, # Someone change these, they're op.
+            damagemax=25,
+            cooldown=1.5
+        ),
+        ParticleEmitter(
+            particleTypes = ["circle"],
+            lifespan = 120,
+            colour = (0, 0, 0),
+            onlyWhenMoving = True,
+            velocity = (0.5,0.5),
+            directionMode = 1,
+            randomness = (5,5),
+            size = 4,
+            height = "above",
+            cooldown = 1
+        )
+    ]
+def create_ice_skeleton(position):
+    #Add monster code
+    return [
+        SpriteSheet(
+            path='./assets/sprites/ice skeleton pix spritesheet.png',
+            tile_size=50,
+            tiles={
+                'default': [0],
+                'left': [7, 8, 9],
+                'right': [10, 11, 12],
+                'up': [4, 5, 6],
+                'down': [1, 2, 3]
+            },
+            moving=False
+        ),
+        IngameObject(position=position, size=(64, 64)),
+        Directioned(direction='default'),
+        Health(value=100, maxValue=100),
+        ChasePlayer(speed = 2),
+        Collidable(
+            call_name = "zombie"
+        ),
+        Damager(
+            damagemin=15, # Someone change these, they're op.
+            damagemax=25,
+            cooldown=1
+        ),
+        ParticleEmitter(
+            particleTypes = ["circle"],
+            lifespan = 120,
+            colour = (0, 0, 0),
+            onlyWhenMoving = True,
+            velocity = (0.5,0.5),
+            directionMode = 1,
+            randomness = (5,5),
+            size = 4,
+            height = "above",
+            cooldown = 1
+        )
+    ]
 def create_bounce(position):
     return [
         SpriteSheet(
@@ -169,8 +250,19 @@ def create_bounce(position):
         ),
         IngameObject(position=position, size=(64, 64)),
         Directioned(direction='default'),
-        ChasePlayer(speed = 2)
+        ChasePlayer(speed = 2),
+        Health(value=40, maxValue=40),
+        Collidable(
+            call_name = 'bounce',
+            doPush = True
+        ),
+        Damager(
+            damagemin=5, # Someone change these, they're op.
+            damagemax=10,
+            cooldown=1.5
+        )
     ]
+
 
 def create_sheep(position):
     return [
@@ -188,26 +280,73 @@ def create_sheep(position):
         ),
         IngameObject(position=position, size=(64,64)),
         Directioned(direction='default'),
+        Health(value=30, maxValue=30),
         MoveRandom()
     ]
-
-def create_chicken(position):
+def create_BOSS(position):
     return [
         SpriteSheet(
-            path='./assets/sprites/chick5.png',
-            tile_size=50,
+            path='./assets/sprites/BOSS_enemy.png',
+            tile_size=32,
             tiles={
-                'default': [0],
-                'left': [3, 3, 3],
-                'right': [0, 0, 0],
-                'up': [0, 0, 0],
-                'down': [0, 0, 0]
+                'default' : [0],
+                'left' : [0, 1, 2],
+                'right' : [0, 1, 2],
+                'up' : [0, 1, 2],
+                'down' : [0, 1, 2],
             },
             moving=False
         ),
+        IngameObject(position=position, size=(100,100)),
+        Directioned(direction='default'),
+        Health(value=500, maxValue=500),
+        MoveRandom(),
+        Collidable(
+            call_name = "zombie"
+        ),
+        Damager(
+            damagemin=25, # Someone change these, they're op.
+            damagemax=75,
+            cooldown=5
+        )
+    ]
+def create_chicken(position):
+    return [
+        SpriteSheet(
+            path='./assets/sprites/chicken.png',
+            tile_size=50,
+            tiles={
+                'default': [0],
+                'left': [1],
+                'right': [0]
+            },
+            moving=False
+        ),
+
+        Health(value=30, maxValue=30),
         IngameObject(position=position, size=(64,64)),
         Directioned(direction='default'),
+        MoveRandom(),
+
+        IngameObject(position=position, size=(50,50)),
+        Directioned(
+            direction='default',
+            isOnlyLR=True
+        ),
         MoveRandom()
+
+    ]
+
+def create_plant(game, name, path, position):
+    return [
+        IngameObject(position=position,size=(64, 64)),
+        Health(value=100, maxValue=100),
+        Energy(value=0),
+        WaterBar(value=50),
+        Crops(name=name, growth_rate=3,dehydration_rate=2, max_growth_stage=3,growth_stage=0),
+        SpriteSheet(path=path,tile_size=16,tiles={
+            'default': [0, 1, 2, 3]
+        })
     ]
 
 
@@ -222,7 +361,7 @@ def create_test_collision_object():
     return [
         IngameObject(position=(0,0), size=(128,128)),
         SpriteSheet(
-            path='./assets/sprites/test.png',
+            path='./assets/sprites/debug.png',
             tile_size=8,
             moving=False,
             tiles={
@@ -257,7 +396,7 @@ def create_test_item_object(animated=False):
         return [
             IngameObject(position=(100,100), size=(49,49)),
             SpriteSheet(
-                path='./assets/sprites/test.png',
+                path='./assets/sprites/debug.png',
                 tile_size=8,
                 moving=False,
                 tiles={
@@ -311,6 +450,7 @@ def create_NPC(position):
             },
             moving=False
         ),
+        Health(maxValue=200, value=200),
         IngameObject(position=position, size=(100,100)),
         Directioned(direction='default'),
         MoveRandom()
@@ -326,5 +466,15 @@ def create_house(position):
             moving=False
         ),
         IngameObject(position=position, size=(400,400))
+    ]
         
+def create_item(ingameobject,spritesheet,quantity=1):
+    return [
+        ingameobject,
+        spritesheet,
+        Collidable(
+            call_name = 'test'
+        ),
+        # Every item has this component
+        CanPickUp(quantity=quantity)
     ]

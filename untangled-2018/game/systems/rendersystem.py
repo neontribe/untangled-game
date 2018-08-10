@@ -79,10 +79,14 @@ class RenderSystem(System):
 
         # Render everything we can
         for key, entity in game.entities.items():
+            r = False
             # Don't check for items being picked up
             if CanPickUp in entity:
                 if entity[CanPickUp].pickedUp:
-                    continue
+                    if Wieldable in entity:
+                        wieldable = entity[Wieldable]
+                        if not wieldable.wielded:
+                            continue
 
             #Check collisions for entity against all previously checked entities
             if IngameObject in entity and Collidable in entity:
@@ -91,13 +95,37 @@ class RenderSystem(System):
                     previousCollidables.append((key,entity[Collidable]))
 
             if IngameObject in entity and ParticleEmitter in entity:
-                new_part = entity[ParticleEmitter].getParticle(entity)
-                if new_part != None:
+                if entity[ParticleEmitter].colour == (-1,-1,-1):
+                    r = True
+                new_particles = entity[ParticleEmitter].getParticles(entity)
+                for new_part in new_particles:
                     game.particles.add_particle(new_part)
 
             # Is this an entity we should draw?
             if IngameObject in entity and SpriteSheet in entity:
                 spritesheet = entity[SpriteSheet]
+                if Wieldable in entity:
+                    wieldable = entity[Wieldable]
+                    wielding_player = game.entities[wieldable.player_id]
+                    if wieldable.wielded:
+                        io = wielding_player[IngameObject]
+                        entity[IngameObject].position = (io.position[0]+25,io.position[1])
+                        dire = wielding_player[Directioned].direction
+                        direction = Directioned(direction='default')
+                        if dire ==  'left':
+                            entity[IngameObject].position = (io.position[0]-25,io.position[1])
+                            direction = Directioned(direction='left')
+                        elif dire == 'right':
+                            entity[IngameObject].position = (io.position[0]+25,io.position[1])
+                            direction = Directioned(direction='right')
+                        elif dire == 'up':
+                            entity[IngameObject].position = (io.position[0]+25,io.position[1]-10)
+                            direction = Directioned(direction='up')
+                        elif dire == 'down':
+                            entity[IngameObject].position = (io.position[0]-25,io.position[1]+25)
+                            direction = Directioned(direction='down')
+                        if Directioned in entity:
+                            entity[Directioned] = direction
 
                 # Where are they relative to us?
                 pos = entity[IngameObject].position
@@ -109,19 +137,23 @@ class RenderSystem(System):
 
                 img_indexes = spritesheet.tiles["default"]
 
+
                 # Will they be facing a certain direction?
                 if Directioned in entity:
                     alts = spritesheet.tiles[entity[Directioned].direction]
                     if alts != None:
                         img_indexes = alts
+               
+
+                        
 
                 # Get the image relevent to how far through the animation we are
                 if spritesheet.moving:
                     img_index = img_indexes[frame % len(img_indexes)]
                 else:
-                    img_index = img_indexes[0]
+                    img_index = img_indexes[spritesheet.default_tile]
                 img = self.get_image(spritesheet, img_index)
-                
+
                 #Scale the image
                 if img.get_size() != entity[IngameObject].size:
                     img = pygame.transform.scale(img, entity[IngameObject].size)
@@ -164,7 +196,8 @@ class RenderSystem(System):
              
                     # Red health bar
                     if entity[Health].value > 0:
-                        currentHealthPos = (rect.x+healthBarThickness, rect.y-30+healthBarThickness, entity[Health].value, 10-healthBarThickness*2)
+                        healthValue = int(entity[Health].value / entity[Health].maxValue * 100)
+                        currentHealthPos = (rect.x+healthBarThickness, rect.y-30+healthBarThickness, healthValue, 10-healthBarThickness*2)
                         pygame.draw.rect(self.screen, (255, 0, 0), currentHealthPos)
 
                 if WaterBar in entity:
@@ -185,7 +218,7 @@ class RenderSystem(System):
                     name = entity[Profile].name
 
                     # Draw our name with our font in white
-                    rendered_text_surface = self.font.render(name, False, (0, 255, 25))
+                    rendered_text_surface = self.font.render(name, False, entity[Profile].colour if not r else Particle.get_random_colour())
 
                     # Move the nametag above the player
                     rect.y -= 100
@@ -223,8 +256,8 @@ class RenderSystem(System):
                                 pygame.draw.rect(self.screen, colour, (x, inv.y+inv.slotOffset, inv.slotSize, inv.slotSize))
                                 
                                 # Check if item exists in inventory
-                                if slotIndex * 2 < len(entity[Inventory].items):
-                                    item = game.entities[entity[Inventory].items[slotIndex * 2]]
+                                if slotIndex * 3 < len(entity[Inventory].items):
+                                    item = game.entities[entity[Inventory].items[slotIndex * 3]]
 
                                     itemImgIndexes = item[SpriteSheet].tiles['default']
                                     itemImgIndex = itemImgIndexes[frame % len(itemImgIndexes)]
@@ -283,9 +316,9 @@ class RenderSystem(System):
                 self.draw_particle(game, p, our_center)
 
     def draw_particle(self, game, particle, our_center):
-        pos = (round(particle.position[0]), round(particle.position[1]))
+        pos = (particle.position[0], particle.position[1])
         rel_pos = (pos[0] - our_center[0], pos[1] - our_center[1])
-        screen_pos = (rel_pos[0] + game.framework.dimensions[0] // 2, rel_pos[1] + game.framework.dimensions[1] // 2)
+        screen_pos = (round(rel_pos[0] + game.framework.dimensions[0] // 2), round(rel_pos[1] + game.framework.dimensions[1] // 2))
         self.particleFunc[particle.particleType](particle, screen_pos)
 
     def particle_square(self, p, pos):

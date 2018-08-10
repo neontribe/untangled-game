@@ -23,15 +23,12 @@ class ParticleSystem(System):
                 del(k)
 
     def add_particle(self, p):
-        '''
         if p.particleType in self.renderSystem.particleFunc.keys():
             (self.renderSystem.particles["below" if p.below else "above"]).append(p)
         else:
             del(p)
-        '''
 
     def add_damage_particle(self, damage, pos, colour = (255,0,0)):
-        '''
         self.add_particle(
             p = Particle(
                 particle = "text",
@@ -44,7 +41,7 @@ class ParticleSystem(System):
                 colour = colour
             )
         )
-        '''
+
     image_cache: dict = {}
     def get_image(self, path):
         # Ideally, we cache so we only process a file once

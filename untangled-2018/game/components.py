@@ -191,15 +191,15 @@ class ParticleEmitter:
     def getParticles(self,entity):
         new_particles = []
         if self.doCreateParticles and IngameObject in entity and self._lastGet + self.cooldown < time.time():
-            for i in range(0,self.particleAmount):
-                doParticles = True
-                if self.onlyWhenMoving:
-                    if self._prePosition == entity[IngameObject].position:
-                        doParticles = False
-                    else:
-                        self._prePosition = entity[IngameObject].position
+            doParticles = True
+            if self.onlyWhenMoving:
+                if self._prePosition == entity[IngameObject].position:
+                    doParticles = False
+                else:
+                    self._prePosition = entity[IngameObject].position
 
-                if doParticles:
+            if doParticles:
+                for i in range(0,self.particleAmount):
                     l = ["square","circle","ring","star"]
                     if len(self.particleTypes) > 0:
                         l = self.particleTypes

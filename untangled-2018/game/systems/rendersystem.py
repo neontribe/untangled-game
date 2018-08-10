@@ -97,6 +97,12 @@ class RenderSystem(System):
                         if not wieldable.wielded:
                             continue
 
+            #Check collisions for entity against all previously checked entities
+            if IngameObject in entity and Collidable in entity:
+                if entity[Collidable].canCollide:
+                    game.collisionSystem.checkCollisions(game,key,entity[Collidable],previousCollidables)
+                    previousCollidables.append((key,entity[Collidable]))
+
             if IngameObject in entity:
                 # Where are they relative to us?
                 pos = entity[IngameObject].position
@@ -107,12 +113,6 @@ class RenderSystem(System):
                 )
                 if screen_pos[0] < 0 or screen_pos[0] > self.screen.get_width() or screen_pos[1] < 0 or screen_pos[1] > self.screen.get_height():
                     continue
-
-            #Check collisions for entity against all previously checked entities
-            if IngameObject in entity and Collidable in entity:
-                if entity[Collidable].canCollide:
-                    game.collisionSystem.checkCollisions(game,key,entity[Collidable],previousCollidables)
-                    previousCollidables.append((key,entity[Collidable]))
 
             if IngameObject in entity and ParticleEmitter in entity:
                 if entity[ParticleEmitter].colour == (-1,-1,-1):
@@ -131,6 +131,7 @@ class RenderSystem(System):
                     rel_pos[0] + game.framework.dimensions[0]/2,
                     rel_pos[1] + game.framework.dimensions[1]/2
                 )
+
                 spritesheet = entity[SpriteSheet]
                 if Wieldable in entity:
                     wieldable = entity[Wieldable]
@@ -298,7 +299,8 @@ class RenderSystem(System):
                                     self.screen.blit(rendered_text_qslot, itemRect)
 
                                 slotIndex += 1
-            self.draw_particles(game, "above", our_center)
+
+        self.draw_particles(game, "above", our_center)
 
     def get_image(self, spritesheet, index):
         # Ideally, we cache so we only process a file once
@@ -336,7 +338,7 @@ class RenderSystem(System):
     def draw_particle(self, game, particle, our_center):
         pos = (particle.position[0], particle.position[1])
         rel_pos = (pos[0] - our_center[0], pos[1] - our_center[1])
-        screen_pos = (round(rel_pos[0] + game.framework.dimensions[0] // 2), round(rel_pos[1] + game.framework.dimensions[1] // 2))
+        screen_pos = (round(rel_pos[0] + game.framework.dimensions[0] / 2), round(rel_pos[1] + game.framework.dimensions[1] / 2))
         if screen_pos[0] < 0 or screen_pos[0] > self.screen.get_width() or screen_pos[1] < 0 or screen_pos[1] > self.screen.get_height():
             particle.doKill = True
             return

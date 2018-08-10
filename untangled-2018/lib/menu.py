@@ -1,5 +1,6 @@
 import pygame, pygame.locals
-import time
+import time, math
+from string import printable
 
 from enum import Enum
 
@@ -40,6 +41,7 @@ class MenuState:
             MenuStates.CHAR_SETUP: CharSetupMenuItem(self, {
                 "Name": None,
                 "Gender": None,
+                "Colour": None,
                 "Find Game": MenuStates.GAME_LOBBY,
                 "Back": MenuStates.MAIN_MENU,
             }),
@@ -64,7 +66,7 @@ class MenuState:
 
         if self.current_state == MenuStates.PLAY:
             char_data = self.get_screen_data(MenuStates.CHAR_SETUP)
-            self.framework.enter_game(char_data.char_name, char_data.gender_options[char_data.gender_choice])
+            self.framework.enter_game(char_data.char_name, char_data.gender_options[char_data.gender_choice],char_data.hexToRGB(char_data.hex))
             return
         elif self.current_state == MenuStates.QUIT:
             pygame.event.post(pygame.event.Event(pygame.QUIT, {}))
@@ -86,6 +88,8 @@ class MenuItem:
         self.info_font = self.menu_state.fonts['small']
         self.header_font = self.menu_state.fonts['heading']
 
+        self.logosurf = pygame.image.load('assets/sprites/logo.png')
+
     def update(self, dt, events) -> None:
         for event in events:
             if event.type == pygame.KEYDOWN:
@@ -105,11 +109,41 @@ class MenuItem:
             self.menu_state.framework.dimensions[1] / 2
         )
 
+    def aspect_scale(self,img,bx,by):
+        """ Scales 'img' to fit into box bx/by.
+        This method will retain the original image's aspect ratio """
+        ix,iy = img.get_size()
+        if ix > iy:
+            # fit to width
+            scale_factor = bx/float(ix)
+            sy = scale_factor * iy
+            if sy > by:
+                scale_factor = by/float(iy)
+                sx = scale_factor * ix
+                sy = by
+            else:
+                sx = bx
+        else:
+            # fit to height
+            scale_factor = by/float(iy)
+            sx = scale_factor * ix
+            if sx > bx:
+                scale_factor = bx/float(ix)
+                sx = bx
+                sy = scale_factor * iy
+            else:
+                sy = by
+
+        return pygame.transform.smoothscale(img, (int(sx),int(sy)))
+
     def render(self) -> None:
         self.render_options(self.font, (
             self.get_screen_centre()[0] - self.options_shift[0],
             self.get_screen_centre()[1] - self.options_shift[1]
         ))
+        logo = self.aspect_scale(self.logosurf,int(self.screen.get_rect().width/2),self.screen.get_rect().height)
+        self.screen.blit(logo,(self.screen.get_rect().width/2 - logo.get_rect().width/2,self.screen.get_rect().height/4 - logo.get_rect().height/2))
+
 
     def render_text(self, font, text, pos=(0, 0), colour=(255, 255, 255)):
         rendered_text_surface = font.render(text, False, colour)
@@ -133,6 +167,7 @@ class CharSetupMenuItem(MenuItem):
         self.char_name_max = 15
         self.gender_options = ("Boy", "Girl")
         self.gender_choice = 0
+        self.hex = "00FF19"
 
     def update(self, dt, events) -> None:
         """Update values for the character setup menu page"""
@@ -153,15 +188,24 @@ class CharSetupMenuItem(MenuItem):
                     if event.key == pygame.locals.K_BACKSPACE:
                         self.char_name = self.char_name[:-1]
                     elif event.key < 123 and event.key != 13 and len(self.char_name) < self.char_name_max:
-                        if pygame.key.get_mods() & pygame.KMOD_LSHIFT:
-                            self.char_name += chr(event.key).upper()
-                        else:
-                            self.char_name += chr(event.key)
+                        char_new = chr(event.key)
+                        if char_new in printable:
+                            if pygame.key.get_mods() & pygame.KMOD_LSHIFT:
+                                self.char_name += char_new.upper()
+                            else:
+                                self.char_name += char_new
                 elif option_keys[self.selected_option] == "Gender":
                     if event.key == pygame.locals.K_RIGHT:
                         self.gender_choice += 1
                     elif event.key == pygame.locals.K_LEFT:
                         self.gender_choice -= 1
+                elif option_keys[self.selected_option] == "Colour":
+                    if event.key == pygame.locals.K_BACKSPACE:
+                        self.hex = self.hex[:-1]
+                    elif event.key < 123 and event.key != 13 and len(self.hex) < 6:
+                        char_new = chr(event.key)
+                        if char_new in "0123456789abcdefABCDEF-":
+                            self.hex += char_new.lower()
             self.gender_choice %= len(self.gender_options)
 
         self.ticker += 2
@@ -183,6 +227,22 @@ class CharSetupMenuItem(MenuItem):
         self.render_text(self.font, gender_string, self.get_screen_centre() - (150, -40))
         self.render_text(self.font, self.gender_options[self.gender_choice], self.get_screen_centre() - (130, -40))
 
+        hex_string = ('>' if self.selected_option == 2 else '') + 'Colour: (Hexadecimal)'
+        hex_colour = [255,255,255]
+        temp_hex_colour = self.hexToRGB(self.hex)
+        if temp_hex_colour is not None:
+            for i, v in enumerate(temp_hex_colour):
+                if v not in range(0,256):
+                    hex_colour[i] = 0
+                else:
+                    hex_colour[i] = v
+        hex_display_string = "#" + self.hex
+        if self.ticker < 50 and self.selected_option == 2:
+            for i in range(0, 7 - len(hex_display_string)):
+                hex_display_string += "_"
+        self.render_text(self.font, hex_string, self.get_screen_centre() - (150, -90))
+        self.render_text(self.font, hex_display_string, self.get_screen_centre() - (150, -130), hex_colour)
+
         for index, value in enumerate(self.options.keys()):
             if self.options[value] is None:
                 continue
@@ -192,6 +252,17 @@ class CharSetupMenuItem(MenuItem):
                 text = ">{0}".format(text)
 
             self.render_text(font, text, (index + offset[0], index * 55 + offset[1]))
+        logo = self.aspect_scale(self.logosurf,int(self.screen.get_rect().width/2),self.screen.get_rect().height)
+        self.screen.blit(logo,(self.screen.get_rect().width/2 - logo.get_rect().width/2,self.screen.get_rect().height/4 - logo.get_rect().height/2))
+
+
+    def hexToRGB(self,hexa):
+        if len(hexa) == 6:
+            if hexa[1] != "-" and hexa[3] != "-" and hexa[5] != "-":
+                return tuple(int(hexa[i:i+2], 16) for i in (0, 2 ,4))
+        return None
+
+        
 
 
 class LobbyMenuItem(MenuItem):

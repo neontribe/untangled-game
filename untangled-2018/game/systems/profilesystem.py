@@ -6,31 +6,37 @@ PROFILE_SPRITES = {
     'Girl': {
         'path': './assets/sprites/player.png',
         'tile_size': 48,
-        'default': [58],
-        'left': [70, 71, 69],
-        'right': [82, 83, 81],
-        'up': [94, 95, 93],
-        'down': [58, 59, 57]
+        'tiles':{
+            'default': [58],
+            'left': [70, 71, 69],
+            'right': [82, 83, 81],
+            'up': [94, 95, 93],
+            'down': [58, 59, 57]
+        },
+        'moving':False
     },
     'Boy': {
         'path': './assets/sprites/player.png',
         'tile_size': 48,
-        'default': [10],
-        'left': [22, 23, 21],
-        'right': [34, 35, 33],
-        'up': [46, 47, 45],
-        'down': [10, 11, 9],
+        'tiles':{
+            'default': [10],
+            'left': [22, 23, 21],
+            'right': [34, 35, 33],
+            'up': [46, 47, 45],
+            'down': [10, 11, 9]
+        },
         'moving': False
-    }
+    },
 }
 
 class ProfileSystem(System):
     """Updates an entities profile and appearance based on ours and others'
     name and gdner."""
 
-    def __init__(self, name, gender):
+    def __init__(self, name, gender, colour):
         self.ourName = name
         self.ourGender = gender
+        self.ourColour = colour
 
     def update(self, game, dt, events):
         for key, entity in game.entities.items():
@@ -42,6 +48,13 @@ class ProfileSystem(System):
                         entity[Profile].name = self.ourName
                     if entity[Profile].gender != self.ourGender:
                         entity[Profile].gender = self.ourGender
+                    if entity[Profile].colour != self.ourColour:
+                        if self.ourColour == (-1,-1,-1):
+                            entity[Profile].colour = (00,255,29)
+                        else:
+                            entity[Profile].colour = self.ourColour
+                        if ParticleEmitter in entity:
+                            entity[ParticleEmitter].colour = self.ourColour
 
                 if SpriteSheet in entity:
                     # This entity should change appearance based on gender, let's do that
@@ -51,8 +64,8 @@ class ProfileSystem(System):
                         changed = False
                         
                         # Do they need updating?
-                        for sheet_key, value in gender_sheet.items():
-                            if entity[SpriteSheet].__dict__[sheet_key] != value:
+                        for sheet_key, value in gender_sheet["tiles"].items():
+                            if entity[SpriteSheet].tiles[sheet_key] != value:
                                 changed = True
                                 break
 
@@ -60,8 +73,10 @@ class ProfileSystem(System):
                         if changed:
                             entity[SpriteSheet].path = gender_sheet['path']
                             entity[SpriteSheet].tile_size = gender_sheet['tile_size']
-                            entity[SpriteSheet].default = gender_sheet['default']
-                            entity[SpriteSheet].left = gender_sheet['left']
-                            entity[SpriteSheet].right = gender_sheet['right']
-                            entity[SpriteSheet].up = gender_sheet['up']
-                            entity[SpriteSheet].down = gender_sheet['down']
+                            entity[SpriteSheet].tiles = {
+                                'default' : gender_sheet["tiles"]['default'],
+                                'left' : gender_sheet["tiles"]['left'],
+                                'right' : gender_sheet["tiles"]['right'],
+                                'up' : gender_sheet["tiles"]['up'],
+                                'down' : gender_sheet["tiles"]['down']
+                            }

@@ -44,16 +44,16 @@ class UserInputSystem(System):
                     hoped_vel = (0, 0)
                     if keysdown[pygame.locals.K_DOWN]:
                         hoped_vel = (hoped_vel[0], hoped_vel[1] + 1)
-                        direction = 'down'
+                        direction = '180'
                     if keysdown[pygame.locals.K_UP]:
                         hoped_vel = (hoped_vel[0], hoped_vel[1] - 1)
-                        direction = 'up'
+                        direction = '0'
                     if keysdown[pygame.locals.K_LEFT]:
                         hoped_vel = (hoped_vel[0] - 1, hoped_vel[1])
-                        direction = 'left'
+                        direction = '270'
                     if keysdown[pygame.locals.K_RIGHT]:
                         hoped_vel = (hoped_vel[0] + 1, hoped_vel[1])
-                        direction = 'right'
+                        direction = '90'
                         
                     # Dropping items
                     for event in events:
@@ -189,13 +189,13 @@ class UserInputSystem(System):
                                             if damager.knockback == True:
                                                 collisionio.position
                                                 entitydirection = entity[Directioned].direction
-                                                if entitydirection == 'left':
+                                                if entitydirection == '270':
                                                     collisionio.position = (collisionio.position[0]-100,collisionio.position[1])
-                                                elif entitydirection == 'right':
+                                                elif entitydirection == '90':
                                                     collisionio.position = (collisionio.position[0]+100,collisionio.position[1])
-                                                elif entitydirection == 'up':
+                                                elif entitydirection == '0':
                                                     collisionio.position = (collisionio.position[0],collisionio.position[1]-100)
-                                                elif entitydirection == 'down':
+                                                elif entitydirection == '180':
                                                     collisionio.position = (collisionio.position[0],collisionio.position[1]+100)
 
                                             damage = random.randint(15, 30)

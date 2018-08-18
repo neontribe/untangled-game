@@ -110,13 +110,13 @@ class InventorySystem(System):
             offsetX, offsetY = (0, 0)
             entityPos = entity[IngameObject].position
 
-            if direction == "up" :
+            if direction == "0" :
                 offsetY = -disDropping
-            elif direction in ("down", "default"):
+            elif direction in ("180", "default"):
                 offsetY = disDropping
-            elif direction == "left":
+            elif direction == "270":
                 offsetX = -disDropping
-            elif direction == "right":
+            elif direction == "90":
                 offsetX = disDropping
 
             # print(entity[Inventory].mapMinY)

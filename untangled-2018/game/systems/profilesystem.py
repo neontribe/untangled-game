@@ -8,10 +8,10 @@ PROFILE_SPRITES = {
         'tile_size': (22,42),
         'tiles':{
             'default': [13],
-            'left': [6, 7,  8, 9, 10 ],
-            'right': [0, 1, 2, 3, 4, 5],
-            'up': [18, 19, 20, 21],
-            'down': [12, 13, 14, 15]
+            '270': [6, 7,  8, 9, 10 ],
+            '90': [0, 1, 2, 3, 4, 5],
+            '0': [18, 19, 20, 21],
+            '180': [12, 13, 14, 15]
         },
         'moving':False
     },
@@ -20,10 +20,10 @@ PROFILE_SPRITES = {
         'tile_size': (22,42),
         'tiles':{
             'default': [13],
-            'left': [6, 7,  8, 9, 10 ],
-            'right': [0, 1, 2, 3, 4, 5],
-            'up': [18, 19, 20, 21],
-            'down': [12, 13, 14, 15]
+            '270': [6, 7,  8, 9, 10 ],
+            '90': [0, 1, 2, 3, 4, 5],
+            '0': [18, 19, 20, 21],
+            '180': [12, 13, 14, 15]
         },
         'moving': False
     },
@@ -75,8 +75,8 @@ class ProfileSystem(System):
                             entity[SpriteSheet].tile_size = gender_sheet['tile_size']
                             entity[SpriteSheet].tiles = {
                                 'default' : gender_sheet["tiles"]['default'],
-                                'left' : gender_sheet["tiles"]['left'],
-                                'right' : gender_sheet["tiles"]['right'],
-                                'up' : gender_sheet["tiles"]['up'],
-                                'down' : gender_sheet["tiles"]['down']
+                                '270' : gender_sheet["tiles"]['270'],
+                                '90' : gender_sheet["tiles"]['90'],
+                                '0' : gender_sheet["tiles"]['0'],
+                                '180' : gender_sheet["tiles"]['180']
                             }

@@ -30,10 +30,10 @@ def create_player(player_id, inventory_items):
             moving=False,
             tiles={
                 'default':[58],
-                'left':[70,71,69],
-                'right':[82,83,81],
-                'up':[94,95,93],
-                'down':[58,59,57]
+                '270':[70,71,69],
+                '90':[82,83,81],
+                '0':[94,95,93],
+                '180':[58,59,57]
             }
         ),
 
@@ -128,10 +128,10 @@ def create_zombie(game, position):
             tile_size=32,
             tiles={
                 'default': [0],
-                'left': [9, 10, 11],
-                'right': [6, 7, 8],
-                'up': [3, 4, 5],
-                'down': [0, 1, 2]
+                '270': [9, 10, 11],
+                '90': [6, 7, 8],
+                '0': [3, 4, 5],
+                '180': [0, 1, 2]
             },
             moving=False
         ),
@@ -169,10 +169,10 @@ def create_skeleton(position):
             tile_size=50,
             tiles={
                 'default': [0],
-                'left': [7, 8, 9],
-                'right': [10, 11, 12],
-                'up': [4, 5, 6],
-                'down': [1, 2, 3]
+                '270': [7, 8, 9],
+                '90': [10, 11, 12],
+                '0': [4, 5, 6],
+                '180': [1, 2, 3]
             },
             moving=False
         ),
@@ -209,10 +209,10 @@ def create_ice_skeleton(position):
             tile_size=50,
             tiles={
                 'default': [0],
-                'left': [7, 8, 9],
-                'right': [10, 11, 12],
-                'up': [4, 5, 6],
-                'down': [1, 2, 3]
+                '270': [7, 8, 9],
+                '90': [10, 11, 12],
+                '0': [4, 5, 6],
+                '180': [1, 2, 3]
             },
             moving=False
         ),
@@ -248,10 +248,10 @@ def create_bounce(position):
             tile_size=32,
             tiles={
                 'default': [0],
-                'left': [9, 10, 11],
-                'right': [6, 7, 8],
-                'up': [3, 4, 5],
-                'down': [12, 13, 14]
+                '270': [9, 10, 11],
+                '90': [6, 7, 8],
+                '0': [3, 4, 5],
+                '180': [12, 13, 14]
             },
             moving=False
         ),
@@ -278,10 +278,10 @@ def create_sheep(position):
             tile_size=100,
             tiles={
                 'default' : [0],
-                'left' : [3, 4, 4],
-                'right' : [0, 1, 2],
-                'up' : [8, 9, 10],
-                'down' : [5, 6, 7],
+                '270' : [3, 4, 4],
+                '90' : [0, 1, 2],
+                '0' : [8, 9, 10],
+                '180' : [5, 6, 7],
             },
             moving=False
         ),
@@ -297,10 +297,10 @@ def create_BOSS(position):
             tile_size=32,
             tiles={
                 'default' : [0],
-                'left' : [0, 1, 2],
-                'right' : [0, 1, 2],
-                'up' : [0, 1, 2],
-                'down' : [0, 1, 2],
+                '270' : [0, 1, 2],
+                '90' : [0, 1, 2],
+                '0' : [0, 1, 2],
+                '180' : [0, 1, 2],
             },
             moving=False
         ),
@@ -324,8 +324,8 @@ def create_chicken(position):
             tile_size=50,
             tiles={
                 'default': [0],
-                'left': [1],
-                'right': [0]
+                '270': [1],
+                '90': [0]
             },
             moving=False
         ),
@@ -490,10 +490,10 @@ def create_NPC(position):
             tile_size=32,
             tiles={
                 'default': [0, 1, 2],
-                'left': [0, 1, 2],
-                'right': [0, 1, 2],
-                'up': [0, 1, 2],
-                'down': [0, 1, 2]
+                '270': [0, 1, 2],
+                '90': [0, 1, 2],
+                '0': [0, 1, 2],
+                '180': [0, 1, 2]
             },
             moving=False
         ),

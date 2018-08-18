@@ -155,18 +155,18 @@ class RenderSystem(System):
                         entity[IngameObject].position = (io.position[0]+25,io.position[1])
                         dire = wielding_player[Directioned].direction
                         direction = Directioned(direction='default')
-                        if dire ==  'left':
+                        if dire ==  '270':
                             entity[IngameObject].position = (io.position[0]-25,io.position[1])
-                            direction = Directioned(direction='left')
-                        elif dire == 'right':
+                            direction = Directioned(direction='270')
+                        elif dire == '90':
                             entity[IngameObject].position = (io.position[0]+25,io.position[1])
-                            direction = Directioned(direction='right')
-                        elif dire == 'up':
+                            direction = Directioned(direction='90')
+                        elif dire == '0':
                             entity[IngameObject].position = (io.position[0]+25,io.position[1]-10)
-                            direction = Directioned(direction='up')
-                        elif dire == 'down':
+                            direction = Directioned(direction='0')
+                        elif dire == '180':
                             entity[IngameObject].position = (io.position[0]-25,io.position[1]+25)
-                            direction = Directioned(direction='down')
+                            direction = Directioned(direction='180')
                         if Directioned in entity:
                             entity[Directioned] = direction
 

@@ -124,10 +124,10 @@ class BackgroundMusic:
 
 directionVelocity = {
     'default':[0,0],
-    'left':[-1,0],
-    'right':[1,0],
-    'up':[0,-1],
-    'down':[0,1]
+    '270':[-1,0],
+    '90':[1,0],
+    '0':[0,-1],
+    '180':[0,1]
 }
 
 @component(networked=True)

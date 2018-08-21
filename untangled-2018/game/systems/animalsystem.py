@@ -18,13 +18,13 @@ class AnimalSystem(System):
 
         for key, entity in game.entities.items():
             if MoveRandom in entity and time.time() - entity[MoveRandom].lastmove > 0.25:
-                direct = ['left', 'right', 'up', 'down']
+                direct = ['270', '90', '0', '180']
                 dire = random.choice(direct)
                 velo = {
-                    'left': (-10, 0),
-                    'right': (10, 0),
-                    'up': (0, 10),
-                    'down': (0, -10)
+                    '270': (-10, 0),
+                    '90': (10, 0),
+                    '0': (0, 10),
+                    '180': (0, -10)
                 }[dire]
 
 
@@ -38,5 +38,5 @@ class AnimalSystem(System):
                     if not entity[Directioned].isOnlyLR:
                         entity[Directioned].direction = dire
                     else:
-                        if dire != 'up' and dire != 'down':
+                        if dire != '0' and dire != '180':
                             entity[Directioned].direction = dire

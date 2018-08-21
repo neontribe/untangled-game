@@ -76,14 +76,14 @@ class AI_system(System):
                             #Changes the direction of the monster
                             if abs(x_diff) > abs(y_diff):
                                 if e_place[0] >= place[0]:
-                                    direction = Directioned(direction='right')
+                                    direction = Directioned(direction='90')
                                 else:
-                                    direction = Directioned(direction='left')
+                                    direction = Directioned(direction='270')
                             else:
                                 if e_place[1] >= place[1]:
-                                    direction = Directioned(direction='down')
+                                    direction = Directioned(direction='180')
                                 else:
-                                    direction = Directioned(direction='up')
+                                    direction = Directioned(direction='0')
                             if Directioned in entity:
                                 entity[Directioned] = direction
                         else:

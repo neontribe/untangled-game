@@ -106,7 +106,8 @@ class UserInputSystem(System):
                         if activeSlot is not None:
                             entity[Inventory].activeSlot = activeSlot
                             if activeSlot in entity[Inventory].items.keys():
-                                entity[Inventory].activeItem = entity[Inventory].items[activeSlot]
+                                actItem = entity[Inventory].items[activeSlot]
+                                entity[Inventory].activeItem = (actItem["ID"], actItem["quantity"], actItem["sprite"], activeSlot)
 
 
                     if hoped_vel != (0, 0):
